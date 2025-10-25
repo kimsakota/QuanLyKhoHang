@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="UiDesktopApp1.Views.UserControls.NhapKhoPageHeader"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:UiDesktopApp1.Views.UserControls"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             mc:Ignorable="d" 
+             >
+    <Grid Margin="0,2,0,-15">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="Thêm sản phẩm"
+               Grid.Column="0"
+               VerticalAlignment="Center"
+               FontSize="24"
+               FontWeight="Bold"
+               Margin="20,10,0,10"/>
+        <StackPanel Grid.Column="1"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right">
+            <ui:Button Content="Nhập sản phẩm"
+                   Margin="5,10,5,10">
+                <ui:Button.Icon>
+                    <ui:SymbolIcon FontSize="17" Symbol="ArrowSquareDown24"/>
+                </ui:Button.Icon>
+            </ui:Button>
+            <ui:Button Content="Sản phẩm" 
+                   Command="{Binding AddProductCommand}"
+                   Appearance="Primary"
+                   Margin="5,10,15,10">
+                <ui:Button.Icon>
+                    <ui:SymbolIcon FontSize="17" Symbol="AddCircle12"/>
+                </ui:Button.Icon>
+            </ui:Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

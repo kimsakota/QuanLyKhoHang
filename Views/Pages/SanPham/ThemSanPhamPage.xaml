@@ -1,0 +1,157 @@
+﻿<Page x:Class="UiDesktopApp1.Views.Pages.SanPham.ThemSanPhamPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:conv="clr-namespace:UiDesktopApp1.Models"
+      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
+      xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages.SanPham" 
+      xmlns:behaviors="clr-namespace:UiDesktopApp1.Behaviors"
+      mc:Ignorable="d" 
+      d:DesignHeight="1450" d:DesignWidth="800"
+      Title="ThemSanPhamPage">
+    
+    <Border Margin="16" Padding="16" BorderBrush="#DDD" BorderThickness="1" CornerRadius="8">
+        <ScrollViewer Width="450" Margin="0,5,0,5">
+            <StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <!-- Ảnh hiển thị -->
+                    <ui:Image Source="{Binding Image, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" 
+                              Width="80" Height="80"
+                              Stretch="UniformToFill"
+                              CornerRadius="8"
+                              BorderBrush="Gray"
+                              BorderThickness="2"
+                              Margin="5">
+                        
+                    </ui:Image>
+
+                    <!-- Nút mở file chọn ảnh -->
+                    <ui:Button Content="Chọn ảnh"
+                               Icon="CameraAdd24"
+                               Appearance="Primary"
+                               Command="{Binding OpenPictureCommand}"
+                               Margin="5"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Mã sản phẩm" FontWeight="SemiBold"/>
+                        <TextBlock Text=" *(Bắt buộc)"
+                                   Foreground="DarkRed"/>
+                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBox PlaceholderText="Mã sản phẩm. Ví dụ: 12345"
+                                    Grid.Column="0"
+                                Margin="0,5,5,0"
+                                Text="{Binding Product.ProductCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, ValidatesOnExceptions=True, NotifyOnValidationError=True}"/>
+                        <ui:Button Content="Ngẫu nhiên"
+                                   Grid.Column="1"
+                                   Command="{Binding GenerateRandomCodeCommand}"
+                                   Width="Auto" Height="35.62"
+                                   Margin="0,5,0,0"
+                                   Appearance="Primary"/>
+                    </Grid>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Tên sản phẩm" FontWeight="SemiBold"/>
+                        <TextBlock Text=" *(Bắt buộc)"
+                                   Foreground="DarkRed"/>
+                    </StackPanel>
+                    <ui:TextBox PlaceholderText="Nhập tên sản phẩm"
+                                Margin="0,5,0,0"
+                                Text="{Binding Product.ProductName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True}"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Số lượng ban đầu" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <ui:TextBox Margin="0,5,0,0"
+                                beh:TextBoxBehaviors.SelectAllOnFocus="True"
+                                Text="{Binding Product.InitialQty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Giá vốn" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <ui:TextBox Margin="0,5,0,0"
+                                beh:TextBoxBehaviors.SelectAllOnFocus="True"
+                                Text="{Binding Product.CostPrice, Mode=TwoWay, Converter={x:Static beh:NumberVnConverter.Instance}, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Giá bán" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <ui:TextBox Margin="0,5,0,0"
+                                beh:TextBoxBehaviors.SelectAllOnFocus="True"
+                                Text="{Binding Product.SalePrice, Mode=TwoWay, Converter={x:Static beh:NumberVnConverter.Instance}, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+                    <TextBlock Text="Danh mục (có thể bỏ trống)" FontWeight="SemiBold"/>
+
+                    <Grid Margin="0,5,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- ComboBox chọn danh mục có sẵn -->
+                        <ComboBox Grid.Column="0"
+                                   Width="318"
+                                   ItemsSource="{Binding Categories}"
+                                   DisplayMemberPath="Name"
+                                   SelectedValuePath="Id"
+                                   SelectedValue="{Binding Product.CategoryId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   IsEditable="False"/>
+                        <!-- Nút thêm mới -->
+                        <ui:Button Grid.Column="1" 
+                                   Content="Thêm danh mục"
+                                   FontWeight="SemiBold"
+                                   Height="35.62"
+                                   Margin="8,0,0,0"
+                                   Command="{Binding GoAddCategoryCommand}"/>
+                    </Grid>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+                    <TextBlock Text="Ngày hết hạn" FontWeight="SemiBold"/>
+
+                    <Grid Margin="0,5,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBox Grid.Column="0"
+                                    PlaceholderText="dd/MM/yyyy"
+                                    Text="{Binding Product.ExpiryDate, 
+                                                   Mode=TwoWay, 
+                                                   StringFormat='dd/MM/yyyy', 
+                                                   TargetNullValue='--/--/----'}"
+                                    IsReadOnly="True"
+                                    >
+                            
+                        </ui:TextBox>
+                        <ui:CalendarDatePicker Grid.Column="1"
+                                               Margin="8,0,0,0"
+                                               Height="35.62"
+                                               Date="{Binding Product.ExpiryDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+                    <TextBlock Text="Mô tả" FontWeight="SemiBold"/>
+                    <ui:TextBox PlaceholderText="Nhập mô tả"
+                                Text="{Binding Product.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ClearButtonEnabled="True"
+                                Margin="0,5,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</Page>
