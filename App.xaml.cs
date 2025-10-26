@@ -51,7 +51,6 @@ namespace UiDesktopApp1
             // Handle unhandled exceptions here if needed
         }
 
-        // 🟡 EF Core CLI sẽ gọi hàm này khi chạy migration
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration(c =>

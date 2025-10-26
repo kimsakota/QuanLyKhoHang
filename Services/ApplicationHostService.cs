@@ -16,11 +16,15 @@ namespace UiDesktopApp1.Services
     {
         private readonly IServiceProvider _serviceProvider;
 
+        private readonly INavigationService _navigationService;
+
         //private INavigationWindow _navigationWindow;
 
-        public ApplicationHostService(IServiceProvider serviceProvider)
+        public ApplicationHostService(IServiceProvider serviceProvider, INavigationService navigationService)
         {
             _serviceProvider = serviceProvider;
+            _navigationService = navigationService;
+
         }
 
         /// <summary>
@@ -29,6 +33,8 @@ namespace UiDesktopApp1.Services
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            if (!cancellationToken.IsCancellationRequested)
+                await InitializeDatabaseAndSeedUserAsync(cancellationToken);
             await HandleActivationAsync();
         }
 
@@ -41,65 +47,116 @@ namespace UiDesktopApp1.Services
             await Task.CompletedTask;
         }
 
+        // === Hàm Khởi tạo CSDL và Seed User ===
+        private async Task InitializeDatabaseAndSeedUserAsync(CancellationToken cancellationToken)
+        {
+            // Sử dụng scope để lấy DbContextFactory một cách an toàn
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                // Lấy DbContextFactory từ scope
+                var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
+                try
+                {
+                    await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken); // Truyền cancellationToken
+
+                    // Áp dụng các migration còn thiếu vào CSDL
+                    await dbContext.Database.MigrateAsync(cancellationToken);
+                    Debug.WriteLine("Database migration applied successfully.");
+
+                    // Kiểm tra và tạo user "admin" nếu chưa có
+                    if (!await dbContext.Users.AnyAsync(cancellationToken)) // Kiểm tra nhanh hơn nếu bảng trống
+                    {
+                        if (!await dbContext.Users.AnyAsync(u => u.Username == "admin", cancellationToken))
+                        {
+                            var adminUser = new UserModel
+                            {
+                                Username = "admin",
+                                PasswordHash = BCrypt.Net.BCrypt.HashPassword("123"), // Mật khẩu là 123
+                                Role = "Admin"
+                            };
+                            dbContext.Users.Add(adminUser);
+                            await dbContext.SaveChangesAsync(cancellationToken);
+                            Debug.WriteLine("Admin user created.");
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Admin user already exists.");
+                        }
+                    }
+                    else // Bảng đã có dữ liệu, kiểm tra cụ thể user admin
+                    {
+                        if (!await dbContext.Users.AnyAsync(u => u.Username == "admin", cancellationToken))
+                        {
+                            var adminUser = new UserModel { /* ... */ }; // Tạo user admin như trên
+                            dbContext.Users.Add(adminUser);
+                            await dbContext.SaveChangesAsync(cancellationToken);
+                            Debug.WriteLine("Admin user created.");
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Admin user already exists.");
+                        }
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    Debug.WriteLine("Database initialization cancelled.");
+                    // Không cần làm gì thêm nếu bị hủy
+                }
+                catch (Exception ex) // Bắt các lỗi khác (VD: SQL Server không chạy)
+                {
+                    // Xử lý lỗi nghiêm trọng khi không thể cập nhật/kết nối CSDL
+                    Debug.WriteLine($"CRITICAL ERROR: Database initialization failed: {ex}");
+                    // Hiển thị lỗi trên UI thread
+                    Application.Current.Dispatcher.Invoke(() => {
+                        MessageBox.Show($"Không thể khởi tạo hoặc cập nhật cơ sở dữ liệu:\n{ex.Message}\n\nVui lòng kiểm tra kết nối SQL Server và thử lại.",
+                                        "Lỗi Khởi Động Nghiêm Trọng", MessageBoxButton.OK, MessageBoxImage.Error);
+                        Application.Current.Shutdown(1); // Thoát ứng dụng với mã lỗi
+                    });
+                }
+            }
+        }
+
         /// <summary>
         /// Creates main window during activation.
         /// </summary>
         private async Task HandleActivationAsync()
         {
-            // === THÊM KHỐI NÀY ĐỂ TẠO ADMIN USER ===
-            try
+            // Đảm bảo code chạy trên UI thread nếu cần tương tác UI ngay lập tức
+            await Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                // Tạo một "scope" mới để lấy DbContext và chạy async
-                using (var scope = _serviceProvider.CreateScope())
+                // Lấy LoginWindow (đã được inject ViewModel)
+                var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
+
+                // Hiển thị LoginWindow và ĐỢI cho đến khi nó đóng lại
+                // ShowDialog() phải chạy trên UI thread
+                bool? dialogResult = loginWindow.ShowDialog(); // ShowDialog có thể trả về true/false/null
+
+                // SAU KHI LoginWindow ĐÃ ĐÓNG, kiểm tra kết quả đăng nhập
+                // IsLoginSuccessful được đặt trong LoginViewModel
+                if (loginWindow.ViewModel != null && loginWindow.ViewModel.IsLoginSuccessful)
                 {
-                    // Lấy DbContextFactory thay vì DbContext
-                    var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
-                    await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+                    // Lấy MainWindow (đã đăng ký là INavigationWindow)
+                    var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
+                    navigationWindow.ShowWindow(); // Chỉ hiển thị MainWindow
 
-                    // Kiểm tra xem user "admin" đã tồn tại chưa
-                    if (!await dbContext.Users.AnyAsync(u => u.Username == "admin"))
+                    // === SỬ DỤNG INavigationService ĐỂ ĐIỀU HƯỚNG ===
+                    bool navigationResult = _navigationService.Navigate(typeof(SanPhamPage)); // Điều hướng đến trang mặc định
+                    if (!navigationResult)
                     {
-                        // Nếu chưa, tạo mới
-                        var adminUser = new UserModel
-                        {
-                            Username = "admin",
-                            // Hash mật khẩu "123"
-                            PasswordHash = BCrypt.Net.BCrypt.HashPassword("123"),
-                            Role = "Admin" // Gán quyền Admin
-                        };
-                        dbContext.Users.Add(adminUser);
-                        await dbContext.SaveChangesAsync();
-                        Debug.WriteLine("Admin user created."); // Ghi log
+                        Debug.WriteLine("Initial navigation failed using INavigationService.");
+                        // Có thể hiển thị thông báo lỗi khác nếu cần
+                        MessageBox.Show("Không thể điều hướng đến trang chính.", "Lỗi Điều hướng", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
-                    else
-                    {
-                        Debug.WriteLine("Admin user already exists."); // Ghi log
-                    }
+                    // ===============================================
                 }
-            }
-            catch (Exception ex)
-            {
-                // Nếu CSDL chưa được tạo, hoặc có lỗi kết nối
-                Debug.WriteLine($"Error seeding user: {ex.Message}");
-                // (Bạn có thể hiển thị MessageBox ở đây nếu muốn)
-            }
-            // === KẾT THÚC KHỐI SEED ===
-
-
-            var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
-            loginWindow.ShowDialog();
-
-            if (loginWindow.ViewModel.IsLoginSuccessful)
-            {
-                var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
-                navigationWindow.ShowWindow();
-                navigationWindow.Navigate(typeof(SanPhamPage));
-            }
-            else
-            {
-                Application.Current.Shutdown();
-            }
-            await Task.CompletedTask;
+                else
+                {
+                    // Nếu không đăng nhập thành công (người dùng đóng cửa sổ), đóng ứng dụng
+                    Debug.WriteLine("Login not successful or cancelled. Shutting down.");
+                    Application.Current.Shutdown();
+                }
+            });
         }
     }
 }
