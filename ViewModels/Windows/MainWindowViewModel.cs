@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Controls;
 using System.Windows.Media;
 using UiDesktopApp1.Contracts;
+using UiDesktopApp1.Services;
 using UiDesktopApp1.Views.Pages;
 using UiDesktopApp1.Views.UserControls;
 using UiDesktopApp1.Views.UserControls.SanPham;

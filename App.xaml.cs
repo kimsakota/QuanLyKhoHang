@@ -70,7 +70,7 @@ namespace UiDesktopApp1
                     services.AddSingleton<ITaskBarService, TaskBarService>();
                     services.AddSingleton<INavigationService, NavigationService>();
                     services.AddScoped<IAuthenticationService, AuthenticationService>();
-                    services.AddTransient<INavigationWindow, MainWindow>();
+                    services.AddSingleton<INavigationWindow, MainWindow>();
                     services.AddSingleton<CurrentUserService>();
                     services.AddTransient<MainWindowViewModel>();
                     services.AddTransient<LoginWindow>();

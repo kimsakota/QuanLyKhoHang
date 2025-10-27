@@ -17,9 +17,10 @@ namespace UiDesktopApp1.Views.Windows
         )
         {
             ViewModel = viewModel;
-            DataContext = this;
-
-            SystemThemeWatcher.Watch(this);
+            DataContext = viewModel;
+            
+            //Tự động chuyển theme theo máy
+            //SystemThemeWatcher.Watch(this);
 
             InitializeComponent();
 
@@ -50,6 +51,8 @@ namespace UiDesktopApp1.Views.Windows
 
         public void CloseWindow() => Close();
 
+        public bool? ShowDialogWindow() => ShowDialog();
+
         #endregion INavigationWindow methods
 
         /// <summary>
@@ -64,13 +67,11 @@ namespace UiDesktopApp1.Views.Windows
         }
 
         INavigationView INavigationWindow.GetNavigation()
-        {
-            throw new NotImplementedException();
-        }
+            => RootNavigation;
 
         public void SetServiceProvider(IServiceProvider serviceProvider)
         {
-            throw new NotImplementedException();
+            RootNavigation.SetServiceProvider(serviceProvider);
         }
     }
 }

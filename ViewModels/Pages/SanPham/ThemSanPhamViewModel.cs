@@ -138,6 +138,7 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
                 //System.Windows.MessageBox.Show("Đã lưu sản phẩm thành công!", "KhoPro",
                 //    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                 WeakReferenceMessenger.Default.Send(new ProductCreatedMessage(Product));
+                WeakReferenceMessenger.Default.Send(new ProductsNeedRefreshMessage());
 
                 ResetForm();
                 //Điều hướng về trang danh sách

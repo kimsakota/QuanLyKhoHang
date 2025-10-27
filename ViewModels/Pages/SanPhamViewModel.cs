@@ -24,7 +24,7 @@ namespace UiDesktopApp1.ViewModels.Pages
     public partial class SanPhamViewModel : ObservableObject, INavigationAware, IRecipient<ProductCreatedMessage>, IRecipient<ProductsNeedRefreshMessage>
     {
         private readonly INavigationService _navigationService;
-        private readonly AppDbContext _db;
+        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly ICollectionView _productsView;
         private bool _isInitialized = false;
 
@@ -44,10 +44,10 @@ namespace UiDesktopApp1.ViewModels.Pages
 
         [ObservableProperty] private bool isBusy;
 
-        public SanPhamViewModel(INavigationService navigationService, AppDbContext db)
+        public SanPhamViewModel(INavigationService navigationService, IDbContextFactory<AppDbContext> dbContextFactory)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
-            _db = db ?? throw new ArgumentNullException(nameof(db));
+            _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory)); 
 
             // Sau khi có dữ liệu, tạo view & filter
             _productsView = CollectionViewSource.GetDefaultView(Products);
@@ -99,9 +99,10 @@ namespace UiDesktopApp1.ViewModels.Pages
             IsBusy = true;
             try
             {
+                await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
                 Products.Clear();
                 SearchText = string.Empty.Trim();
-                var items = await _db.Products
+                var items = await dbContext.Products
                     .AsNoTracking()
                     .OrderBy(p => p.ProductName)
                     .ToListAsync();
@@ -118,7 +119,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                 if (Categories.Count == 0)
                 {
                     Categories.Add(new CategoryModel { Id = 0, Name = "Danh mục" });
-                    var list = await _db.Categories.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
+                    var list = await dbContext.Categories.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
                     foreach (var cat in list)
                         Categories.Add(cat);
                     SelectedCategory = Categories.FirstOrDefault();

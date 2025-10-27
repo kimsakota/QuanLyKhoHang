@@ -44,7 +44,6 @@
                              SelectionMode="Extended"
                              HeadersVisibility="All"
                              RowHeight="56"
-                             AlternatingRowBackground="#F8F9FB"
                              BorderThickness="1"
                              BorderBrush="#DDD">
 
@@ -80,7 +79,7 @@
                                         <ui:Image Source="{Binding Image}"
                                                Width="48"
                                                Height="48"
-                                               CornerRadius="6" BorderBrush="#33000000"
+                                               CornerRadius="10" BorderBrush="#33000000"
                                                Stretch="UniformToFill"
                                                VerticalAlignment="Center"
                                                HorizontalAlignment="Center"

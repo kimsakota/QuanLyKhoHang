@@ -6,7 +6,7 @@
     xmlns:local="clr-namespace:UiDesktopApp1.Views.Windows"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    Title="{Binding ViewModel.ApplicationTitle, Mode=OneWay}"
+    Title="{Binding ApplicationTitle, Mode=OneWay}"
     Width="1100"
     Height="650"
     d:DataContext="{d:DesignInstance local:MainWindow,
@@ -33,18 +33,18 @@
             Grid.Row="1"
             Padding="0,0,0,0"
             BreadcrumbBar="{Binding ElementName=BreadcrumbBar}"
-            FooterMenuItemsSource="{Binding ViewModel.FooterMenuItems, Mode=OneWay}"
+            FooterMenuItemsSource="{Binding FooterMenuItems, Mode=OneWay}"
             FrameMargin="0"
             IsBackButtonVisible="Collapsed"
             IsPaneToggleVisible="True"
             IsPaneOpen="True"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             OpenPaneLength="200"
-            MenuItemsSource="{Binding ViewModel.MenuItems, Mode=OneWay}"
+            MenuItemsSource="{Binding MenuItems, Mode=OneWay}"
             PaneDisplayMode="Left">
             <ui:NavigationView.Header>
                 <!--<ui:BreadcrumbBar x:Name="BreadcrumbBar" Margin="42,32,42,20" />-->
-                <ContentControl Content="{Binding ViewModel.CurrentPageHeader, Mode=OneWay}"/>
+                <ContentControl Content="{Binding CurrentPageHeader, Mode=OneWay}"/>
             </ui:NavigationView.Header>
             <ui:NavigationView.ContentOverlay >
                 <Grid>
@@ -60,7 +60,7 @@
 
         <ui:TitleBar
             x:Name="TitleBar"
-            Title="{Binding ViewModel.ApplicationTitle}"
+            Title="{Binding ApplicationTitle}"
             Grid.Row="0"
             CloseWindowByDoubleClickOnIcon="True">
             <ui:TitleBar.Icon>

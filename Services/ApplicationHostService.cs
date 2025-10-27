@@ -33,9 +33,12 @@ namespace UiDesktopApp1.Services
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            if (!cancellationToken.IsCancellationRequested)
-                await InitializeDatabaseAndSeedUserAsync(cancellationToken);
-            await HandleActivationAsync();
+            // Bước 1: Đảm bảo CSDL sẵn sàng
+            //await InitializeDatabaseAndSeedUserAsync(cancellationToken);
+
+            // Bước 2: Xử lý hiển thị cửa sổ
+            if (!cancellationToken.IsCancellationRequested) 
+                await HandleActivationAsync();
         }
 
         /// <summary>
@@ -122,41 +125,58 @@ namespace UiDesktopApp1.Services
         /// </summary>
         private async Task HandleActivationAsync()
         {
-            // Đảm bảo code chạy trên UI thread nếu cần tương tác UI ngay lập tức
-            await Application.Current.Dispatcher.InvokeAsync(() =>
+            /*await Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                // Lấy LoginWindow (đã được inject ViewModel)
+                // Lấy MainWindow trực tiếp
+                var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
+                navigationWindow.ShowWindow(); // Hiển thị MainWindow
+
+                // Điều hướng đến trang mặc định
+                bool navigationResult = _navigationService.Navigate(typeof(SanPhamPage));
+                if (!navigationResult)
+                {
+                    Debug.WriteLine("Initial navigation failed using INavigationService.");
+                }
+            });*/
+
+            await Application.Current.Dispatcher.InvokeAsync(() => // Đảm bảo chạy trên UI thread
+            {
+
+                var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
+
+                //navigationWindow.ShowWindow(); // Hiển thị MainWindow
+
+                // 1. Lấy LoginWindow
                 var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
 
-                // Hiển thị LoginWindow và ĐỢI cho đến khi nó đóng lại
-                // ShowDialog() phải chạy trên UI thread
-                bool? dialogResult = loginWindow.ShowDialog(); // ShowDialog có thể trả về true/false/null
+                // 2. Hiển thị và ĐỢI LoginWindow đóng
+                Debug.WriteLine("Showing LoginWindow...");
+                loginWindow.ShowDialog(); // Chặn ở đây
+                Debug.WriteLine("LoginWindow closed.");
 
-                // SAU KHI LoginWindow ĐÃ ĐÓNG, kiểm tra kết quả đăng nhập
-                // IsLoginSuccessful được đặt trong LoginViewModel
-                if (loginWindow.ViewModel != null && loginWindow.ViewModel.IsLoginSuccessful)
+                // 3. KIỂM TRA KẾT QUẢ NGAY SAU KHI ĐÓNG
+                // Dùng ?? false để tránh lỗi nếu ViewModel bị null (dù không nên)
+                bool isLoginSuccess = loginWindow.ViewModel?.IsLoginSuccessful ?? false;
+                Debug.WriteLine($"Login successful: {isLoginSuccess}"); // In ra Output để kiểm tra
+
+                if (isLoginSuccess) // Chỉ tiếp tục nếu IsLoginSuccessful là true
                 {
-                    // Lấy MainWindow (đã đăng ký là INavigationWindow)
-                    var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
-                    navigationWindow.ShowWindow(); // Chỉ hiển thị MainWindow
+                    loginWindow.Close();
+                    //var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
+                    navigationWindow.ShowWindow();
+                    // Điều hướng đến trang mặc định
+                    _navigationService.Navigate(typeof(SanPhamPage));
 
-                    // === SỬ DỤNG INavigationService ĐỂ ĐIỀU HƯỚNG ===
-                    bool navigationResult = _navigationService.Navigate(typeof(SanPhamPage)); // Điều hướng đến trang mặc định
-                    if (!navigationResult)
-                    {
-                        Debug.WriteLine("Initial navigation failed using INavigationService.");
-                        // Có thể hiển thị thông báo lỗi khác nếu cần
-                        MessageBox.Show("Không thể điều hướng đến trang chính.", "Lỗi Điều hướng", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
-                    // ===============================================
                 }
                 else
                 {
-                    // Nếu không đăng nhập thành công (người dùng đóng cửa sổ), đóng ứng dụng
-                    Debug.WriteLine("Login not successful or cancelled. Shutting down.");
+                    // Nếu không thành công, đóng ứng dụng
+                    Debug.WriteLine("Login failed or cancelled. Shutting down.");
                     Application.Current.Shutdown();
                 }
             });
+
+            // await Task.CompletedTask; // Dòng này không cần thiết
         }
     }
 }

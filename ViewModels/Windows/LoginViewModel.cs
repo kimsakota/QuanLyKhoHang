@@ -21,7 +21,7 @@ namespace UiDesktopApp1.ViewModels.Windows
         public bool IsLoginSuccessful { get; private set; } = false;
 
         [ObservableProperty]
-        private string _username = string.Empty;
+        private string _username = "admin";
 
         [ObservableProperty]
         private string _errorMessage = string.Empty;
@@ -29,7 +29,7 @@ namespace UiDesktopApp1.ViewModels.Windows
         [ObservableProperty]
         private bool _isLoggingIn = false;
 
-        public string? Password { get; set; }
+        public string? Password { get; set; } 
         // ===========================================
 
         private readonly IAuthenticationService _authService;
