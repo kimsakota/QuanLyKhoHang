@@ -94,8 +94,6 @@ namespace UiDesktopApp1
                     services.AddScoped<XuatKhoViewModel>();
                     services.AddSingleton<KiemKeKhoPage>();
                     services.AddScoped<KiemKeKhoViewModel>();
-                    services.AddSingleton<ChuyenKhoPage>();
-                    services.AddScoped<ChuyenKhoViewModel>();
                     services.AddSingleton<LichSuPage>();
                     services.AddScoped<LichSuViewModel>();
                     services.AddSingleton<ChiPhiPage>();

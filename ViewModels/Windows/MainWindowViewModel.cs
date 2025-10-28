@@ -69,12 +69,6 @@ namespace UiDesktopApp1.ViewModels.Windows
             },
             new NavigationViewItem()
             {
-                Content = "Chuyển kho",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.TrayItemRemove24 },
-                TargetPageType = typeof(Views.Pages.ChuyenKhoPage)
-            },
-            new NavigationViewItem()
-            {
                 Content = "Lịch sử",
                 Icon = new SymbolIcon { Symbol = SymbolRegular.History24 },
                 TargetPageType = typeof(Views.Pages.LichSuPage)
