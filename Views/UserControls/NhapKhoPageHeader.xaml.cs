@@ -12,7 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using UiDesktopApp1.ViewModels.Pages;
 using UiDesktopApp1.ViewModels.UserControls;
+using UiDesktopApp1.Views.Pages;
 
 namespace UiDesktopApp1.Views.UserControls
 {
@@ -21,10 +23,12 @@ namespace UiDesktopApp1.Views.UserControls
     /// </summary>
     public partial class NhapKhoPageHeader : UserControl
     {
-        public NhapKhoPageHeader(NhapKhoPageHeaderViewModel viewModel)
+        public NhapKhoViewModel ViewModel { get; set; }
+        public NhapKhoPageHeader(NhapKhoViewModel viewModel)
         {
             InitializeComponent();
             DataContext = viewModel;
+            ViewModel = viewModel;
         }
     }
 }

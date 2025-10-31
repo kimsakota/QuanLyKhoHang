@@ -29,7 +29,7 @@ namespace UiDesktopApp1.ViewModels.Windows
         [ObservableProperty]
         private bool _isLoggingIn = false;
 
-        public string? Password { get; set; } 
+        public string Password { get; set; } = "123";
         // ===========================================
 
         private readonly IAuthenticationService _authService;

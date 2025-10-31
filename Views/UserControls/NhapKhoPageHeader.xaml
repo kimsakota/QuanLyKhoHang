@@ -13,7 +13,7 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Text="Thêm sản phẩm"
+        <TextBlock Text="Nhập kho"
                Grid.Column="0"
                VerticalAlignment="Center"
                FontSize="24"
@@ -23,18 +23,16 @@
                 VerticalAlignment="Center"
                 Orientation="Horizontal"
                 HorizontalAlignment="Right">
-            <ui:Button Content="Nhập sản phẩm"
-                   Margin="5,10,5,10">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon FontSize="17" Symbol="ArrowSquareDown24"/>
-                </ui:Button.Icon>
-            </ui:Button>
-            <ui:Button Content="Sản phẩm" 
-                   Command="{Binding AddProductCommand}"
+            <ui:CalendarDatePicker>
+                <ui:CalendarDatePicker.Content>
+                    <TextBlock Text="{Binding }"/>
+                </ui:CalendarDatePicker.Content>
+            </ui:CalendarDatePicker>
+            <ui:Button Content="Lưu" 
                    Appearance="Primary"
                    Margin="5,10,15,10">
                 <ui:Button.Icon>
-                    <ui:SymbolIcon FontSize="17" Symbol="AddCircle12"/>
+                    <ui:SymbolIcon FontSize="17" Symbol="Save24"/>
                 </ui:Button.Icon>
             </ui:Button>
         </StackPanel>
