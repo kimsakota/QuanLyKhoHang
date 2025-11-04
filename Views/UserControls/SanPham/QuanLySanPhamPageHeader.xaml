@@ -6,8 +6,9 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              xmlns:local="clr-namespace:UiDesktopApp1.Views.UserControls.SanPham"
              mc:Ignorable="d" >
-    <StackPanel Orientation="Horizontal" Height="50" Margin="5">
-        <ui:Button Command="{Binding GoBackCommand}"
+    <Border BorderBrush="LightGray" BorderThickness="0,0,0,0.5" Height="52">
+        <StackPanel Orientation="Horizontal" >
+            <ui:Button Command="{Binding GoBackCommand}"
                    Background="Transparent"
                    Padding="5"
                    Width="Auto"
@@ -15,13 +16,14 @@
                    MouseOverBackground="LightGray"
                    Margin="5"
                    CornerRadius="10">
-            <ui:Button.Icon>
-                <ui:SymbolIcon Symbol="ChevronLeft12" FontSize="28" FontWeight="Bold"/>
-            </ui:Button.Icon>
-        </ui:Button>
-        <TextBlock Text="Quản Lý Sản Phẩm"
-                   VerticalAlignment="Center"
-                   FontSize="22"
-                   FontWeight="SemiBold"/>
-    </StackPanel>
+                <ui:Button.Icon>
+                    <ui:SymbolIcon Symbol="ChevronLeft12" FontSize="28" FontWeight="Bold"/>
+                </ui:Button.Icon>
+            </ui:Button>
+            <TextBlock Text="Quản Lý Sản Phẩm"
+                       VerticalAlignment="Center"
+                       FontSize="24"
+                       FontWeight="SemiBold"/>
+        </StackPanel>
+    </Border>
 </UserControl>

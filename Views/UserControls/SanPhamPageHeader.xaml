@@ -6,48 +6,50 @@
              xmlns:local="clr-namespace:UiDesktopApp1.Views.UserControls"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d">
-    <Grid Margin="0,2,0,0">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <TextBlock Text="Sản phẩm"
+    <Border BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
+        <Grid Margin="0,2,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Sản phẩm"
                    Grid.Column="0"
                    VerticalAlignment="Center"
                    FontSize="24"
-                   FontWeight="Bold"
+                   FontWeight="SemiBold"
                    Margin="20,10,0,10"/>
-        <StackPanel Grid.Column="1"
+            <StackPanel Grid.Column="1"
                     VerticalAlignment="Center"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right">
-            <ui:Button Content="Quản lý sản phẩm"
+                <ui:Button Content="Quản lý sản phẩm"
                        Command="{Binding ManageCommand}"
                        Margin="5,10,5,10">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon FontSize="17" Symbol="Pen24"/>
-                </ui:Button.Icon>
-            </ui:Button>
-            <ui:Button Content="Nhập sản phẩm"
+                    <ui:Button.Icon>
+                        <ui:SymbolIcon FontSize="17" Symbol="Pen24"/>
+                    </ui:Button.Icon>
+                </ui:Button>
+                <ui:Button Content="Nhập sản phẩm"
                        Margin="5,10,5,10">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon FontSize="17" Symbol="ArrowSquareDown24"/>
-                </ui:Button.Icon>
-            </ui:Button>
-            <ui:Button Content="Tải xuống Excel"
+                    <ui:Button.Icon>
+                        <ui:SymbolIcon FontSize="17" Symbol="ArrowSquareDown24"/>
+                    </ui:Button.Icon>
+                </ui:Button>
+                <ui:Button Content="Tải xuống Excel"
                        Margin="5,10,5,10">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon FontSize="17" Symbol="DocumentHeaderArrowDown24"/>
-                </ui:Button.Icon>
-            </ui:Button>
-            <ui:Button Content="Sản phẩm" 
+                    <ui:Button.Icon>
+                        <ui:SymbolIcon FontSize="17" Symbol="DocumentHeaderArrowDown24"/>
+                    </ui:Button.Icon>
+                </ui:Button>
+                <ui:Button Content="Sản phẩm" 
                        Command="{Binding AddProductCommand}"
                        Appearance="Primary"
                        Margin="5,10,15,10">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon FontSize="17" Symbol="AddCircle12"/>
-                </ui:Button.Icon>
-            </ui:Button>
-        </StackPanel>
-    </Grid>
+                    <ui:Button.Icon>
+                        <ui:SymbolIcon FontSize="17" Symbol="AddCircle12"/>
+                    </ui:Button.Icon>
+                </ui:Button>
+            </StackPanel>
+        </Grid>
+    </Border>
 </UserControl>

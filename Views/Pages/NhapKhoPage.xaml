@@ -10,7 +10,7 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="NhapKhoPage">
 
-    <Border Margin="16" Padding="16" BorderBrush="#DDD" BorderThickness="0,1,0,0">
+    <Border Padding="16">
         
     </Border>
 </Page>

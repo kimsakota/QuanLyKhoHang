@@ -25,6 +25,7 @@ using UiDesktopApp1.Views.Windows;
 using Wpf.Ui;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.DependencyInjection;
+using UiDesktopApp1.Views.UserControls.LienHe;
 
 namespace UiDesktopApp1
 {
@@ -99,8 +100,7 @@ namespace UiDesktopApp1
                     services.AddSingleton<ChiPhiPage>();
                     services.AddScoped<ChiPhiViewModel>();
 
-                    services.AddSingleton<Views.Pages.LienHe.KhachHangPage>();
-                    services.AddScoped<ViewModels.Pages.LienHe.KhachHangViewModel>();
+                    
                     services.AddSingleton<NhaCungCapPage>();
                     services.AddScoped<NhaCungCapViewModel>();
                     services.AddSingleton<NhanVienPage>();
@@ -126,6 +126,11 @@ namespace UiDesktopApp1
                     services.AddScoped<SuaSanPhamViewModel>();
                     services.AddSingleton<SuaSanPhamPageHeader>();
 
+
+                    //Liên hệ
+                    services.AddSingleton<Views.Pages.LienHe.KhachHangPage>();
+                    services.AddScoped<ViewModels.Pages.LienHe.KhachHangViewModel>();
+                    services.AddSingleton<KhachHangPageHeader>();
                 });
     }
 }

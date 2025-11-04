@@ -8,22 +8,23 @@
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d" 
              >
-    <Grid Margin="0,2,0,-15">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <TextBlock Text="Nhập kho"
+    <Border BorderBrush="LightGray" BorderThickness="0,0,0,0.5" Height="52">
+        <Grid Margin="0,2,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Nhập kho"
                Grid.Column="0"
                VerticalAlignment="Center"
                FontSize="24"
-               FontWeight="Bold"
+               FontWeight="SemiBold"
                Margin="20,10,0,10"/>
-        <StackPanel Grid.Column="1"
+            <StackPanel Grid.Column="1"
                 VerticalAlignment="Center"
                 Orientation="Horizontal"
                 HorizontalAlignment="Right">
-            <ComboBox Grid.Column="0"
+                <ComboBox Grid.Column="0"
            Width="250"
                       Margin="0,0,20,0"
            ItemsSource="{Binding Suppliers}"
@@ -31,18 +32,19 @@
            SelectedValuePath="Id"
            SelectedValue="{Binding Product.CategoryId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
            IsEditable="False"/>
-            <ui:CalendarDatePicker Date="{Binding NgayNhap, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                <ui:CalendarDatePicker.Content>
-                    <TextBlock Text="{Binding NgayNhap, StringFormat='dddd, dd/MM/yyyy HH:mm', UpdateSourceTrigger=PropertyChanged}"/>
-                </ui:CalendarDatePicker.Content>
-            </ui:CalendarDatePicker>
-            <ui:Button Content="Lưu" 
+                <ui:CalendarDatePicker Date="{Binding NgayNhap, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <ui:CalendarDatePicker.Content>
+                        <TextBlock Text="{Binding NgayNhap, StringFormat='dddd, dd/MM/yyyy HH:mm', UpdateSourceTrigger=PropertyChanged}"/>
+                    </ui:CalendarDatePicker.Content>
+                </ui:CalendarDatePicker>
+                <ui:Button Content="Lưu" 
                    Appearance="Primary"
                    Margin="20,10,15,10">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon FontSize="17" Symbol="Save24"/>
-                </ui:Button.Icon>
-            </ui:Button>
-        </StackPanel>
-    </Grid>
+                    <ui:Button.Icon>
+                        <ui:SymbolIcon FontSize="17" Symbol="Save24"/>
+                    </ui:Button.Icon>
+                </ui:Button>
+            </StackPanel>
+        </Grid>
+    </Border>
 </UserControl>
