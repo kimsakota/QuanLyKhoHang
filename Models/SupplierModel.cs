@@ -40,7 +40,7 @@ namespace UiDesktopApp1.Models
         private string? accountName; //Chủ tài khoản
 
         [ObservableProperty]
-        private string? accountNumber; //Số tài khoản
+        private string? accountNumber; 
 
         [ObservableProperty]
         private string? notes; // Ghi chú thêm
