@@ -56,6 +56,9 @@ namespace UiDesktopApp1.Models
         [ObservableProperty]
         private bool isSelected = false;
 
+        public ICollection<ImportDetailModel> ImportDetails { get; set; } = new List<ImportDetailModel>();
+        public ICollection<ExportDetailModel> ExportDetails { get; set; } = new List<ExportDetailModel>();
+
         public void ValidateAll() => base.ValidateAllProperties();
 
     }

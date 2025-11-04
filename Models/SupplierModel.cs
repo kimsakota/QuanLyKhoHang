@@ -44,5 +44,7 @@ namespace UiDesktopApp1.Models
 
         [ObservableProperty]
         private string? notes; // Ghi chú thêm
+
+        public ICollection<ImportModel> Imports { get; set; } = new List<ImportModel>();
     }
 }
