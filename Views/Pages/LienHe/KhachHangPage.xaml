@@ -21,15 +21,25 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Border BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
+                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
                         <ui:AutoSuggestBox Icon="{ui:SymbolIcon Search24}" OriginalItemsSource="{Binding ViewModel.AutoSuggestBoxSuggestions, Mode=OneWay}" PlaceholderText="Tìm kiếm theo tên" Margin="10"/>
                     </Border>
+                    <Grid Grid.Row="1">
+                        <ui:DataGrid x:Name="CustomerDataGrid"
+                                     ItemsSource="{Binding Customer}"
+                                     AutoGenerateColumns="False"
+                                     CanUserAddRows="False"
+                                     CanUserDeleteRows="False"
+                                     IsReadOnly="True">
+                            <ui:DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Name}"/>
+                            </ui:DataGrid.Columns>
+                        </ui:DataGrid>
+                    </Grid>
                 </Grid>
             </Border>
             <Grid Grid.Column="1">
-                <ui:DataGrid>
-                    
-                </ui:DataGrid>
+
             </Grid>
         </Grid>
     </Border>
