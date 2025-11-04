@@ -13,6 +13,8 @@ namespace UiDesktopApp1.Models
         public DbSet<ProductModel> Products => Set<ProductModel>();
         public DbSet<CategoryModel> Categories => Set<CategoryModel>();
         public DbSet<UserModel> Users => Set<UserModel>();
+        public DbSet<SupplierModel> Suppliers => Set<SupplierModel>();
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,6 +32,10 @@ namespace UiDesktopApp1.Models
                 .HasIndex(u => u.Username)
                 .IsUnique(true); // Đảm bảo Tên đăng nhập là duy nhất
 
+            modelBuilder.Entity<SupplierModel>()
+                .HasIndex(s => s.TaxCode)
+                .IsUnique(true);
+                  
             base.OnModelCreating(modelBuilder);
         }
     }

@@ -125,7 +125,7 @@ namespace UiDesktopApp1.Services
         /// </summary>
         private async Task HandleActivationAsync()
         {
-            /*await Application.Current.Dispatcher.InvokeAsync(() =>
+            await Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 // Lấy MainWindow trực tiếp
                 var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
@@ -137,9 +137,9 @@ namespace UiDesktopApp1.Services
                 {
                     Debug.WriteLine("Initial navigation failed using INavigationService.");
                 }
-            });*/
+            });
 
-            await Application.Current.Dispatcher.InvokeAsync(() => // Đảm bảo chạy trên UI thread
+            /*await Application.Current.Dispatcher.InvokeAsync(() => // Đảm bảo chạy trên UI thread
             {
 
                 var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
@@ -174,7 +174,7 @@ namespace UiDesktopApp1.Services
                     Debug.WriteLine("Login failed or cancelled. Shutting down.");
                     Application.Current.Shutdown();
                 }
-            });
+            });*/
 
             // await Task.CompletedTask; // Dòng này không cần thiết
         }

@@ -93,7 +93,6 @@
 
                         <DataGridTextColumn Header="Tên sản phẩm" Binding="{Binding ProductName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="*" />
                         <DataGridTextColumn Header="Mã số" Binding="{Binding ProductCode, Mode=TwoWay}" Width="100" />
-                        <DataGridTextColumn Header="Giá vốn" Binding="{Binding CostPrice, Mode=TwoWay, StringFormat={}{0:N0} ₫}" Width="Auto" />
                         <DataGridTextColumn Header="Giá bán" Binding="{Binding SalePrice, Mode=TwoWay, StringFormat={}{0:N0} ₫}" Width="Auto" />
                         <DataGridTextColumn Header="Danh mục" Binding="{Binding Category.Name, Mode=TwoWay}" Width="Auto" />
                         <DataGridTextColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate, StringFormat={}{0:dd/MM/yyyy}}" Width="Auto" />

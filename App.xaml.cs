@@ -115,7 +115,6 @@ namespace UiDesktopApp1
                     services.AddSingleton<SanPhamPageHeader>();
                     services.AddScoped<SanPhamPageHeaderViewModel>();
                     services.AddSingleton<NhapKhoPageHeader>();
-                    services.AddScoped<NhapKhoPageHeaderViewModel>();
                     services.AddTransient<ThemSanPhamPageHeader>();
                     services.AddScoped<ThemSanPhamPageHeaderViewModel>();
                     services.AddSingleton<ThemDanhMucPage>();
