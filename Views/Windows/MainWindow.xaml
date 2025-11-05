@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:UiDesktopApp1.Views.Windows"
+    xmlns:helpers="clr-namespace:UiDesktopApp1.Helpers"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="{Binding ApplicationTitle, Mode=OneWay}"
@@ -23,6 +24,7 @@
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d"
     ResizeMode="CanResize">
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -46,6 +48,7 @@
                 <!--<ui:BreadcrumbBar x:Name="BreadcrumbBar" Margin="42,32,42,20" />-->
                 <ContentControl Content="{Binding CurrentPageHeader, Mode=OneWay}"/>
             </ui:NavigationView.Header>
+           
             <ui:NavigationView.ContentOverlay >
                 <Grid>
                     <ui:SnackbarPresenter x:Name="SnackbarPresenter"/>

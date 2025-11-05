@@ -46,6 +46,7 @@
                         
                     </ComboBox>
                     <ui:Button Content="Làm mới" 
+                               MouseOverBackground="LightBlue"
                                Command="{Binding LoadDataCommand}"
                                Height="36" Margin="10,0,0,0">
                         <ui:Button.Icon>
@@ -78,6 +79,14 @@
                                 <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
                             </Style>
                         </ui:DataGrid.TextColumnElementStyle>
+
+                        <ui:DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+                            </Style>
+                        </ui:DataGrid.CellStyle>
 
                         <ui:DataGrid.Columns>
                             <DataGridTemplateColumn Header="Hình ảnh" Width="90">
