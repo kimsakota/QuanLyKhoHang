@@ -13,7 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using UiDesktopApp1.ViewModels.Pages;
-using UiDesktopApp1.ViewModels.UserControls;
 
 namespace UiDesktopApp1.Views.UserControls
 {
@@ -22,8 +21,8 @@ namespace UiDesktopApp1.Views.UserControls
     /// </summary>
     public partial class SanPhamPageHeader : UserControl
     {
-        public SanPhamPageHeaderViewModel ViewModel { get; }
-        public SanPhamPageHeader(SanPhamPageHeaderViewModel viewModel)
+        public SanPhamViewModel ViewModel { get; }
+        public SanPhamPageHeader(SanPhamViewModel viewModel)
         {
             ViewModel = viewModel;
             DataContext = viewModel;

@@ -13,7 +13,6 @@ using UiDesktopApp1.ViewModels.Pages;
 using UiDesktopApp1.ViewModels.Pages.BaoCao;
 using UiDesktopApp1.ViewModels.Pages.LienHe;
 using UiDesktopApp1.ViewModels.Pages.SanPham;
-using UiDesktopApp1.ViewModels.UserControls;
 using UiDesktopApp1.ViewModels.Windows;
 using UiDesktopApp1.Views.Pages;
 using UiDesktopApp1.Views.Pages.BaoCao;
@@ -114,7 +113,6 @@ namespace UiDesktopApp1
                     services.AddScoped<ThemSanPhamViewModel>();
 
                     services.AddSingleton<SanPhamPageHeader>();
-                    services.AddScoped<SanPhamPageHeaderViewModel>();
                     services.AddSingleton<NhapKhoPageHeader>();
                     services.AddTransient<ThemSanPhamPageHeader>();
                     services.AddSingleton<ThemDanhMucPage>();

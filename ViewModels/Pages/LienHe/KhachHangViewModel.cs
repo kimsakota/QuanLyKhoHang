@@ -39,7 +39,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
             CustomersView = CollectionViewSource.GetDefaultView(Customers);
             CustomersView.Filter = FilterCustomers;
-
             WeakReferenceMessenger.Default.Register<CustomerCreatedMessage>(this);
         }
 
@@ -54,7 +53,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
         public async Task OnNavigatedToAsync()
         {
-            if(!_isInitialized)
+            if (!_isInitialized)
             {
                 await LoadDataAsync();
                 _isInitialized = true;
@@ -84,10 +83,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
         //}
 
-        partial void OnSearchTextChanged(string? value)
-        {
-            CustomersView.Refresh();
-        }
+        partial void OnSearchTextChanged(string value) => CustomersView?.Refresh();
 
         private bool FilterCustomers(object obj)
         {

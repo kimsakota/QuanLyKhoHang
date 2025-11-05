@@ -30,7 +30,7 @@ namespace UiDesktopApp1.Views.Pages.LienHe
         {
 
             ViewModel = viewModel;
-            DataContext = this;
+            DataContext = viewModel;
             _header = header;
 
             InitializeComponent();

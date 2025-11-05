@@ -26,15 +26,15 @@
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
                         <ui:AutoSuggestBox Icon="{ui:SymbolIcon Search24}" 
-                                           OriginalItemsSource="{Binding ViewModel.AutoSuggestBoxSuggestions, Mode=OneWay}"
+                                           OriginalItemsSource="{Binding Customers, Mode=OneWay}"
                                            PlaceholderText="Tìm kiếm theo tên" Margin="10"
-                                           Text="{Binding ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                           Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </Border>
                     <Grid Grid.Row="1">
                         <ui:ListView d:ItemsSource="{d:SampleData ItemCount=5}"
-                                     ItemsSource="{Binding ViewModel.CustomersView}"
+                                     ItemsSource="{Binding CustomersView}"
                                      SelectedIndex="0"
-                                     SelectionMode="{Binding ViewModel.SelectedCustomer, Mode=TwoWay}">
+                                     SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}">
                             <ui:ListView.ItemTemplate>
                                 <DataTemplate DataType="{x:Type models:CustomerModel}">
                                     <Grid Margin="8,0">

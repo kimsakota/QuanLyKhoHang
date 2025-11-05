@@ -13,7 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using UiDesktopApp1.ViewModels.Pages;
-using UiDesktopApp1.ViewModels.UserControls;
 using UiDesktopApp1.Views.Pages;
 
 namespace UiDesktopApp1.Views.UserControls

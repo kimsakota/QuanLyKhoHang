@@ -16,6 +16,7 @@ using UiDesktopApp1.Contracts;
 using UiDesktopApp1.Models;
 using UiDesktopApp1.Models.Messages;
 using UiDesktopApp1.ViewModels.Pages.SanPham;
+using UiDesktopApp1.Views.Pages.SanPham;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 
@@ -126,6 +127,18 @@ namespace UiDesktopApp1.ViewModels.Pages
                 }
             }
             finally { IsBusy = false; }
+        }
+
+        [RelayCommand]
+        private void AddProduct()
+        {
+            _navigationService.Navigate(typeof(ThemSanPhamPage));
+        }
+
+        [RelayCommand]
+        private void Manage()
+        {
+            _navigationService.Navigate(typeof(QuanLySanPhamPage));
         }
 
         partial void OnSearchTextChanged(string value) => _productsView?.Refresh();
