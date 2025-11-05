@@ -28,11 +28,10 @@ namespace UiDesktopApp1.Views.Pages.LienHe
         public KhachHangPageHeader _header;
         public KhachHangPage(ViewModels.Pages.LienHe.KhachHangViewModel viewModel, KhachHangPageHeader header)
         {
-            ViewModel = viewModel;
-            DataContext = this;
-            _header = header;
-
             InitializeComponent();
+            ViewModel = viewModel;
+            DataContext = viewModel;
+            _header = header;
         }
 
         public object? GetHeader() => _header;

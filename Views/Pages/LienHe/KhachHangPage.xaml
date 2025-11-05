@@ -26,13 +26,20 @@
                     </Border>
                     <Grid Grid.Row="1">
                         <ui:DataGrid x:Name="CustomerDataGrid"
-                                     ItemsSource="{Binding Customer}"
+                                     ItemsSource="{Binding CustomersView}"
+                                     SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
                                      AutoGenerateColumns="False"
                                      CanUserAddRows="False"
                                      CanUserDeleteRows="False"
-                                     IsReadOnly="True">
+                                     CanUserReorderColumns="False"
+                                     CanUserResizeColumns="False"
+                                     CanUserResizeRows="False"
+                                     IsReadOnly="True"
+                                     SelectionMode="Single"
+                                     HeadersVisibility="Column"
+                                     >
                             <ui:DataGrid.Columns>
-                                <DataGridTextColumn Binding="{Binding Name}"/>
+                                <DataGridTextColumn Header="Khách hàng" Binding="{Binding Name}" FontSize="20" FontWeight="DemiBold" />
                             </ui:DataGrid.Columns>
                         </ui:DataGrid>
                     </Grid>
