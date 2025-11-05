@@ -37,9 +37,28 @@
                                      IsReadOnly="True"
                                      SelectionMode="Single"
                                      HeadersVisibility="Column"
+                                     GridLinesVisibility="Horizontal"
+                                     VerticalGridLinesBrush="LightGray"
+                                     Margin="5,0,0,0"
+                                     HorizontalScrollBarVisibility="Disabled"
                                      >
+                            
+                            <ui:DataGrid.TextColumnElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                                    <Setter Property="Margin" Value="15,5,0,5"/>
+                                </Style>
+                            </ui:DataGrid.TextColumnElementStyle>
+                            <ui:DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+                                </Style>
+                            </ui:DataGrid.CellStyle>
                             <ui:DataGrid.Columns>
-                                <DataGridTextColumn Header="Khách hàng" Binding="{Binding Name}" FontSize="20" FontWeight="DemiBold" />
+                                <DataGridTextColumn Header="Khách hàng" Binding="{Binding Name}" FontSize="25" FontWeight="DemiBold" Width="*"/>
                             </ui:DataGrid.Columns>
                         </ui:DataGrid>
                     </Grid>

@@ -46,7 +46,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
         public Task OnNavigatedFromAsync()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         private async Task LoadDataAsync()
