@@ -42,11 +42,11 @@
                              CanUserReorderColumns="False"
                              IsReadOnly="True"
                              SelectionMode="Extended"
+                             SelectionUnit="FullRow"
                              HeadersVisibility="All"
                              RowHeight="56"
                              BorderThickness="1"
                              BorderBrush="#DDD">
-
 
                     <ui:DataGrid.TextColumnElementStyle>
                         <Style TargetType="TextBlock">
@@ -56,6 +56,14 @@
                             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
                         </Style>
                     </ui:DataGrid.TextColumnElementStyle>
+
+                    <ui:DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+                        </Style>
+                    </ui:DataGrid.CellStyle>
 
                     <ui:DataGrid.Columns>
                         <DataGridTemplateColumn Width="Auto">

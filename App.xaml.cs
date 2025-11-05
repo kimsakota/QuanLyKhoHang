@@ -14,7 +14,6 @@ using UiDesktopApp1.ViewModels.Pages.BaoCao;
 using UiDesktopApp1.ViewModels.Pages.LienHe;
 using UiDesktopApp1.ViewModels.Pages.SanPham;
 using UiDesktopApp1.ViewModels.UserControls;
-using UiDesktopApp1.ViewModels.UserControls.SanPham;
 using UiDesktopApp1.ViewModels.Windows;
 using UiDesktopApp1.Views.Pages;
 using UiDesktopApp1.Views.Pages.BaoCao;
@@ -67,6 +66,8 @@ namespace UiDesktopApp1
 
                     services.AddHostedService<ApplicationHostService>();
 
+                    services.AddSingleton<IContentDialogService, ContentDialogService>();
+
                     services.AddSingleton<IThemeService, ThemeService>();
                     services.AddSingleton<ITaskBarService, TaskBarService>();
                     services.AddSingleton<INavigationService, NavigationService>();
@@ -116,7 +117,6 @@ namespace UiDesktopApp1
                     services.AddScoped<SanPhamPageHeaderViewModel>();
                     services.AddSingleton<NhapKhoPageHeader>();
                     services.AddTransient<ThemSanPhamPageHeader>();
-                    services.AddScoped<ThemSanPhamPageHeaderViewModel>();
                     services.AddSingleton<ThemDanhMucPage>();
                     services.AddScoped<ThemDanhMucViewModel>();
                     services.AddSingleton<QuanLySanPhamPage>();
@@ -131,6 +131,9 @@ namespace UiDesktopApp1
                     services.AddSingleton<Views.Pages.LienHe.KhachHangPage>();
                     services.AddScoped<ViewModels.Pages.LienHe.KhachHangViewModel>();
                     services.AddSingleton<KhachHangPageHeader>();
+
+                    services.AddTransient<ThemKhachHangDialog>();
+                    services.AddTransient<ThemKhachHangViewModel>();
                 });
     }
 }

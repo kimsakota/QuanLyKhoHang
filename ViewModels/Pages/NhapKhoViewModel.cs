@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UiDesktopApp1.Models;
+using UiDesktopApp1.Views.Pages;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 
@@ -35,5 +36,10 @@ namespace UiDesktopApp1.ViewModels.Pages
             return Task.CompletedTask;
         }
 
+        [RelayCommand]
+        public void AddCustomer()
+        {
+            _navigationService.Navigate(typeof(SanPhamPage));
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,11 +10,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using UiDesktopApp1.Models;
+using UiDesktopApp1.Models.Messages;
+using UiDesktopApp1.Views.UserControls.LienHe;
+using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
+using Wpf.Ui.Controls;
 
 namespace UiDesktopApp1.ViewModels.Pages.LienHe
 {
-    public partial class KhachHangViewModel : ObservableObject, INavigationAware
+    public partial class KhachHangViewModel : ObservableObject, INavigationAware, IRecipient<CustomerCreatedMessage>
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private bool _isInitialized = false;
@@ -33,6 +39,17 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
             CustomersView = CollectionViewSource.GetDefaultView(Customers);
             CustomersView.Filter = FilterCustomers;
+
+            WeakReferenceMessenger.Default.Register<CustomerCreatedMessage>(this);
+        }
+
+        public void Receive(CustomerCreatedMessage message)
+        {
+            // Khi khách hàng mới được tạo thành công, thêm vào danh sách
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Customers.Add(message.Value);
+            });
         }
 
         public async Task OnNavigatedToAsync()
@@ -61,10 +78,16 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
         }
 
-        //public void OnSearchTextChanged(string value)
+        //[RelayCommand]
+        //private async Task AddCustomerAsync()
         //{
-        //    CustomersView.Refresh();
+
         //}
+
+        partial void OnSearchTextChanged(string? value)
+        {
+            CustomersView.Refresh();
+        }
 
         private bool FilterCustomers(object obj)
         {

@@ -22,6 +22,11 @@ namespace UiDesktopApp1.Models
         [ObservableProperty]
         private string? address;
 
-        public ICollection<ExportModel> Exports { get; set; } = new List<ExportModel>(); 
+        /*[ObservableProperty]
+        private string? notes;*/
+
+        public ICollection<ExportModel> Exports { get; set; } = new List<ExportModel>();
+
+        public void ValidateAll() => base.ValidateAllProperties();
     }
 }

@@ -4,9 +4,12 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages.LienHe" 
-      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
+      xmlns:lienhe="clr-namespace:UiDesktopApp1.ViewModels.Pages.LienHe" 
+      xmlns:models="clr-namespace:UiDesktopApp1.Models" d:DataContext="{d:DesignInstance Type=lienhe:KhachHangViewModel}"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
+      
       Title="KhachHangPage">
 
     <Border>
@@ -22,50 +25,46 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
-                        <ui:AutoSuggestBox Icon="{ui:SymbolIcon Search24}" OriginalItemsSource="{Binding ViewModel.AutoSuggestBoxSuggestions, Mode=OneWay}" PlaceholderText="Tìm kiếm theo tên" Margin="10"/>
+                        <ui:AutoSuggestBox Icon="{ui:SymbolIcon Search24}" 
+                                           OriginalItemsSource="{Binding ViewModel.AutoSuggestBoxSuggestions, Mode=OneWay}"
+                                           PlaceholderText="Tìm kiếm theo tên" Margin="10"
+                                           Text="{Binding ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </Border>
                     <Grid Grid.Row="1">
-                        <ui:DataGrid x:Name="CustomerDataGrid"
-                                     ItemsSource="{Binding CustomersView}"
-                                     SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
-                                     AutoGenerateColumns="False"
-                                     CanUserAddRows="False"
-                                     CanUserDeleteRows="False"
-                                     CanUserReorderColumns="False"
-                                     CanUserResizeColumns="False"
-                                     CanUserResizeRows="False"
-                                     IsReadOnly="True"
-                                     SelectionMode="Single"
-                                     HeadersVisibility="Column"
-                                     GridLinesVisibility="Horizontal"
-                                     VerticalGridLinesBrush="LightGray"
-                                     Margin="5,0,0,0"
-                                     HorizontalScrollBarVisibility="Disabled"
-                                     >
-                            
-                            <ui:DataGrid.TextColumnElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                    <Setter Property="HorizontalAlignment" Value="Left"/>
-                                    <Setter Property="Margin" Value="15,5,0,5"/>
-                                </Style>
-                            </ui:DataGrid.TextColumnElementStyle>
-                            <ui:DataGrid.CellStyle>
-                                <Style TargetType="DataGridCell">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
-                                </Style>
-                            </ui:DataGrid.CellStyle>
-                            <ui:DataGrid.Columns>
-                                <DataGridTextColumn Header="Khách hàng" Binding="{Binding Name}" FontSize="25" FontWeight="DemiBold" Width="*"/>
-                            </ui:DataGrid.Columns>
-                        </ui:DataGrid>
+                        <ui:ListView d:ItemsSource="{d:SampleData ItemCount=5}"
+                                     ItemsSource="{Binding ViewModel.CustomersView}"
+                                     SelectedIndex="0"
+                                     SelectionMode="{Binding ViewModel.SelectedCustomer, Mode=TwoWay}">
+                            <ui:ListView.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:CustomerModel}">
+                                    <Grid Margin="8,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Ellipse x:Name="Ellipse"
+                                                 Grid.RowSpan="2"
+                                                 Width="32"
+                                                 Height="32"
+                                                 Margin="6"
+                                                 HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center"
+                                                 Fill="{ui:ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+                                        <TextBlock Grid.Column="1"
+                                                   FontWeight="Bold"
+                                                   Margin="5,0,0,0"
+                                                   FontSize="20"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding Name, Mode=OneWay}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ui:ListView.ItemTemplate>
+                        </ui:ListView>
                     </Grid>
                 </Grid>
             </Border>
             <Grid Grid.Column="1">
-
+                
             </Grid>
         </Grid>
     </Border>
