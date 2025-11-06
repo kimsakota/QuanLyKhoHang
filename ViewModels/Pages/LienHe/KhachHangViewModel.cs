@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿using Azure.Core;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -95,7 +96,10 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 if (isEdit)
                     db.Customers.Update(Customer);
                 else db.Customers.Add(Customer);
+
                 await db.SaveChangesAsync();
+                await LoadDataAsync();
+                
                 return true;
             }
             catch (Exception ex)
@@ -122,8 +126,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 CloseButtonText = "Hủy"
             };
 
-            var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
-
             dialog.Closing += async (s, e) =>
             {
                 if (e.Result == ContentDialogResult.Primary)
@@ -133,6 +135,11 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     if (!ok) e.Cancel = true;
                 }
             };
+
+            var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
+
+            Customer = new CustomerModel();
+            ErrorSummary = string.Empty;
         }
 
         [RelayCommand]
@@ -155,14 +162,16 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     .ToListAsync();
                 db.Customers.RemoveRange(customerToDeleteFromDb);
                 await db.SaveChangesAsync();
-
                 await LoadDataAsync();
             }
             catch (Exception)
             {
                 await LoadDataAsync();
             }
-
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         [RelayCommand] 
@@ -170,7 +179,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         {
             if (SelectedCustomer == null) return;
             var dialogContent = App.Services.GetRequiredService<ThemKhachHangDialog>();
-            var dialogViewModel = dialogContent.ViewModel;
 
             var dialog = new ContentDialog
             {
@@ -180,52 +188,21 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 CloseButtonText = "Hủy"
             };
 
-            var customerEditing = dialogViewModel.Customer;
-            customerEditing = SelectedCustomer;
+            Customer = SelectedCustomer;
 
-            dialog.Closing += async (sender, args) =>
+            dialog.Closing += async (s, e) =>
             {
-                if (args.Result != ContentDialogResult.Primary)
-                    return;
-
-                args.Cancel = true;
-
-                customerEditing.ValidateAll();
-                if (customerEditing.HasErrors)
+                if (e.Result == ContentDialogResult.Primary)
                 {
-                    // Nếu có lỗi, hiển thị lỗi trên dialog và không đóng
-                    var allErrors = customerEditing.GetErrors()
-                                                .Select(e => e.ErrorMessage)
-                                                .Where(msg => !string.IsNullOrWhiteSpace(msg))
-                                                .Distinct();
-                    dialogViewModel.ErrorSummary = string.Join("\n", allErrors);
-                    return;
-                }
+                    var ok = await SaveAsync(isEdit: true);
 
-                dialogViewModel.ErrorSummary = string.Empty;
-                dialogViewModel.IsBusy = true;
+                    if (!ok) e.Cancel = true;
+                }
             };
 
-            try
-            {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
-                db.Customers.Update(customerEditing);
-                await db.SaveChangesAsync();
-
-                SelectedCustomer.Name = customerEditing.Name;
-                SelectedCustomer.PhoneNumber = customerEditing.PhoneNumber;
-                SelectedCustomer.Address = customerEditing.Address;
-
-                dialogViewModel.IsBusy = false;
-                dialog.Hide();
-            }
-            catch (Exception ex)
-            {
-                dialogViewModel.ErrorSummary = "Lỗi khi lưu: " + ex.Message;
-                dialogViewModel.IsBusy = false;
-            }
-
             var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
+            Customer = new CustomerModel();
+            ErrorSummary = string.Empty;
         }
         partial void OnSearchTextChanged(string value) => CustomersView?.Refresh();
 
