@@ -131,7 +131,6 @@ namespace UiDesktopApp1
                     services.AddSingleton<KhachHangPageHeader>();
 
                     services.AddTransient<ThemKhachHangDialog>();
-                    services.AddTransient<ThemKhachHangViewModel>();
                 });
     }
 }

@@ -96,8 +96,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     db.Customers.Update(Customer);
                 else db.Customers.Add(Customer);
                 await db.SaveChangesAsync();
-
-
             }
             catch (Exception ex)
             {
@@ -120,8 +118,17 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             };
 
             var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
-            if (result == ContentDialogResult.Primary)
+            /*if (result == ContentDialogResult.Primary)
+                await SaveAsync(false);*/
+
+            dialog.Closing += async (sender, args) =>
+            {
+                if (args.Result != ContentDialogResult.Primary)
+                    return;
+
+                args.Cancel = true;
                 await SaveAsync(false);
+            };
 
         }
 
