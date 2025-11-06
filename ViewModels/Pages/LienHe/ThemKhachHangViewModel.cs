@@ -22,6 +22,8 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         [ObservableProperty]
         private bool _isBusy;
 
+        [ObservableProperty]
+        private string _errorSummary = string.Empty;
         public ThemKhachHangViewModel(IDbContextFactory<AppDbContext> dbContextFactory)
         {
             _dbContextFactory = dbContextFactory;
@@ -33,9 +35,15 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             Customer.ValidateAll();
             if(Customer.HasErrors)
             {
+                var allErrors = Customer.GetErrors()
+                                        .Select(e => e.ErrorMessage)
+                                        .Where(msg => !string.IsNullOrWhiteSpace(msg))
+                                        .Distinct();
+                ErrorSummary = string.Join("\n", allErrors);
                 return ContentDialogResult.None;
             }
 
+            ErrorSummary = string.Empty;
             IsBusy = true;
             try
             {
@@ -49,8 +57,9 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 IsBusy = false;
                 return ContentDialogResult.Primary; // Đóng dialog và trả về kết quả thành công
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                ErrorSummary = "Lỗi khi lưu: " + ex.Message;
                 IsBusy = false;
                 return ContentDialogResult.None;
             }

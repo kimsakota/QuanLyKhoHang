@@ -33,17 +33,18 @@
                 Text="{Binding Customer.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
 
-        <TextBlock 
-            Text="{Binding Customer.Errors, Converter={StaticResource ErrorsConverter}}" 
-            Foreground="DarkRed"
-            TextWrapping="Wrap"
-            Margin="0,5,0,10"
-            Visibility="{Binding Customer.HasErrors, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        <ui:InfoBar Margin="0,10,0,0"
+                    Severity="Error"
+                    Title="Dữ liệu chưa hợp lệ"
+                    Message="{Binding ErrorSummary, Mode=OneWay}"
+                    IsOpen="{Binding Customer.HasErrors}"
+                    IsClosable="False"/>
 
-        <ui:ProgressRing 
-            IsIndeterminate="True" 
-            Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"
-            Margin="0,10"/>
+        <ui:InfoBar Margin='0,5,0,0'
+                    Severity="Informational"
+                    Message="Đang xử lý, vui lòng chờ..."
+                    IsOpen="{Binding IsBusy}"
+                    IsClosable="False" />
 
     </StackPanel>
 </ContentControl>
