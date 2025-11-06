@@ -18,7 +18,7 @@ using Wpf.Ui.Controls;
 
 namespace UiDesktopApp1.ViewModels.Pages.LienHe
 {
-    public partial class KhachHangViewModel : ObservableObject, INavigationAware, IRecipient<CustomerCreatedMessage>
+    public partial class KhachHangViewModel : ObservableObject, INavigationAware
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly IContentDialogService _contentDialogService; 
@@ -30,7 +30,12 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
         [ObservableProperty]
         private CustomerModel? _selectedCustomer;
-        [ObservableProperty] private bool isBusy;
+        [ObservableProperty]
+        private CustomerModel _customer = new();
+        [ObservableProperty] 
+        private bool isBusy = false;
+        [ObservableProperty]
+        private string _errorSummary = string.Empty;
         [ObservableProperty]
         private string _searchText = string.Empty;
 
@@ -41,16 +46,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             _contentDialogService = contentDialogService; 
             CustomersView = CollectionViewSource.GetDefaultView(Customers);
             CustomersView.Filter = FilterCustomers;
-            WeakReferenceMessenger.Default.Register<CustomerCreatedMessage>(this);
-        }
-
-        public void Receive(CustomerCreatedMessage message)
-        {
-            // Khi khách hàng mới được tạo thành công, thêm vào danh sách
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Customers.Add(message.Value);
-            });
         }
 
         public async Task OnNavigatedToAsync()
@@ -79,11 +74,42 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
         }
 
+        private async Task SaveAsync(bool isEdit)
+        {
+            if (isEdit && SelectedCustomer != null) 
+                Customer = SelectedCustomer;
+            Customer.ValidateAll();
+            if (Customer.HasErrors)
+            {
+                var allErrors = Customer.GetErrors()
+                                        .Select(e => e.ErrorMessage)
+                                        .Where(msg => !string.IsNullOrWhiteSpace(msg))
+                                        .Distinct();
+                ErrorSummary = string.Join("\n", allErrors);
+            }
+
+            IsBusy = true;
+            try
+            {
+                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                if (isEdit)
+                    db.Customers.Update(Customer);
+                else db.Customers.Add(Customer);
+                await db.SaveChangesAsync();
+
+
+            }
+            catch (Exception ex)
+            {
+                ErrorSummary = "Lỗi khi lưu: " + ex.Message;
+                IsBusy = false;
+            }
+        }
+
         [RelayCommand]
         private async Task AddCustomerAsync()
         {
             var dialogContent = App.Services.GetRequiredService<ThemKhachHangDialog>();
-            var dialogViewModel = dialogContent.ViewModel;
 
             var dialog = new ContentDialog
             {
@@ -93,19 +119,10 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 CloseButtonText = "Hủy"
             };
 
-            dialog.Closing += async (sender, args) =>
-            {
-                if (args.Result != ContentDialogResult.Primary)
-                    return;
-
-                args.Cancel = true;
-                var saveResult = await dialogViewModel.SaveAsync(dialog);
-
-                if (saveResult == ContentDialogResult.Primary)
-                    dialog.Hide();
-            };
-
             var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
+            if (result == ContentDialogResult.Primary)
+                await SaveAsync(false);
+
         }
 
         [RelayCommand]
@@ -154,9 +171,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             };
 
             var customerEditing = dialogViewModel.Customer;
-            customerEditing.Name = SelectedCustomer.Name;
-            customerEditing.PhoneNumber = SelectedCustomer.PhoneNumber;
-            customerEditing.Address = SelectedCustomer.Address;
+            customerEditing = SelectedCustomer;
 
             dialog.Closing += async (sender, args) =>
             {
@@ -164,11 +179,41 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     return;
 
                 args.Cancel = true;
-                //var saveResult = await dialogViewModel.SaveAsync(dialog);
 
-                //if (saveResult == ContentDialogResult.Primary)
-                    dialog.Hide();
+                customerEditing.ValidateAll();
+                if (customerEditing.HasErrors)
+                {
+                    // Nếu có lỗi, hiển thị lỗi trên dialog và không đóng
+                    var allErrors = customerEditing.GetErrors()
+                                                .Select(e => e.ErrorMessage)
+                                                .Where(msg => !string.IsNullOrWhiteSpace(msg))
+                                                .Distinct();
+                    dialogViewModel.ErrorSummary = string.Join("\n", allErrors);
+                    return;
+                }
+
+                dialogViewModel.ErrorSummary = string.Empty;
+                dialogViewModel.IsBusy = true;
             };
+
+            try
+            {
+                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                db.Customers.Update(customerEditing);
+                await db.SaveChangesAsync();
+
+                SelectedCustomer.Name = customerEditing.Name;
+                SelectedCustomer.PhoneNumber = customerEditing.PhoneNumber;
+                SelectedCustomer.Address = customerEditing.Address;
+
+                dialogViewModel.IsBusy = false;
+                dialog.Hide();
+            }
+            catch (Exception ex)
+            {
+                dialogViewModel.ErrorSummary = "Lỗi khi lưu: " + ex.Message;
+                dialogViewModel.IsBusy = false;
+            }
 
             var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
         }

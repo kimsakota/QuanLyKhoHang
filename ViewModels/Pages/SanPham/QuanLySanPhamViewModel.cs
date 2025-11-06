@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.EntityFrameworkCore; // <-- CẦN THÊM USING NÀY
+using Microsoft.EntityFrameworkCore; 
 using UiDesktopApp1.Models;
 using UiDesktopApp1.Models.Messages;
 using UiDesktopApp1.Views.Pages.SanPham;

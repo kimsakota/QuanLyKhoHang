@@ -23,9 +23,9 @@ namespace UiDesktopApp1.Views.UserControls.LienHe
     /// </summary>
     public partial class ThemKhachHangDialog : ContentControl
     {
-        public ThemKhachHangViewModel ViewModel { get; }
+        public KhachHangViewModel ViewModel { get; }
 
-        public ThemKhachHangDialog(ThemKhachHangViewModel viewModel)
+        public ThemKhachHangDialog(KhachHangViewModel viewModel)
         {
             ViewModel = viewModel;
             DataContext = viewModel;
