@@ -71,10 +71,9 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
             foreach (var customer in customerList)
                 Customers.Add(customer);
-
         }
 
-        private async Task SaveAsync(bool isEdit)
+        private async Task<bool> SaveAsync(bool isEdit)
         {
             if (isEdit && SelectedCustomer != null) 
                 Customer = SelectedCustomer;
@@ -86,6 +85,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                                         .Where(msg => !string.IsNullOrWhiteSpace(msg))
                                         .Distinct();
                 ErrorSummary = string.Join("\n", allErrors);
+                return false;
             }
 
             IsBusy = true;
@@ -96,10 +96,15 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     db.Customers.Update(Customer);
                 else db.Customers.Add(Customer);
                 await db.SaveChangesAsync();
+                return true;
             }
             catch (Exception ex)
             {
                 ErrorSummary = "Lỗi khi lưu: " + ex.Message;
+                return false;
+            }
+            finally
+            {
                 IsBusy = false;
             }
         }
@@ -118,18 +123,16 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             };
 
             var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
-            /*if (result == ContentDialogResult.Primary)
-                await SaveAsync(false);*/
 
-            dialog.Closing += async (sender, args) =>
+            dialog.Closing += async (s, e) =>
             {
-                if (args.Result != ContentDialogResult.Primary)
-                    return;
+                if (e.Result == ContentDialogResult.Primary)
+                {
+                    var ok = await SaveAsync(isEdit: false);
 
-                args.Cancel = true;
-                await SaveAsync(false);
+                    if (!ok) e.Cancel = true;
+                }
             };
-
         }
 
         [RelayCommand]
