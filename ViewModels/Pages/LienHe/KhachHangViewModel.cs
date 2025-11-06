@@ -21,6 +21,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
     public partial class KhachHangViewModel : ObservableObject, INavigationAware, IRecipient<CustomerCreatedMessage>
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly IContentDialogService _contentDialogService; 
         private bool _isInitialized = false;
 
         public ObservableCollection<CustomerModel> Customers { get; } = new();
@@ -33,10 +34,11 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         [ObservableProperty]
         private string _searchText = string.Empty;
 
-        public KhachHangViewModel(IDbContextFactory<AppDbContext> dbContextFactory)
+        public KhachHangViewModel(IDbContextFactory<AppDbContext> dbContextFactory,
+            IContentDialogService contentDialogService)
         {
             _dbContextFactory = dbContextFactory;
-
+            _contentDialogService = contentDialogService; 
             CustomersView = CollectionViewSource.GetDefaultView(Customers);
             CustomersView.Filter = FilterCustomers;
             WeakReferenceMessenger.Default.Register<CustomerCreatedMessage>(this);
@@ -77,12 +79,35 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
         }
 
-        //[RelayCommand]
-        //private async Task AddCustomerAsync()
-        //{
+        [RelayCommand]
+        private async Task AddCustomerAsync()
+        {
+            var dialogContent = App.Services.GetRequiredService<ThemKhachHangDialog>();
+            var dialogViewModel = dialogContent.ViewModel;
 
-        //}
+            var dialog = new ContentDialog
+            {
+                Title = "Thêm khách hàng mới",
+                Content = dialogContent,
+                PrimaryButtonText = "Lưu",
+                CloseButtonText = "Hủy"
+            };
 
+            dialog.Closing += async (sender, args) =>
+            {
+                if (args.Result != ContentDialogResult.Primary)
+                    return;
+
+                args.Cancel = true;
+                var saveResult = await dialogViewModel.SaveAsync(dialog);
+
+                if (saveResult == ContentDialogResult.Primary)
+                    dialog.Hide(ContentDialogResult.Primary);
+            };
+
+            var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
+
+        }
         partial void OnSearchTextChanged(string value) => CustomersView?.Refresh();
 
         private bool FilterCustomers(object obj)
