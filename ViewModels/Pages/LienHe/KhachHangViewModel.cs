@@ -76,8 +76,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
         private async Task<bool> SaveAsync(bool isEdit)
         {
-            if (isEdit && SelectedCustomer != null) 
-                Customer = SelectedCustomer;
             Customer.ValidateAll();
             if (Customer.HasErrors)
             {
@@ -188,7 +186,13 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 CloseButtonText = "Hủy"
             };
 
-            Customer = SelectedCustomer;
+            Customer = new CustomerModel
+            {
+                Id = SelectedCustomer.Id,
+                Name = SelectedCustomer.Name,
+                PhoneNumber = SelectedCustomer.PhoneNumber,
+                Address = SelectedCustomer.Address
+            };
 
             dialog.Closing += async (s, e) =>
             {
