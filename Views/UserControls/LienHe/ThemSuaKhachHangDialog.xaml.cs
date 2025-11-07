@@ -18,14 +18,11 @@ using Wpf.Ui.Controls;
 
 namespace UiDesktopApp1.Views.UserControls.LienHe
 {
-    /// <summary>
-    /// Interaction logic for ThemKhachHangDialog.xaml
-    /// </summary>
-    public partial class ThemKhachHangDialog : ContentControl
+    public partial class ThemSuaKhachHangDialog : ContentControl
     {
         public KhachHangViewModel ViewModel { get; }
 
-        public ThemKhachHangDialog(KhachHangViewModel viewModel)
+        public ThemSuaKhachHangDialog(KhachHangViewModel viewModel)
         {
             ViewModel = viewModel;
             DataContext = viewModel;

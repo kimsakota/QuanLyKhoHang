@@ -3,12 +3,117 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages.LienHe"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
+      xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages.LienHe" xmlns:models="clr-namespace:UiDesktopApp1.Models"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="NhaCungCapPage">
 
-    <Grid>
-        
-    </Grid>
+    <Border>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="0,0,0.5,0">
+                <Grid Width="300" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="480"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
+                        <ui:AutoSuggestBox Icon="{ui:SymbolIcon Search24}" 
+                                       PlaceholderText="Tìm kiếm theo tên" Margin="10,10,10,20"
+                                       Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       />
+                    </Border>
+                    <Grid Grid.Row="1">
+                        <ui:ListView d:ItemsSource="{d:SampleData ItemCount=5}"
+                                 ItemsSource="{Binding SuppliersView}"
+                                 SelectedIndex="0"
+                                 SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}">
+                            <ui:ListView.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:SupplierModel}">
+                                    <Grid Margin="8,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Ellipse x:Name="Ellipse"
+                                             Grid.RowSpan="2"
+                                             Width="32"
+                                             Height="32"
+                                             Margin="6"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"
+                                             Fill="{ui:ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+                                        <TextBlock Grid.Column="1"
+                                               FontWeight="SemiBold"
+                                               Margin="5,0,0,0"
+                                               FontSize="20"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding Name, Mode=OneWay}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ui:ListView.ItemTemplate>
+                        </ui:ListView>
+                    </Grid>
+                </Grid>
+            </Border>
+            <Grid Grid.Column="1">
+                <Grid Margin="15,15,50,15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="5*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Row="0" Orientation="Vertical">
+                                <ui:TextBlock Text="{Binding SelectedSupplier.Name}" FontSize="30"
+                                          FontWeight="SemiBold"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Call12" Margin="0,0,5,0" Foreground="DeepSkyBlue" 
+                                               />
+                                    <TextBlock Text="{Binding SelectedSupplier.PhoneNumber}" 
+                                           FontSize="20"
+                                           />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <ui:Button Grid.Column="1" Margin="10,0,10,0"
+                                   Width="50" Height="40"
+                                   Command="{Binding DeleteCommand}"
+                                   CornerRadius="10"
+                                   MouseOverBackground="LightBlue"
+                                   Appearance="Danger">
+                                <ui:Button.Icon>
+                                    <ui:SymbolIcon Symbol="Delete24" FontWeight="Bold"
+                                               FontSize="20"/>
+                                </ui:Button.Icon>
+                            </ui:Button>
+                            <ui:Button Grid.Column="2" Margin="5,0,10,0"
+                                   Width="50" Height="40"
+                                   Command="{Binding EditCommand}"
+                                   CornerRadius="10"
+                                   MouseOverBackground="LightBlue"
+                                   Appearance="Primary">
+                                <ui:Button.Icon>
+                                    <ui:SymbolIcon Symbol="Edit24" FontWeight="Bold"
+                                               FontSize="20"/>
+                                </ui:Button.Icon>
+                            </ui:Button>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1">
+                        <TextBlock Text="{Binding SelectedSupplier.Address}"/>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
 </Page>

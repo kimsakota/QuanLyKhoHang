@@ -46,5 +46,7 @@ namespace UiDesktopApp1.Models
         private string? notes; // Ghi chú thêm
 
         public ICollection<ImportModel> Imports { get; set; } = new List<ImportModel>();
+
+        public void ValidateAll() => base.ValidateAllProperties();
     }
 }

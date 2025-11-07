@@ -114,14 +114,15 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         [RelayCommand]
         private async Task AddCustomerAsync()
         {
-            var dialogContent = App.Services.GetRequiredService<ThemKhachHangDialog>();
+            var dialogContent = App.Services.GetRequiredService<ThemSuaKhachHangDialog>();
 
             var dialog = new ContentDialog
             {
                 Title = "Thêm khách hàng mới",
                 Content = dialogContent,
                 PrimaryButtonText = "Lưu",
-                CloseButtonText = "Hủy"
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary
             };
 
             dialog.Closing += async (s, e) =>
@@ -176,14 +177,16 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         private async Task Edit()
         {
             if (SelectedCustomer == null) return;
-            var dialogContent = App.Services.GetRequiredService<ThemKhachHangDialog>();
+            var dialogContent = App.Services.GetRequiredService<ThemSuaKhachHangDialog>();
 
             var dialog = new ContentDialog
             {
                 Title = "Sửa thông tin khách hàng",
                 Content = dialogContent,
                 PrimaryButtonText = "Lưu",
-                CloseButtonText = "Hủy"
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary
+
             };
 
             Customer = new CustomerModel

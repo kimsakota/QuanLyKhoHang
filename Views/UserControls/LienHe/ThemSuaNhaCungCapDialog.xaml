@@ -1,0 +1,83 @@
+﻿<UserControl x:Class="UiDesktopApp1.Views.UserControls.LienHe.ThemSuaNhaCungCapDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
+             xmlns:local="clr-namespace:UiDesktopApp1.Views.UserControls.LienHe"
+             mc:Ignorable="d" 
+              d:DesignWidth="400">
+    <StackPanel Margin="16">
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Tên nhà cung cấp" FontWeight="SemiBold"/>
+            <TextBlock Text=" *(Bắt buộc)" Foreground="DarkRed" Margin="0,0,0,5"/>
+            <ui:TextBox 
+            PlaceholderText="Nhập tên nhà cung cấp"
+            Text="{Binding Supplier.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Tên người liên hệ" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ui:TextBox PlaceholderText="Nhập tên người liên hệ"
+                        Text="{Binding Supplier.ContactPerson, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Số điện thoại" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ui:TextBox 
+            PlaceholderText="Nhập số điện thoại"
+            Text="{Binding Supplier.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Địa chỉ" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ui:TextBox 
+            PlaceholderText="Nhập địa chỉ"
+            Text="{Binding Supplier.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Mã số thuế" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ui:TextBox PlaceholderText="Nhập mã số thuế"
+                Text="{Binding Supplier.TaxCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Tên ngân hàng" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ui:TextBox PlaceholderText="Nhập tên ngân hàng"
+                Text="{Binding Supplier.BankName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Chủ tài khoản" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ui:TextBox PlaceholderText="Nhập tên chủ tài khoản"
+                Text="{Binding Supplier.AccountName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Số tài khoản" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ui:TextBox PlaceholderText="Nhập số tài khoản"
+                Text="{Binding Supplier.AccountNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Ghi chú" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ui:TextBox PlaceholderText="Nhập ghi chú"
+                Text="{Binding Supplier.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <ui:InfoBar Margin="0,10,0,0"
+                Severity="Error"
+                Title="Dữ liệu chưa hợp lệ"
+                Message="{Binding ErrorSummary, Mode=OneWay}"
+                IsOpen="{Binding Supplier.HasErrors}"
+                IsClosable="False"/>
+
+        <ui:InfoBar Margin='0,5,0,0'
+                Severity="Informational"
+                Message="Đang xử lý, vui lòng chờ..."
+                IsOpen="{Binding IsBusy}"
+                IsClosable="False" />
+
+    </StackPanel>
+</UserControl>

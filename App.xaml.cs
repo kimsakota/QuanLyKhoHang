@@ -101,10 +101,7 @@ namespace UiDesktopApp1
                     services.AddScoped<ChiPhiViewModel>();
 
                     
-                    services.AddSingleton<NhaCungCapPage>();
-                    services.AddScoped<NhaCungCapViewModel>();
-                    services.AddSingleton<NhanVienPage>();
-                    services.AddScoped<NhanVienViewModel>();
+                    
 
                     services.AddSingleton<SettingsPage>();
                     services.AddScoped<SettingsViewModel>();
@@ -129,8 +126,17 @@ namespace UiDesktopApp1
                     services.AddSingleton<Views.Pages.LienHe.KhachHangPage>();
                     services.AddScoped<ViewModels.Pages.LienHe.KhachHangViewModel>();
                     services.AddSingleton<KhachHangPageHeader>();
+                    services.AddTransient<ThemSuaKhachHangDialog>();
 
-                    services.AddTransient<ThemKhachHangDialog>();
+                    services.AddSingleton<NhaCungCapPage>();
+                    services.AddScoped<NhaCungCapViewModel>();
+                    services.AddSingleton<NhaCungCapPageHeader>();
+                    services.AddTransient<ThemSuaNhaCungCapDialog>();
+
+                    services.AddSingleton<NhanVienPage>();
+                    services.AddScoped<NhanVienViewModel>();
+
+                    
                 });
     }
 }
