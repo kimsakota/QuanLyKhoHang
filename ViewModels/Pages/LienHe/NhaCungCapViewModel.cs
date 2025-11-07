@@ -112,7 +112,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         [RelayCommand]
         private async Task AddAsync()
         {
-            var dialogContent = App.Services.GetRequiredService<ThemSuaKhachHangDialog>();
+            var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
 
             var dialog = new ContentDialog
             {
@@ -175,7 +175,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         private async Task Edit()
         {
             if (SelectedSupplier == null) return;
-            var dialogContent = App.Services.GetRequiredService<ThemSuaKhachHangDialog>();
+            var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
 
             var dialog = new ContentDialog
             {
