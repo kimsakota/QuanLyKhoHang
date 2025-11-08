@@ -4,11 +4,17 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
-      xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages.LienHe" xmlns:models="clr-namespace:UiDesktopApp1.Models"
+      xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages.LienHe" 
+      xmlns:models="clr-namespace:UiDesktopApp1.Models"
+      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="NhaCungCapPage">
-
+    <Page.Resources>
+        <ResourceDictionary>
+            <beh:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter" />
+        </ResourceDictionary>
+    </Page.Resources>
     <Border>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -30,7 +36,6 @@
                     <Grid Grid.Row="1">
                         <ui:ListView d:ItemsSource="{d:SampleData ItemCount=5}"
                                  ItemsSource="{Binding SuppliersView}"
-                                 SelectedIndex="0"
                                  SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}">
                             <ui:ListView.ItemTemplate>
                                 <DataTemplate DataType="{x:Type models:SupplierModel}">
@@ -102,68 +107,112 @@
                             </ui:Button>
                         </Grid>
                     </Border>
-                    
-                    <StackPanel Orientation="Vertical" Grid.Row="1">
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <ui:SymbolIcon Symbol="Person12" 
-                                           Margin="0,0,5,0" 
-                                           Foreground="DeepSkyBlue" />
-                            <TextBlock Text="{Binding SelectedSupplier.ContactPerson}" 
-                                       FontSize="20"
-                                       FontWeight="SemiBold"/>
+
+                    <ScrollViewer Height="480" Grid.Row="1" VerticalScrollBarVisibility="Auto" 
+                                  VerticalAlignment="Top"
+                                  Padding="0,0,10,0">
+                        <StackPanel Orientation="Vertical">
+
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedSupplier.ContactPerson, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Person24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Người liên hệ" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <TextBlock Text="{Binding SelectedSupplier.ContactPerson}" FontSize="18" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedSupplier.PhoneNumber, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Call24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Số điện thoại" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <TextBlock Text="{Binding SelectedSupplier.PhoneNumber}" FontSize="18" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedSupplier.Address, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Location24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Địa chỉ" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <TextBlock Text="{Binding SelectedSupplier.Address}" FontSize="18" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedSupplier.TaxCode, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Tag24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Mã số thuế" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <TextBlock Text="{Binding SelectedSupplier.TaxCode}" FontSize="18" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Border BorderBrush="LightGray" BorderThickness="0,0.5,0,0" Margin="0,15,0,10" Opacity="0.5" />
+
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedSupplier.BankName, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="BuildingBank24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Ngân hàng" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <TextBlock Text="{Binding SelectedSupplier.BankName}" FontSize="18" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedSupplier.AccountName, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="PersonMoney24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Chủ tài khoản" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <TextBlock Text="{Binding SelectedSupplier.AccountName}" FontSize="18" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedSupplier.AccountNumber, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="NumberSymbol24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Số tài khoản" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <TextBlock Text="{Binding SelectedSupplier.AccountNumber}" FontSize="18" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedSupplier.Notes, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Note24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Ghi chú" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <TextBlock Text="{Binding SelectedSupplier.Notes}" FontSize="18" TextWrapping="Wrap" FontStyle="Italic" Opacity="0.9"/>
+                                </StackPanel>
+                            </Grid>
+
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Call12" 
-                                           Margin="0,0,5,0" 
-                                           Foreground="DeepSkyBlue" />
-                            <TextBlock Text="{Binding SelectedSupplier.PhoneNumber}" 
-                                       FontSize="20"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Location12" 
-                                           Margin="0,0,5,0" 
-                                           Foreground="DeepSkyBlue" />
-                            <TextBlock Text="{Binding SelectedSupplier.Address}" 
-                                       FontSize="20"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Location12" 
-                                           Margin="0,0,5,0" 
-                                           Foreground="DeepSkyBlue" />
-                            <TextBlock Text="{Binding SelectedSupplier.TaxCode}" 
-                                       FontSize="20"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Location12" 
-                                           Margin="0,0,5,0" 
-                                           Foreground="DeepSkyBlue" />
-                            <TextBlock Text="{Binding SelectedSupplier.BankName}" 
-                                       FontSize="20"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Location12" 
-                                           Margin="0,0,5,0" 
-                                           Foreground="DeepSkyBlue" />
-                            <TextBlock Text="{Binding SelectedSupplier.AccountName}" 
-                                       FontSize="20"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Location12" 
-                                           Margin="0,0,5,0" 
-                                           Foreground="DeepSkyBlue" />
-                            <TextBlock Text="{Binding SelectedSupplier.AccountNumber}" 
-                                       FontSize="20"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Location12" 
-                                           Margin="0,0,5,0" 
-                                           Foreground="DeepSkyBlue" />
-                            <TextBlock Text="{Binding SelectedSupplier.Notes}" 
-                                       FontSize="20"/>
-                        </StackPanel>
-                        
-                        
-                    </StackPanel>
+                    </ScrollViewer>
                 </Grid>
             </Grid>
         </Grid>

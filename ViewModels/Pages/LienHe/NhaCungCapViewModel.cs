@@ -43,7 +43,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             _dbContextFactory = dbContextFactory;
             _contentDialogService = contentDialogService;
             SuppliersView = CollectionViewSource.GetDefaultView(Suppliers);
-            SuppliersView.Filter = FilterCustomers;
+            SuppliersView.Filter = FilterSuppliers;
         }
 
         public async Task OnNavigatedToAsync()
@@ -63,12 +63,12 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         private async Task LoadDataAsync()
         {
             Suppliers.Clear();
-
+            
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            var customerList = await dbContext.Suppliers.AsNoTracking().ToListAsync();
+            var supplierList = await dbContext.Suppliers.AsNoTracking().ToListAsync();
 
-            foreach (var customer in customerList)
-                Suppliers.Add(customer);
+            foreach (var supplier in supplierList)
+                Suppliers.Add(supplier);
         }
 
         private async Task<bool> SaveAsync(bool isEdit)
@@ -88,11 +88,11 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             try
             {
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
-                
+
                 if (isEdit)
                     db.Suppliers.Update(Supplier);
                 else db.Suppliers.Add(Supplier);
-
+                
                 await db.SaveChangesAsync();
                 await LoadDataAsync();
 
@@ -130,6 +130,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     var ok = await SaveAsync(isEdit: false);
 
                     if (!ok) e.Cancel = true;
+                    
                 }
             };
 
@@ -211,16 +212,16 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         }
         partial void OnSearchTextChanged(string value) => SuppliersView?.Refresh();
 
-        private bool FilterCustomers(object obj)
+        private bool FilterSuppliers(object obj)
         {
             if (string.IsNullOrWhiteSpace(SearchText))
                 return true; // Hiển thị tất cả nếu ô tìm kiếm trống
 
-            if (obj is CustomerModel customer)
+            if (obj is SupplierModel supplier)
             {
                 // Tìm kiếm theo Tên hoặc SĐT
-                return (customer.Name?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true) ||
-                       (customer.PhoneNumber?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true);
+                return (supplier.Name?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true) ||
+                       (supplier.PhoneNumber?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true);
             }
             return false;
         }
