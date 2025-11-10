@@ -112,7 +112,8 @@
 
                     <ScrollViewer Height="476" Grid.Row="1" VerticalScrollBarVisibility="Auto" 
                                   VerticalAlignment="Top"
-                                  Padding="0,0,10,0">
+                                  Padding="0,0,10,0"
+                                  Visibility="{Binding SelectedSupplier.Name, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
                         <StackPanel Orientation="Vertical">
 
                             <Grid Margin="0,10,0,5" Visibility="{Binding SelectedSupplier.ContactPerson, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">

@@ -62,13 +62,18 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
         private async Task LoadDataAsync()
         {
-            Suppliers.Clear();
-            
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            var supplierList = await dbContext.Suppliers.AsNoTracking().ToListAsync();
+            IsBusy = true;
+            try
+            {
+                Suppliers.Clear();
 
-            foreach (var supplier in supplierList)
-                Suppliers.Add(supplier);
+                await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+                var supplierList = await dbContext.Suppliers.AsNoTracking().ToListAsync();
+
+                foreach (var supplier in supplierList)
+                    Suppliers.Add(supplier);
+            }
+            finally { IsBusy = false; }
         }
 
         private async Task<bool> SaveAsync(bool isEdit)
@@ -90,12 +95,25 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
 
                 if (isEdit)
+                {
                     db.Suppliers.Update(Supplier);
-                else db.Suppliers.Add(Supplier);
-                
-                await db.SaveChangesAsync();
-                //await LoadDataAsync();
-                SuppliersView.Refresh();
+                    await db.SaveChangesAsync();
+
+                    var oldSupplier = Suppliers.FirstOrDefault(s => s.Id == Supplier.Id);
+                    if (oldSupplier != null)
+                    {
+                        var index = Suppliers.IndexOf(oldSupplier);
+                        if(index !=  -1)
+                            Suppliers[index] = Supplier;
+                    }
+                }
+                else
+                {
+                    db.Suppliers.Add(Supplier);
+                    await db.SaveChangesAsync();
+
+                    Suppliers.Insert(0, Supplier);
+                }
                 return true;
             }
             catch (Exception ex)
@@ -115,6 +133,9 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         {
             var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
 
+            Supplier = new SupplierModel();
+            ErrorSummary = string.Empty;
+
             var dialog = new ContentDialog
             {
                 Title = "Thêm khách hàng mới",
@@ -133,16 +154,61 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     if (!ok) e.Cancel = true;
                     else
                     {
+                        SearchText = string.Empty;
                         SelectedSupplier = Supplier;
                     }
-                    
                 }
             };
 
-            var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
+            await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
 
-            Supplier = new SupplierModel();
-            ErrorSummary = string.Empty;
+        }
+
+        [RelayCommand]
+        private async Task EditAsync()
+        {
+            if (SelectedSupplier == null) return;
+            var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
+
+            Supplier = new SupplierModel
+            {
+                Id = SelectedSupplier.Id,
+                Name = SelectedSupplier.Name,
+                ContactPerson = SelectedSupplier.ContactPerson,
+                PhoneNumber = SelectedSupplier.PhoneNumber,
+                Email = SelectedSupplier.Email,
+                Address = SelectedSupplier.Address,
+                TaxCode = SelectedSupplier.TaxCode,
+                BankName = SelectedSupplier.BankName,
+                AccountName = SelectedSupplier.AccountName,
+                AccountNumber = SelectedSupplier.AccountNumber,
+                Notes = SelectedSupplier.Notes
+            };
+
+            var dialog = new ContentDialog
+            {
+                Title = "Sửa thông tin khách hàng",
+                Content = dialogContent,
+                PrimaryButtonText = "Lưu",
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+
+            dialog.Closing += async (s, e) =>
+            {
+                if (e.Result == ContentDialogResult.Primary)
+                {
+                    var ok = await SaveAsync(isEdit: true);
+
+                    if (!ok) e.Cancel = true;
+                    else SelectedSupplier = Supplier;
+                }
+            };
+
+            await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
+
+            
         }
 
         [RelayCommand]
@@ -158,14 +224,16 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             IsBusy = true;
             try
             {
+                var supplierToDelete = SelectedSupplier;
+
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
-                var customerIdToDelete = SelectedSupplier.Id;
-                var customerToDeleteFromDb = await db.Suppliers
-                    .Where(p => customerIdToDelete == p.Id)
-                    .ToListAsync();
-                db.Suppliers.RemoveRange(customerToDeleteFromDb);
+
+                db.Suppliers.Attach(supplierToDelete);
+                db.Suppliers.Remove(supplierToDelete);
+
                 await db.SaveChangesAsync();
-                await LoadDataAsync();
+
+                Suppliers.Remove(supplierToDelete);
             }
             catch (Exception)
             {
@@ -177,44 +245,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             }
         }
 
-        [RelayCommand]
-        private async Task EditAsync()
-        {
-            if (SelectedSupplier == null) return;
-            var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
-
-            var dialog = new ContentDialog
-            {
-                Title = "Sửa thông tin khách hàng",
-                Content = dialogContent,
-                PrimaryButtonText = "Lưu",
-                CloseButtonText = "Hủy",
-                DefaultButton = ContentDialogButton.Primary
-
-            };
-
-            Supplier = new SupplierModel
-            {
-                Id = SelectedSupplier.Id,
-                Name = SelectedSupplier.Name,
-                PhoneNumber = SelectedSupplier.PhoneNumber,
-                Address = SelectedSupplier.Address
-            };
-
-            dialog.Closing += async (s, e) =>
-            {
-                if (e.Result == ContentDialogResult.Primary)
-                {
-                    var ok = await SaveAsync(isEdit: true);
-
-                    if (!ok) e.Cancel = true;
-                }
-            };
-
-            var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
-            Supplier = new SupplierModel();
-            ErrorSummary = string.Empty;
-        }
+        
         partial void OnSearchTextChanged(string value) => SuppliersView?.Refresh();
 
         private bool FilterSuppliers(object obj)
