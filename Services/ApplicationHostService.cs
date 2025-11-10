@@ -6,6 +6,7 @@ using System.Diagnostics;
 using UiDesktopApp1.Models;
 using UiDesktopApp1.Views.Pages;
 using Wpf.Ui;
+using UiDesktopApp1.Views.Pages.LienHe;
 
 namespace UiDesktopApp1.Services
 {
@@ -132,7 +133,7 @@ namespace UiDesktopApp1.Services
                 navigationWindow.ShowWindow(); // Hiển thị MainWindow
 
                 // Điều hướng đến trang mặc định
-                bool navigationResult = _navigationService.Navigate(typeof(SanPhamPage));
+                bool navigationResult = _navigationService.Navigate(typeof(NhaCungCapPage));
                 if (!navigationResult)
                 {
                     Debug.WriteLine("Initial navigation failed using INavigationService.");

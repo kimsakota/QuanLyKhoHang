@@ -35,8 +35,10 @@
                     </Border>
                     <Grid Grid.Row="1">
                         <ui:ListView d:ItemsSource="{d:SampleData ItemCount=5}"
-                                 ItemsSource="{Binding SuppliersView}"
-                                 SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}">
+                                     ItemsSource="{Binding SuppliersView}"
+                                     SelectedIndex="0"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}">
                             <ui:ListView.ItemTemplate>
                                 <DataTemplate DataType="{x:Type models:SupplierModel}">
                                     <Grid Margin="8,0">
@@ -55,7 +57,7 @@
                                         <TextBlock Grid.Column="1"
                                                FontWeight="SemiBold"
                                                Margin="5,0,0,0"
-                                               FontSize="20"
+                                               FontSize="15"
                                                VerticalAlignment="Center"
                                                Text="{Binding Name, Mode=OneWay}"/>
                                     </Grid>
@@ -71,7 +73,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="5*"/>
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
+                    <Border Grid.Row="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -91,15 +93,15 @@
                                    Appearance="Danger">
                                 <ui:Button.Icon>
                                     <ui:SymbolIcon Symbol="Delete24" FontWeight="Bold"
-                                               FontSize="20"/>
+                                                   FontSize="20"/>
                                 </ui:Button.Icon>
                             </ui:Button>
                             <ui:Button Grid.Column="2" Margin="5,0,10,0"
-                                   Width="50" Height="40"
-                                   Command="{Binding EditCommand}"
-                                   CornerRadius="10"
-                                   MouseOverBackground="LightBlue"
-                                   Appearance="Primary">
+                                       Width="50" Height="40"
+                                       Command="{Binding EditCommand}"
+                                       CornerRadius="10"
+                                       MouseOverBackground="LightBlue"
+                                       Appearance="Primary">
                                 <ui:Button.Icon>
                                     <ui:SymbolIcon Symbol="Edit24" FontWeight="Bold"
                                                FontSize="20"/>
@@ -108,7 +110,7 @@
                         </Grid>
                     </Border>
 
-                    <ScrollViewer Height="480" Grid.Row="1" VerticalScrollBarVisibility="Auto" 
+                    <ScrollViewer Height="476" Grid.Row="1" VerticalScrollBarVisibility="Auto" 
                                   VerticalAlignment="Top"
                                   Padding="0,0,10,0">
                         <StackPanel Orientation="Vertical">

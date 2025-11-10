@@ -94,8 +94,8 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 else db.Suppliers.Add(Supplier);
                 
                 await db.SaveChangesAsync();
-                await LoadDataAsync();
-
+                //await LoadDataAsync();
+                SuppliersView.Refresh();
                 return true;
             }
             catch (Exception ex)
@@ -105,6 +105,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             }
             finally
             {
+                
                 IsBusy = false;
             }
         }
@@ -130,6 +131,10 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     var ok = await SaveAsync(isEdit: false);
 
                     if (!ok) e.Cancel = true;
+                    else
+                    {
+                        SelectedSupplier = Supplier;
+                    }
                     
                 }
             };
@@ -141,7 +146,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         }
 
         [RelayCommand]
-        private async Task Delete()
+        private async Task DeleteAsync()
         {
             if (SelectedSupplier == null) return;
             var result = System.Windows.MessageBox.Show("Bạn có chắc muốn xóa không?",
@@ -173,7 +178,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         }
 
         [RelayCommand]
-        private async Task Edit()
+        private async Task EditAsync()
         {
             if (SelectedSupplier == null) return;
             var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
