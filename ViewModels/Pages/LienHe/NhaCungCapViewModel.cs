@@ -76,8 +76,10 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             finally { IsBusy = false; }
         }
 
+        
         private async Task<bool> SaveAsync(bool isEdit)
         {
+            
             Supplier.ValidateAll();
             if (Supplier.HasErrors)
             {
@@ -95,26 +97,10 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
 
                 if (isEdit)
-                {
                     db.Suppliers.Update(Supplier);
-                    await db.SaveChangesAsync();
-
-                    var oldSupplier = Suppliers.FirstOrDefault(s => s.Id == Supplier.Id);
-                    if (oldSupplier != null)
-                    {
-                        var index = Suppliers.IndexOf(oldSupplier);
-                        if(index !=  -1)
-                            Suppliers[index] = Supplier;
-                    }
-                }
                 else
-                {
                     db.Suppliers.Add(Supplier);
-                    await db.SaveChangesAsync();
-
-                    Suppliers.Insert(0, Supplier);
-                }
-                return true;
+                    return true;
             }
             catch (Exception ex)
             {
@@ -133,9 +119,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         {
             var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
 
-            Supplier = new SupplierModel();
-            ErrorSummary = string.Empty;
-
             var dialog = new ContentDialog
             {
                 Title = "Thêm khách hàng mới",
@@ -150,10 +133,13 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 if (e.Result == ContentDialogResult.Primary)
                 {
                     var ok = await SaveAsync(isEdit: false);
-
-                    if (!ok) e.Cancel = true;
+                    if (!ok)
+                        e.Cancel = true;
                     else
                     {
+                        Suppliers.Add(Supplier);
+                        //Suppliers.Insert(0, Supplier);
+
                         SearchText = string.Empty;
                         SelectedSupplier = Supplier;
                     }
@@ -162,6 +148,8 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
             await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
 
+            Supplier = new SupplierModel();
+            ErrorSummary = string.Empty;
         }
 
         [RelayCommand]
@@ -194,21 +182,22 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 DefaultButton = ContentDialogButton.Primary
             };
 
-
+            
             dialog.Closing += async (s, e) =>
             {
                 if (e.Result == ContentDialogResult.Primary)
                 {
                     var ok = await SaveAsync(isEdit: true);
-
-                    if (!ok) e.Cancel = true;
-                    else SelectedSupplier = Supplier;
+                    if (!ok)
+                        e.Cancel = true;
+                    
                 }
             };
 
             await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
 
-            
+            Supplier = new SupplierModel();
+            ErrorSummary = string.Empty;
         }
 
         [RelayCommand]
@@ -234,6 +223,8 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 await db.SaveChangesAsync();
 
                 Suppliers.Remove(supplierToDelete);
+
+                SelectedSupplier = null;
             }
             catch (Exception)
             {
