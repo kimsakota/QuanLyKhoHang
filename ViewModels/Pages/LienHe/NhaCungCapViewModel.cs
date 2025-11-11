@@ -128,7 +128,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 DefaultButton = ContentDialogButton.Primary
             };
 
-            dialog.Closing += async (s, e) =>
+            dialog.Closing += async (s, e) => 
             {
                 if (e.Result == ContentDialogResult.Primary)
                 {
