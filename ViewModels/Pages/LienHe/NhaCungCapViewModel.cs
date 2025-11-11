@@ -32,7 +32,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         private SupplierModel _supplier = new();
         [ObservableProperty]
         private bool isBusy = false;
-        [ObservableProperty]
+        [ObservableProperty] 
         private string _errorSummary = string.Empty;
         [ObservableProperty]
         private string _searchText = string.Empty;
@@ -76,7 +76,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             finally { IsBusy = false; }
         }
 
-        
         private async Task<bool> SaveAsync(bool isEdit)
         {
             
@@ -100,6 +99,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     db.Suppliers.Update(Supplier);
                 else
                     db.Suppliers.Add(Supplier);
+                await db.SaveChangesAsync();
                     return true;
             }
             catch (Exception ex)
@@ -107,17 +107,16 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 ErrorSummary = "Lỗi khi lưu: " + ex.Message;
                 return false;
             }
-            finally
-            {
-                
-                IsBusy = false;
-            }
+            finally { IsBusy = false; }
         }
 
         [RelayCommand]
         private async Task AddAsync()
         {
             var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
+
+            Supplier = new SupplierModel();
+            ErrorSummary = string.Empty;
 
             var dialog = new ContentDialog
             {
@@ -141,15 +140,12 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                         //Suppliers.Insert(0, Supplier);
 
                         SearchText = string.Empty;
-                        SelectedSupplier = Supplier;
+                        SelectedSupplier = Suppliers[Suppliers.Count - 1];
                     }
                 }
             };
 
             await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
-
-            Supplier = new SupplierModel();
-            ErrorSummary = string.Empty;
         }
 
         [RelayCommand]
@@ -157,6 +153,9 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         {
             if (SelectedSupplier == null) return;
             var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
+
+            Supplier = new SupplierModel();
+            ErrorSummary = string.Empty;
 
             Supplier = new SupplierModel
             {
@@ -190,14 +189,17 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     var ok = await SaveAsync(isEdit: true);
                     if (!ok)
                         e.Cancel = true;
-                    
+                    else
+                    {
+                        var index = Suppliers.IndexOf(SelectedSupplier);
+                        Suppliers[index] = Supplier;
+                        SelectedSupplier = Suppliers[index];
+                    }
                 }
             };
 
             await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
 
-            Supplier = new SupplierModel();
-            ErrorSummary = string.Empty;
         }
 
         [RelayCommand]
