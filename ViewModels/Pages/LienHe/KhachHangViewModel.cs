@@ -112,9 +112,12 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         }
 
         [RelayCommand]
-        private async Task AddCustomerAsync()
+        private async Task AddAsync()
         {
             var dialogContent = App.Services.GetRequiredService<ThemSuaKhachHangDialog>();
+
+            Customer = new CustomerModel();
+            ErrorSummary = string.Empty;
 
             var dialog = new ContentDialog
             {
@@ -132,17 +135,68 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     var ok = await SaveAsync(isEdit: false);
 
                     if (!ok) e.Cancel = true;
+                    else
+                    {
+                        Customers.Add(Customer);
+
+                        SearchText = string.Empty;
+                        SelectedCustomer = Customers[Customers.Count - 1];
+                    }
                 }
             };
 
             var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
-
-            Customer = new CustomerModel();
-            ErrorSummary = string.Empty;
         }
 
         [RelayCommand]
-        private async Task Delete()
+        private async Task EditAsync()
+        {
+            if (SelectedCustomer == null) return;
+            var dialogContent = App.Services.GetRequiredService<ThemSuaKhachHangDialog>();
+
+            Customer = new CustomerModel();
+            ErrorSummary = string.Empty;
+
+            var dialog = new ContentDialog
+            {
+                Title = "Sửa thông tin khách hàng",
+                Content = dialogContent,
+                PrimaryButtonText = "Lưu",
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            Customer = new CustomerModel
+            {
+                Id = SelectedCustomer.Id,
+                Name = SelectedCustomer.Name,
+                PhoneNumber = SelectedCustomer.PhoneNumber,
+                Address = SelectedCustomer.Address,
+                Notes = SelectedCustomer.Notes,
+            };
+
+            dialog.Closing += async (s, e) =>
+            {
+                if (e.Result == ContentDialogResult.Primary)
+                {
+                    var ok = await SaveAsync(isEdit: true);
+
+                    if (!ok) e.Cancel = true;
+                    else
+                    {
+                        var index = Customers.IndexOf(SelectedCustomer);
+                        Customers[index] = Customer;
+                        SelectedCustomer = Customers[index];
+                    }
+                   
+                }
+            };
+
+            var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
+        }
+
+        [RelayCommand]
+        private async Task DeleteAsync()
         {
             if (SelectedCustomer == null) return;
             var result = System.Windows.MessageBox.Show("Bạn có chắc muốn xóa không?",
@@ -154,14 +208,18 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             IsBusy = true;
             try
             {
+                var customerToDelete = SelectedCustomer;
+
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
-                var customerIdToDelete = SelectedCustomer.Id;
-                var customerToDeleteFromDb = await db.Customers
-                    .Where(p => customerIdToDelete == p.Id)
-                    .ToListAsync();
-                db.Customers.RemoveRange(customerToDeleteFromDb);
+
+                db.Customers.Attach(customerToDelete);
+                db.Customers.Remove(customerToDelete);
+
                 await db.SaveChangesAsync();
-                await LoadDataAsync();
+
+                Customers.Remove(customerToDelete);
+
+                SelectedCustomer = null;
             }
             catch (Exception)
             {
@@ -173,44 +231,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             }
         }
 
-        [RelayCommand] 
-        private async Task Edit()
-        {
-            if (SelectedCustomer == null) return;
-            var dialogContent = App.Services.GetRequiredService<ThemSuaKhachHangDialog>();
-
-            var dialog = new ContentDialog
-            {
-                Title = "Sửa thông tin khách hàng",
-                Content = dialogContent,
-                PrimaryButtonText = "Lưu",
-                CloseButtonText = "Hủy",
-                DefaultButton = ContentDialogButton.Primary
-
-            };
-
-            Customer = new CustomerModel
-            {
-                Id = SelectedCustomer.Id,
-                Name = SelectedCustomer.Name,
-                PhoneNumber = SelectedCustomer.PhoneNumber,
-                Address = SelectedCustomer.Address
-            };
-
-            dialog.Closing += async (s, e) =>
-            {
-                if (e.Result == ContentDialogResult.Primary)
-                {
-                    var ok = await SaveAsync(isEdit: true);
-
-                    if (!ok) e.Cancel = true;
-                }
-            };
-
-            var result = await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
-            Customer = new CustomerModel();
-            ErrorSummary = string.Empty;
-        }
         partial void OnSearchTextChanged(string value) => CustomersView?.Refresh();
 
         private bool FilterCustomers(object obj)

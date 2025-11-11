@@ -24,7 +24,7 @@
                 Orientation="Horizontal"
                 HorizontalAlignment="Right">
                 <ui:Button Content="Khách hàng" 
-                   Command="{Binding AddCustomerCommand}"
+                   Command="{Binding AddCommand}"
                    Appearance="Primary"
                    Margin="5,10,15,10">
                     <ui:Button.Icon>

@@ -7,10 +7,18 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
       xmlns:lienhe="clr-namespace:UiDesktopApp1.ViewModels.Pages.LienHe" 
       xmlns:models="clr-namespace:UiDesktopApp1.Models" d:DataContext="{d:DesignInstance Type=lienhe:KhachHangViewModel}"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignWidth="800"
       ScrollViewer.VerticalScrollBarVisibility="Disabled"
       Title="KhachHangPage">
+
+    <Page.Resources>
+        <ResourceDictionary>
+            <beh:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter" />
+        </ResourceDictionary>
+    </Page.Resources>
 
     <Border>
         <Grid>
@@ -33,8 +41,10 @@
                     <Grid Grid.Row="1">
                         <ui:ListView d:ItemsSource="{d:SampleData ItemCount=5}"
                                      ItemsSource="{Binding CustomersView}"
-                                     SelectedIndex="0"
                                      SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}">
+                            <b:Interaction.Behaviors>
+                                <beh:ScrollIntoViewBehavior SelectedItem="{Binding SelectedSupplier}"/>
+                            </b:Interaction.Behaviors>
                             <ui:ListView.ItemTemplate>
                                 <DataTemplate DataType="{x:Type models:CustomerModel}">
                                     <Grid Margin="8,0">
@@ -69,7 +79,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="5*"/>
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
+                    <Border Grid.Row="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -79,13 +89,6 @@
                             <StackPanel Grid.Row="0" Orientation="Vertical">
                                 <ui:TextBlock Text="{Binding SelectedCustomer.Name}" FontSize="30"
                                               FontWeight="SemiBold"/>
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="Call12" Margin="0,0,5,0" Foreground="DeepSkyBlue" 
-                                                   />
-                                    <TextBlock Text="{Binding SelectedCustomer.PhoneNumber}" 
-                                               FontSize="20"
-                                               />
-                                </StackPanel>
                             </StackPanel>
 
                             <ui:Button Grid.Column="1" Margin="10,0,10,0"
@@ -112,9 +115,46 @@
                             </ui:Button>
                         </Grid>
                     </Border>
-                    <Border Grid.Row="1">
-                        <TextBlock Text="{Binding SelectedCustomer.Address}"/>
-                    </Border>
+                    <ScrollViewer Height="476" Grid.Row="1" 
+                                  VerticalScrollBarVisibility="Auto" 
+                                  VerticalAlignment="Top"
+                                  Padding="0,0,10,0">
+                        <StackPanel Orientation="Vertical">
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedCustomer.PhoneNumber, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Call24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Số điện thoại" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <TextBlock Text="{Binding SelectedCustomer.PhoneNumber}" FontSize="18" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedCustomer.Address, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Location24" FontSize="18" Margin="0,3,10,0" Grid.Column="0"          VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Địa chỉ" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <TextBlock Text="{Binding SelectedCustomer.Address}" FontSize="18" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedCustomer.Notes, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Note24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Ghi chú" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <TextBlock Text="{Binding SelectedCustomer.Notes}" FontSize="18" TextWrapping="Wrap" FontStyle="Italic" Opacity="0.9"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
                 </Grid>
             </Grid>
         </Grid>

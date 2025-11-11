@@ -22,8 +22,8 @@ namespace UiDesktopApp1.Models
         [ObservableProperty]
         private string? address;
 
-        /*[ObservableProperty]
-        private string? notes;*/
+        [ObservableProperty]
+        private string? notes;
 
         public ICollection<ExportModel> Exports { get; set; } = new List<ExportModel>();
 

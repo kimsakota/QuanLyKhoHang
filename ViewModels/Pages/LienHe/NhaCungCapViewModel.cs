@@ -99,6 +99,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     db.Suppliers.Update(Supplier);
                 else
                     db.Suppliers.Add(Supplier);
+
                 await db.SaveChangesAsync();
                     return true;
             }
@@ -120,7 +121,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
             var dialog = new ContentDialog
             {
-                Title = "Thêm khách hàng mới",
+                Title = "Thêm nhà cung cấp mới",
                 Content = dialogContent,
                 PrimaryButtonText = "Lưu",
                 CloseButtonText = "Hủy",
@@ -137,7 +138,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     else
                     {
                         Suppliers.Add(Supplier);
-                        //Suppliers.Insert(0, Supplier);
 
                         SearchText = string.Empty;
                         SelectedSupplier = Suppliers[Suppliers.Count - 1];
@@ -174,7 +174,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
             var dialog = new ContentDialog
             {
-                Title = "Sửa thông tin khách hàng",
+                Title = "Sửa thông tin nhà cung cấp",
                 Content = dialogContent,
                 PrimaryButtonText = "Lưu",
                 CloseButtonText = "Hủy",

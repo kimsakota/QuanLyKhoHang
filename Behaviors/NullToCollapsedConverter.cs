@@ -8,13 +8,13 @@ using System.Windows.Data;
 
 namespace UiDesktopApp1.Behaviors
 {
-    public class StringNullOrEmptyToVisibilityConverter : IValueConverter
-    {   
+    public class NullToCollapsedConverter : IValueConverter
+    {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // Nếu chuỗi là null hoặc rỗng, HÃY ẨN NÓ (Collapsed)
-            // Ngược lại, HIỆN NÓ LÊN (Visible)
-            return string.IsNullOrEmpty(value as string) ? Visibility.Collapsed : Visibility.Visible;
+            // Nếu giá trị là null, HIDE (Collapsed)
+            // Ngược lại (có đối tượng), SHOW (Visible)
+            return value == null ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
