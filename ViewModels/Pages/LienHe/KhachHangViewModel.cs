@@ -96,7 +96,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 else db.Customers.Add(Customer);
 
                 await db.SaveChangesAsync();
-                await LoadDataAsync();
                 
                 return true;
             }
@@ -188,7 +187,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                         Customers[index] = Customer;
                         SelectedCustomer = Customers[index];
                     }
-                   
                 }
             };
 
