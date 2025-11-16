@@ -112,12 +112,12 @@ namespace UiDesktopApp1.ViewModels.Windows
         [ObservableProperty]
         private ObservableCollection<object> _footerMenuItems = new()
         {
-            new NavigationViewItem()
+            /*new NavigationViewItem()
             {
                 Content = "Settings",
                 Icon = new SymbolIcon { Symbol = SymbolRegular.Settings24 },
                 TargetPageType = typeof(Views.Pages.SettingsPage)
-            }
+            }*/
         };
 
         [ObservableProperty]
@@ -276,6 +276,18 @@ namespace UiDesktopApp1.ViewModels.Windows
                     }
                 }
             };
+        }
+
+        [ObservableProperty]
+        private bool _isFlyoutOpen = false;
+
+        [RelayCommand]
+        private void OnButtonClick(object sender)
+        {
+            if (!IsFlyoutOpen)
+            {
+                IsFlyoutOpen = true;
+            }
         }
     }
 }
