@@ -10,8 +10,6 @@
       xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
       mc:Ignorable="d" 
       d:DesignWidth="800"
-      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-      ScrollViewer.VerticalScrollBarVisibility="Disabled"
       Title="NhaCungCapPage">
     <Page.Resources>
         <ResourceDictionary>
@@ -36,10 +34,10 @@
                                            Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Border>
 
-                    <ui:ListView d:ItemsSource="{d:SampleData ItemCount=5}"
+                    <ui:ListView d:ItemsSource="{d:SampleData ItemCount=5}" Height="380"
                                     ItemsSource="{Binding SuppliersView}"
                                     SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
-                                    VerticalAlignment="Stretch"
+                                    VerticalAlignment="Top"
                                     HorizontalAlignment="Stretch"
                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"

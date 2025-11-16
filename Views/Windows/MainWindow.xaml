@@ -41,7 +41,6 @@
             IsPaneToggleVisible="True"
             IsPaneOpen="True"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-            ScrollViewer.VerticalScrollBarVisibility="Disabled"
             OpenPaneLength="200"
             MenuItemsSource="{Binding MenuItems, Mode=OneWay}"
             PaneDisplayMode="Left">
