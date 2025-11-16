@@ -68,27 +68,77 @@
                     </Grid.RowDefinitions>
                     <ui:Flyout Grid.Row="0"
                                IsOpen="{Binding IsFlyoutOpen, Mode=TwoWay}"
+                               BorderBrush="LightGray"
+                               BorderThickness="0.5"
                                Placement="Top">
-                        <StackPanel>
-                            <TextBlock Width="280"
-                                       HorizontalAlignment="Left"
-                                       Text="Replicants like any other machine are either a benefit or a hazard. If they're a benefit it's not my problem."
-                                       TextWrapping="WrapWithOverflow" />      
-                            <Button Margin="0,8,0,0" Content="The cake is a lie!" />
+                        <StackPanel Width="175">
+                            <ui:Button Content="Cài đặt"
+                                       Command="{Binding NavigateToSettingsCommand}"
+                                       Appearance="Transparent"
+                                       HorizontalContentAlignment="Left"
+                                       BorderThickness="0"
+                                       Margin="-6,0,-6,0"
+                                       Height="40"
+                                       HorizontalAlignment="Stretch"
+                                       MouseOverBackground="LightGray">
+                                <ui:Button.Icon>
+                                    <ui:SymbolIcon Symbol="Settings24"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"/>
+                                </ui:Button.Icon>
+                            </ui:Button>
+
+                            <ui:Button Content="Đăng xuất"
+                                       Command="{Binding LogOutCommand}"
+                                       Appearance="Transparent"
+                                       HorizontalContentAlignment="Left"
+                                       BorderThickness="0"
+                                       Margin="-6,0,-6,-6"
+                                       Height="40"
+                                       HorizontalAlignment="Stretch"
+                                       MouseOverBackground="LightGray">
+                                <ui:Button.Icon>
+                                    <ui:SymbolIcon Symbol="ArrowExit20"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"/>
+                                </ui:Button.Icon>
+                            </ui:Button>
                         </StackPanel>
                     </ui:Flyout>
                     <ui:Button Grid.Row="1"
                                Command="{Binding ButtonClickCommand, Mode=OneWay}"
                                CommandParameter="{Binding RelativeSource={RelativeSource Self}, Mode=OneWay}"
-                               MaxWidth="200"
+                               Content="{Binding CurrentUserName, Mode=OneWay}"
+                               HorizontalAlignment="Stretch"
                                MouseOverBackground="LightGray"
-                               HorizontalContentAlignment="Left"
-                               >
+                               Margin="-5,0,-5,0"
+                               Appearance="Transparent">
                         <ui:Button.Icon>
-                            <ui:SymbolIcon Symbol="PersonCircle24" 
-                                           FontSize="24"
-                                           />
+                            <ui:SymbolIcon Symbol="PersonCircle24" Margin="-1,0,0,0"
+                                           FontSize="27"
+                                           Foreground="DeepSkyBlue"
+                                           />     
                         </ui:Button.Icon>
+
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                <Setter Property="Padding" Value="12,8,12,8" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=RootNavigation, Path=IsPaneOpen}" Value="False">
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="0,8,0,8" />
+
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
                     </ui:Button>
                 </Grid>
             </ui:NavigationView.PaneFooter>

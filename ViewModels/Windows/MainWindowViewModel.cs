@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -8,7 +9,9 @@ using UiDesktopApp1.Models;
 using UiDesktopApp1.Services;
 using UiDesktopApp1.Views.Pages;
 using UiDesktopApp1.Views.UserControls;
+using UiDesktopApp1.Views.UserControls.Dialog;
 using UiDesktopApp1.Views.UserControls.SanPham;
+using Wpf.Ui;
 using Wpf.Ui.Controls;
 
 namespace UiDesktopApp1.ViewModels.Windows
@@ -20,8 +23,6 @@ namespace UiDesktopApp1.ViewModels.Windows
 
         [ObservableProperty]
         private ObservableCollection<object> _menuItems = new();
-
-
 
         /*private ObservableCollection<object> _menuItems = new()
         {
@@ -129,17 +130,25 @@ namespace UiDesktopApp1.ViewModels.Windows
         [ObservableProperty]
         private object? _currentPageHeader;
 
+        [ObservableProperty]
+        private string _currentUserName = String.Empty;
+
         private readonly IServiceProvider _serviceProvider;
         private readonly CurrentUserService _currentUserService;
-        public MainWindowViewModel(IServiceProvider serviceProvider, CurrentUserService currentUserService)
+        private readonly IContentDialogService _contentDialogService;
+        public MainWindowViewModel(IServiceProvider serviceProvider,
+            CurrentUserService currentUserService,
+            IContentDialogService contentDialogService)
         {
             _serviceProvider = serviceProvider;
             _currentUserService = currentUserService;
+            _contentDialogService = contentDialogService;
         }
 
         public void BuildMenu()
         {
             Roles role = _currentUserService.CurrentRole;
+            CurrentUserName = _currentUserService.CurrentUser?.Username ?? "Tài khoản";
 
             MenuItems = GenerateMenuItems(role);
         }
@@ -288,6 +297,45 @@ namespace UiDesktopApp1.ViewModels.Windows
             {
                 IsFlyoutOpen = true;
             }
+        }
+
+        [RelayCommand]
+        private async Task NavigateToSettingsAsync() // Đổi tên và làm async
+        {
+            IsFlyoutOpen = false; // Tự động đóng flyout
+
+            // Lấy dialog từ service provider
+            var dialogControl = App.Services.GetRequiredService<SettingsDialog>();
+
+            // Tạo ContentDialog
+            var dialog = new ContentDialog
+            {
+                Title = "Cài đặt",
+                Content = dialogControl,
+                CloseButtonText = "Đóng",
+                DefaultButton = ContentDialogButton.Close
+            };
+
+            // Hiển thị dialog
+            await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
+        }
+
+        [RelayCommand]
+        private void LogOut()
+        {
+            // Xóa phiên đăng nhập
+            _currentUserService.ClearCurrentUser();
+
+            // Lấy đường dẫn của file .exe hiện tại
+            var processPath = Environment.ProcessPath;
+            if (processPath != null)
+            {
+                // Khởi động một tiến trình mới (mở lại ứng dụng)
+                Process.Start(processPath);
+            }
+
+            // Đóng ứng dụng hiện tại
+            Application.Current.Shutdown();
         }
     }
 }

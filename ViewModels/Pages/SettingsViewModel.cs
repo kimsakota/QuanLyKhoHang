@@ -3,32 +3,23 @@ using Wpf.Ui.Appearance;
 
 namespace UiDesktopApp1.ViewModels.Pages
 {
-    public partial class SettingsViewModel : ObservableObject, INavigationAware
+    public partial class SettingsViewModel : ObservableObject
     {
-        private bool _isInitialized = false;
-
         [ObservableProperty]
         private string _appVersion = String.Empty;
 
         [ObservableProperty]
         private ApplicationTheme _currentTheme = ApplicationTheme.Unknown;
 
-        public Task OnNavigatedToAsync()
+        public SettingsViewModel()
         {
-            if (!_isInitialized)
-                InitializeViewModel();
-
-            return Task.CompletedTask;
+            InitializeViewModel();
         }
-
-        public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
         private void InitializeViewModel()
         {
             CurrentTheme = ApplicationThemeManager.GetAppTheme();
             AppVersion = $"UiDesktopApp1 - {GetAssemblyVersion()}";
-
-            _isInitialized = true;
         }
 
         private string GetAssemblyVersion()

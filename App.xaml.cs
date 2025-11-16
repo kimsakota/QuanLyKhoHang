@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using UiDesktopApp1.Views.Pages.SanPham;
 using System.IO;
 using System.Reflection;
 using System.Windows;
@@ -17,13 +16,15 @@ using UiDesktopApp1.ViewModels.Windows;
 using UiDesktopApp1.Views.Pages;
 using UiDesktopApp1.Views.Pages.BaoCao;
 using UiDesktopApp1.Views.Pages.LienHe;
+using UiDesktopApp1.Views.Pages.SanPham;
 using UiDesktopApp1.Views.UserControls;
+using UiDesktopApp1.Views.UserControls.Dialog;
+using UiDesktopApp1.Views.UserControls.LienHe;
 using UiDesktopApp1.Views.UserControls.SanPham;
 using UiDesktopApp1.Views.Windows;
 using Wpf.Ui;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.DependencyInjection;
-using UiDesktopApp1.Views.UserControls.LienHe;
 
 namespace UiDesktopApp1
 {
@@ -100,11 +101,6 @@ namespace UiDesktopApp1
                     services.AddSingleton<ChiPhiPage>();
                     services.AddScoped<ChiPhiViewModel>();
 
-                    
-                    
-
-                    services.AddSingleton<SettingsPage>();
-                    services.AddScoped<SettingsViewModel>();
 
                     services.AddTransient<ThemSanPhamPage>();
                     services.AddScoped<ThemSanPhamViewModel>();
@@ -141,6 +137,9 @@ namespace UiDesktopApp1
                     services.AddScoped<QuanLyNguoiDungViewModel>();
                     services.AddSingleton<QuanLyNguoiDungPageHeader>();
                     services.AddTransient<ThemSuaNguoiDungDialog>();
+
+                    services.AddTransient<SettingsDialog>();
+                    services.AddScoped<SettingsViewModel>();
                 });
     }
 }
