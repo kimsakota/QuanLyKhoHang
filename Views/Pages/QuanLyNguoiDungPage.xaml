@@ -34,33 +34,12 @@
             </ui:DataGrid.TextColumnElementStyle>
 
             <ui:DataGrid.Columns>
+                <DataGridTextColumn Header="Tên người dùng" Binding="{Binding FullName}" Width="*" />
+                <DataGridTextColumn Header="Số điện thoại" Binding="{Binding PhoneNumber}" Width="Auto" />
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*" />
                 <DataGridTextColumn Header="Tên đăng nhập" Binding="{Binding Username}" Width="*" />
+
                 <DataGridTextColumn Header="Vai trò" Binding="{Binding Role}" Width="Auto" />
-
-                <DataGridTemplateColumn Header="Sửa" Width="60">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ui:Button Content="Sửa"
-                                       Icon="Pen24"
-                                       Appearance="Transparent"
-                                       Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type local:QuanLyNguoiDungPage}}}"
-                                       CommandParameter="{Binding}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
-                <DataGridTemplateColumn Header="Xóa" Width="60">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ui:Button Icon="Delete24"
-                                       Appearance="Transparent"
-                                       Foreground="Red"
-                                       Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type local:QuanLyNguoiDungPage}}}"
-                                       CommandParameter="{Binding}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
             </ui:DataGrid.Columns>
         </ui:DataGrid>
     </Grid>

@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using UiDesktopApp1.ViewModels.Pages;
 
 namespace UiDesktopApp1.Views.UserControls
 {
@@ -20,9 +21,13 @@ namespace UiDesktopApp1.Views.UserControls
     /// </summary>
     public partial class QuanLyNguoiDungPageHeader : UserControl
     {
-        public QuanLyNguoiDungPageHeader()
+        public QuanLyNguoiDungViewModel ViewModel { get; }
+        public QuanLyNguoiDungPageHeader(QuanLyNguoiDungViewModel viewModel)
         {
             InitializeComponent();
+
+            DataContext = viewModel;
+            ViewModel = viewModel;
         }
     }
 }

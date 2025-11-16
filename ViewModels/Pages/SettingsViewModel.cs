@@ -19,7 +19,7 @@ namespace UiDesktopApp1.ViewModels.Pages
         private void InitializeViewModel()
         {
             CurrentTheme = ApplicationThemeManager.GetAppTheme();
-            AppVersion = $"UiDesktopApp1 - {GetAssemblyVersion()}";
+            AppVersion = $"KhoPro - {GetAssemblyVersion()}";
         }
 
         private string GetAssemblyVersion()
