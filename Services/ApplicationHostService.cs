@@ -142,10 +142,9 @@ namespace UiDesktopApp1.Services
 
             await Application.Current.Dispatcher.InvokeAsync(() => // Đảm bảo chạy trên UI thread
             {
-
                 var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
 
-                //navigationWindow.ShowWindow(); // Hiển thị MainWindow
+                //navigationWindow.ShowWindow(); 
 
                 // 1. Lấy LoginWindow
                 var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
@@ -163,11 +162,34 @@ namespace UiDesktopApp1.Services
                 if (isLoginSuccess) // Chỉ tiếp tục nếu IsLoginSuccessful là true
                 {
                     loginWindow.Close();
-                    //var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
-                    navigationWindow.ShowWindow();
-                    // Điều hướng đến trang mặc định
-                    _navigationService.Navigate(typeof(SanPhamPage));
 
+                    var mainWindowViewModel = (navigationWindow as MainWindow)?.ViewModel;
+                    if (mainWindowViewModel != null)
+                    {
+                        Debug.WriteLine("Building menu with updated roles...");
+                        mainWindowViewModel.BuildMenu();
+                    }
+
+                    navigationWindow.ShowWindow();
+                    var currentUserService = _serviceProvider.GetRequiredService<CurrentUserService>();
+                    Type startPage;
+                    switch (currentUserService.CurrentRole)
+                    {
+                        case Roles.Admin:
+                            startPage = typeof(Views.Pages.QuanLyNguoiDungPage);
+                            break;
+                        case Roles.Manager:
+                            startPage = typeof(Views.Pages.SanPhamPage); // Manager bắt đầu ở trang Sản phẩm
+                            break;
+                        default: // Employee
+                            startPage = typeof(Views.Pages.NhapKhoPage); // Employee bắt đầu ở trang Nhập kho
+                            break;
+                    }
+                    _navigationService.Navigate(startPage);
+                    //var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
+                    //navigationWindow.ShowWindow();
+                    // Điều hướng đến trang mặc định
+                    //_navigationService.Navigate(typeof(SanPhamPage));
                 }
                 else
                 {

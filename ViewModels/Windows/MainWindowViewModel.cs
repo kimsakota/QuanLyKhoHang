@@ -19,7 +19,7 @@ namespace UiDesktopApp1.ViewModels.Windows
         private string _applicationTitle = "KhoPro - Quản lý kho hàng";
 
         [ObservableProperty]
-        private ObservableCollection<object> _menuItems;
+        private ObservableCollection<object> _menuItems = new();
 
 
 
@@ -130,12 +130,19 @@ namespace UiDesktopApp1.ViewModels.Windows
         private object? _currentPageHeader;
 
         private readonly IServiceProvider _serviceProvider;
+        private readonly CurrentUserService _currentUserService;
         public MainWindowViewModel(IServiceProvider serviceProvider, CurrentUserService currentUserService)
         {
             _serviceProvider = serviceProvider;
-            _menuItems = GenerateMenuItems(currentUserService.CurrentRole);
+            _currentUserService = currentUserService;
         }
 
+        public void BuildMenu()
+        {
+            Roles role = _currentUserService.CurrentRole;
+
+            MenuItems = GenerateMenuItems(role);
+        }
         public void SetHeader(object header)
         {
             CurrentPageHeader = (header as IHasHeader)?.GetHeader();
@@ -181,6 +188,41 @@ namespace UiDesktopApp1.ViewModels.Windows
                         Content = "Kiểm kê kho",
                         Icon = new SymbolIcon { Symbol = SymbolRegular.ClipboardCheckmark24 },
                         TargetPageType = typeof(Views.Pages.KiemKeKhoPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Lịch sử",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.History24 },
+                        TargetPageType = typeof(Views.Pages.LichSuPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Chi phí",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.Money24 },
+                        TargetPageType = typeof(Views.Pages.ChiPhiPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Liên hệ",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.PersonCall24 },
+                        MenuItems =
+                        {
+                            new NavigationViewItem()
+                            {
+                                Content = "Khách hàng",
+                                TargetPageType = typeof(Views.Pages.LienHe.KhachHangPage)
+                            },
+                            new NavigationViewItem()
+                            {
+                                Content = "Nhà cung cấp",
+                                TargetPageType = typeof(Views.Pages.LienHe.NhaCungCapPage)
+                            },
+                            new NavigationViewItem()
+                            {
+                                Content = "Nhân viên",
+                                TargetPageType = typeof(Views.Pages.LienHe.NhanVienPage)
+                            }
+                        }
                     });
                     break;
                 case Roles.Employee:
