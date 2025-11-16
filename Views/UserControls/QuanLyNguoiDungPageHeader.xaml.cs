@@ -12,22 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using UiDesktopApp1.ViewModels.Pages;
 
-namespace UiDesktopApp1.Views.Pages
+namespace UiDesktopApp1.Views.UserControls
 {
     /// <summary>
-    /// Interaction logic for QuanLyNguoiDungPage.xaml
+    /// Interaction logic for QuanLyNguoiDungPageHeader.xaml
     /// </summary>
-    public partial class QuanLyNguoiDungPage : Page
+    public partial class QuanLyNguoiDungPageHeader : UserControl
     {
-        public QuanLyNguoiDungViewModel ViewModel { get; }
-
-        public QuanLyNguoiDungPage(QuanLyNguoiDungViewModel viewModel)
+        public QuanLyNguoiDungPageHeader()
         {
             InitializeComponent();
-            ViewModel = viewModel;
-            DataContext = viewModel; 
         }
     }
 }

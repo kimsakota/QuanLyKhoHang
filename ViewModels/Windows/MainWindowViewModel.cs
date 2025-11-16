@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Controls;
 using System.Windows.Media;
 using UiDesktopApp1.Contracts;
+using UiDesktopApp1.Models;
 using UiDesktopApp1.Services;
 using UiDesktopApp1.Views.Pages;
 using UiDesktopApp1.Views.UserControls;
@@ -18,7 +19,11 @@ namespace UiDesktopApp1.ViewModels.Windows
         private string _applicationTitle = "KhoPro - Quản lý kho hàng";
 
         [ObservableProperty]
-        private ObservableCollection<object> _menuItems = new()
+        private ObservableCollection<object> _menuItems;
+
+
+
+        /*private ObservableCollection<object> _menuItems = new()
         {
             new NavigationViewItem()
             {
@@ -102,7 +107,7 @@ namespace UiDesktopApp1.ViewModels.Windows
                     }
                 }
             }
-        };
+        };*/
 
         [ObservableProperty]
         private ObservableCollection<object> _footerMenuItems = new()
@@ -125,14 +130,110 @@ namespace UiDesktopApp1.ViewModels.Windows
         private object? _currentPageHeader;
 
         private readonly IServiceProvider _serviceProvider;
-        public MainWindowViewModel(IServiceProvider serviceProvider)
+        public MainWindowViewModel(IServiceProvider serviceProvider, CurrentUserService currentUserService)
         {
             _serviceProvider = serviceProvider;
+            _menuItems = GenerateMenuItems(currentUserService.CurrentRole);
         }
 
         public void SetHeader(object header)
         {
             CurrentPageHeader = (header as IHasHeader)?.GetHeader();
+        }
+
+        private ObservableCollection<object> GenerateMenuItems(Roles role)
+        {
+            var menu = new ObservableCollection<object>();
+
+            switch(role)
+            {
+                case Roles.Admin:
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Quản lý người dùng",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.PeopleSettings20 },
+                        TargetPageType = typeof(Views.Pages.QuanLyNguoiDungPage)
+                    });
+                    break;
+                case Roles.Manager:
+                    // Manager: Báo cáo, SP, Nhập, Xuất, Kiểm kê
+                    menu.Add(CreateBaoCaoMenuItem());
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Sản phẩm",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.Box16 },
+                        TargetPageType = typeof(Views.Pages.SanPhamPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Nhập kho",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.BoxArrowLeft24 },
+                        TargetPageType = typeof(Views.Pages.NhapKhoPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Xuất kho",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.BoxArrowUp24 },
+                        TargetPageType = typeof(Views.Pages.XuatKhoPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Kiểm kê kho",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.ClipboardCheckmark24 },
+                        TargetPageType = typeof(Views.Pages.KiemKeKhoPage)
+                    });
+                    break;
+                case Roles.Employee:
+                    // Employee: Báo cáo, Nhập, Xuất, Kiểm kê
+                    menu.Add(CreateBaoCaoMenuItem());
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Nhập kho",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.BoxArrowLeft24 },
+                        TargetPageType = typeof(Views.Pages.NhapKhoPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Xuất kho",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.BoxArrowUp24 },
+                        TargetPageType = typeof(Views.Pages.XuatKhoPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Kiểm kê kho",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.ClipboardCheckmark24 },
+                        TargetPageType = typeof(Views.Pages.KiemKeKhoPage)
+                    });
+                    break;
+            }
+            return menu;
+        }
+
+        private NavigationViewItem CreateBaoCaoMenuItem()
+        {
+            return new NavigationViewItem()
+            {
+                Content = "Báo cáo",
+                Icon = new SymbolIcon { Symbol = SymbolRegular.Home12 },
+                MenuItems =
+                {
+                    new NavigationViewItem()
+                    {
+                        Content = "Tài chính",
+                        TargetPageType = typeof(Views.Pages.BaoCao.TaiChinhPage)
+                    },
+                    new NavigationViewItem()
+                    {
+                        Content = "Tồn kho",
+                        TargetPageType = typeof(Views.Pages.BaoCao.TonKhoPage)
+                    },
+                    new NavigationViewItem()
+                    {
+                        Content = "Khách hàng",
+                        TargetPageType = typeof(Views.Pages.BaoCao.KhachHangPage)
+                    }
+                }
+            };
         }
     }
 }

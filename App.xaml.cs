@@ -136,7 +136,11 @@ namespace UiDesktopApp1
                     services.AddSingleton<NhanVienPage>();
                     services.AddScoped<NhanVienViewModel>();
 
-                    
+                    //Quản lý người dùng
+                    services.AddSingleton<QuanLyNguoiDungPage>();
+                    services.AddScoped<QuanLyNguoiDungViewModel>();
+                    services.AddSingleton<QuanLyNguoiDungPageHeader>();
+                    services.AddTransient<ThemSuaNguoiDungDialog>();
                 });
     }
 }

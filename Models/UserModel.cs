@@ -21,6 +21,6 @@ namespace UiDesktopApp1.Models
 
         [Required]
         [MaxLength(50)]
-        public string Role { get; set; } = "User";
+        public string Role { get; set; } = "Employee";
     }
 }
