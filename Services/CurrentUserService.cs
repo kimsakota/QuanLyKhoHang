@@ -12,9 +12,10 @@ namespace UiDesktopApp1.Services
         /// Dịch vụ Singleton để giữ trạng thái người dùng đang đăng nhập.
         public UserModel? CurrentUser { get; private set; }
 
-        public Roles CurrentRole { get; private set; } = Roles.Employee; 
+        public Roles CurrentRole { get; private set; } = Roles.Test; 
 
         public bool IsLoggedIn => CurrentUser != null;
+        public bool IsTest => CurrentRole == Roles.Test;
         public bool IsAdmin => CurrentRole == Roles.Admin;
         public bool IsManager => CurrentRole == Roles.Manager;
         public bool IsEmployee => CurrentRole == Roles.Employee;

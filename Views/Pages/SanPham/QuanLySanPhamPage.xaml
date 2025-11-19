@@ -7,6 +7,8 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
       mc:Ignorable="d" 
+      ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+      ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
       d:DesignHeight="450" d:DesignWidth="800"
       Title="QuanLySanPhamPage">
     <Page.Resources>
@@ -27,9 +29,14 @@
 
             <StackPanel Orientation="Horizontal"  Margin="0,0,0,10" 
                         Visibility="{Binding SelectedCount, Converter={StaticResource ZeroToCollapsedConverter}}">
-                <TextBlock Text="{Binding SelectedCount, StringFormat='Đã chọn {0} sản phẩm'}" FontWeight="Bold" VerticalAlignment="Center" />
-                <Button Content="Hủy chọn" Command="{Binding SelectAllCommand}" Margin="10,0" />
-                <Button Content="Xóa đã chọn" Command="{Binding DeleteSelectedCommand}" Margin="10,0" Background="Red" Foreground="White" />
+                <ui:TextBlock Text="{Binding SelectedCount, StringFormat='Đã chọn {0} sản phẩm'}" FontWeight="Bold" VerticalAlignment="Center" />
+                <ui:Button Content="Hủy chọn" 
+                           Command="{Binding SelectAllCommand}" Margin="10,0" />
+                <ui:Button Content="Xóa đã chọn" 
+                           Command="{Binding DeleteSelectedCommand}" 
+                           Margin="10,0"
+                           Appearance="Danger"
+                           />
             </StackPanel>
 
             <Border>
@@ -45,6 +52,7 @@
                              SelectionUnit="FullRow"
                              HeadersVisibility="All"
                              RowHeight="56"
+                             Background="{ui:ThemeResource SubtleFillColorSecondaryBrush}"
                              BorderThickness="1"
                              BorderBrush="#DDD">
 
@@ -61,7 +69,7 @@
                         <Style TargetType="DataGridCell">
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="BorderThickness" Value="0"/>
-                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+                            <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorPrimaryBrush}"/>
                         </Style>
                     </ui:DataGrid.CellStyle>
 

@@ -7,6 +7,8 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d" 
+             ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+             ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
              >
     <Border BorderBrush="LightGray" BorderThickness="0,0,0,0.5" Height="52">
         <Grid Margin="0,2,0,0">
@@ -14,12 +16,12 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Nhập kho"
-               Grid.Column="0"
-               VerticalAlignment="Center"
-               FontSize="24"
-               FontWeight="SemiBold"
-               Margin="20,10,0,10"/>
+            <ui:TextBlock Text="Nhập kho"
+                          Grid.Column="0"
+                          VerticalAlignment="Center"
+                          FontSize="24"
+                          FontWeight="SemiBold"
+                          Margin="20,10,0,10"/>
             <StackPanel Grid.Column="1"
                 VerticalAlignment="Center"
                 Orientation="Horizontal"

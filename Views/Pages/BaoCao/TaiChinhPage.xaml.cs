@@ -26,7 +26,7 @@ namespace UiDesktopApp1.Views.Pages.BaoCao
         public TaiChinhPage(TaiChinhViewModel viewModel)
         {
             ViewModel = viewModel;
-            DataContext = this;
+            DataContext = viewModel;
 
             InitializeComponent();
         }

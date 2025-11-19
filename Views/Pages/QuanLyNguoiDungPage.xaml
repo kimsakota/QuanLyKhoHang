@@ -7,11 +7,15 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:models="clr-namespace:UiDesktopApp1.Models"
       mc:Ignorable="d" 
+      ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+      ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
       d:DesignHeight="450" d:DesignWidth="800"
       Title="QuanLyNguoiDungPage">
-
+    
+    
     <Grid Margin="16">
         <ui:DataGrid ItemsSource="{Binding Users}"
+                     SelectedItem="{Binding SelectedUser}"
                      AutoGenerateColumns="False"
                      CanUserAddRows="False"
                      CanUserDeleteRows="False"    
@@ -22,23 +26,31 @@
                      SelectionMode="Single"
                      HeadersVisibility="All"
                      RowHeight="40"
+                     Background="{ui:ThemeResource SubtleFillColorSecondaryBrush}"
                      BorderThickness="1"
                      BorderBrush="#DDD">
 
             <ui:DataGrid.TextColumnElementStyle>
                 <Style TargetType="TextBlock">
                     <Setter Property="VerticalAlignment" Value="Center"/>
-                    <Setter Property="FontSize" Value="13"/>
+                    <Setter Property="FontSize" Value="20"/>
                     <Setter Property="Padding" Value="8,0"/>
                 </Style>
             </ui:DataGrid.TextColumnElementStyle>
 
+            <ui:DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorPrimaryBrush}"/>
+                </Style>
+            </ui:DataGrid.CellStyle>
+
             <ui:DataGrid.Columns>
                 <DataGridTextColumn Header="Tên người dùng" Binding="{Binding FullName}" Width="*" />
                 <DataGridTextColumn Header="Số điện thoại" Binding="{Binding PhoneNumber}" Width="Auto" />
-                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*" />
-                <DataGridTextColumn Header="Tên đăng nhập" Binding="{Binding Username}" Width="*" />
-
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="Auto" />
+                <DataGridTextColumn Header="Tên đăng nhập" Binding="{Binding Username}" Width="Auto" />
                 <DataGridTextColumn Header="Vai trò" Binding="{Binding Role}" Width="Auto" />
             </ui:DataGrid.Columns>
         </ui:DataGrid>

@@ -10,6 +10,7 @@ namespace UiDesktopApp1.Models
     {
         Admin,
         Manager,
-        Employee
+        Employee,
+        Test
     }
 }

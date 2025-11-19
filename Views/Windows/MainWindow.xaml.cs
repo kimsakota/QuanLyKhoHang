@@ -23,6 +23,7 @@ namespace UiDesktopApp1.Views.Windows
             //Tự động chuyển theme theo máy
             //SystemThemeWatcher.Watch(this);
 
+            
             InitializeComponent();
 
             SetPageService(navigationViewPageProvider);

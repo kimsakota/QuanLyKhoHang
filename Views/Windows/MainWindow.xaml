@@ -15,10 +15,10 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     MinWidth="1100" MinHeight="650"
-    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
-    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
     ExtendsContentIntoTitleBar="True"
-    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
     WindowBackdropType="Mica"
     WindowCornerPreference="Round"
     WindowStartupLocation="CenterScreen"
@@ -121,9 +121,11 @@
                         </ui:Button.Icon>
 
                         <ui:Button.Style>
+                            
                             <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
                                 <Setter Property="HorizontalContentAlignment" Value="Left" />
                                 <Setter Property="Padding" Value="12,8,12,8" />
+                                
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding ElementName=RootNavigation, Path=IsPaneOpen}" Value="False">
                                         <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -155,7 +157,8 @@
             Grid.Row="0"
             CloseWindowByDoubleClickOnIcon="True">
             <ui:TitleBar.Icon>
-                <ui:ImageIcon Source="pack://application:,,,/Assets/wpfui-icon-256.png" />
+                <ui:ImageIcon Source="pack://application:,,,/Assets/wpfui-icon-256.png"
+                              />
             </ui:TitleBar.Icon>
         </ui:TitleBar>
     </Grid>

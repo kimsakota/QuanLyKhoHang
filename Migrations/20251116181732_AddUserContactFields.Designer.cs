@@ -12,7 +12,7 @@ using UiDesktopApp1.Models;
 namespace UiDesktopApp1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251116105628_AddUserContactFields")]
+    [Migration("20251116181732_AddUserContactFields")]
     partial class AddUserContactFields
     {
         /// <inheritdoc />
@@ -279,11 +279,10 @@ namespace UiDesktopApp1.Migrations
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using UiDesktopApp1.Models;
 using UiDesktopApp1.Services;
+using UiDesktopApp1.Views.UserControls;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Controls;
@@ -27,13 +28,26 @@ namespace UiDesktopApp1.ViewModels.Pages
         private ObservableCollection<UserModel> _users = new();
 
         [ObservableProperty]
-        private UserModel _selectedUser = new();
+        private UserModel? _selectedUser;
+
+        [ObservableProperty]
+        private UserModel _userForDialog = new();
+
+        [ObservableProperty]
+        private string _dialogPassword = string.Empty;
 
         [ObservableProperty]
         private bool _isBusy = false;
 
         [ObservableProperty]
         private string _errorSummary = string.Empty;
+
+        public List<string> AvailableRoles { get; } = new List<string>
+        {
+            Roles.Admin.ToString(),
+            Roles.Manager.ToString(),
+            Roles.Employee.ToString()
+        };
 
         public QuanLyNguoiDungViewModel(IDbContextFactory<AppDbContext> dbContextFactory,
                                         IContentDialogService contentDialogService,
@@ -72,21 +86,171 @@ namespace UiDesktopApp1.ViewModels.Pages
             finally { IsBusy = false; }
         }
 
+        private async Task<bool> SaveAsync(bool isEdit)
+        {
+            UserForDialog.ValidateAll();
+
+            bool passwordError = false;
+
+            if (!isEdit && string.IsNullOrWhiteSpace(DialogPassword))
+                passwordError = true;
+
+            if (UserForDialog.HasErrors || passwordError)
+            {
+                var allErrors = UserForDialog.GetErrors()
+                                        .Select(e => e.ErrorMessage)
+                                        .Where(msg => !string.IsNullOrWhiteSpace(msg))
+                                        .Distinct()
+                                        .ToList();
+                if (passwordError)
+                    allErrors.Add("Mật khẩu là bắt buộc khi thêm mới.");
+                ErrorSummary = string.Join("\n", allErrors);
+                return false;
+            }
+
+            IsBusy = true;
+            try
+            {
+                await using var db = await _dbContextFactory.CreateDbContextAsync();
+
+                // Nếu người dùng có nhập mật khẩu, hash nó
+                if (!string.IsNullOrWhiteSpace(DialogPassword))
+                {
+                    // Sử dụng BCrypt (giống như trong ApplicationHostService)
+                    UserForDialog.PasswordHash = BCrypt.Net.BCrypt.HashPassword(DialogPassword);
+                }
+
+                if (isEdit)
+                {
+                    db.Users.Update(UserForDialog);
+                }
+                else
+                {
+                    // Kiểm tra tên đăng nhập trùng
+                    if (await db.Users.AnyAsync(u => u.Username == UserForDialog.Username))
+                    {
+                        ErrorSummary = "Tên đăng nhập này đã tồn tại.";
+                        IsBusy = false;
+                        return false;
+                    }
+                    db.Users.Add(UserForDialog);
+                }
+
+                await db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorSummary = "Lỗi khi lưu: " + ex.Message;
+                return false;
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
         [RelayCommand]
         private async Task AddAsync()
         {
-            // TODO: Tạo một UserControl dialog 'ThemSuaNguoiDungDialog'
-            // tương tự như 'ThemSuaKhachHangDialog'
-            // để nhập Username, Password, và Role.
-            System.Windows.MessageBox.Show("Chức năng thêm người dùng mới cần được triển khai.", "Thông báo");
+            var dialogContent = App.Services.GetRequiredService<ThemSuaNguoiDungDialog>();
+
+            // Chuẩn bị dữ liệu cho dialog
+            UserForDialog = new UserModel(); // Tạo object mới
+            DialogPassword = string.Empty;
+            ErrorSummary = string.Empty;
+
+            // Hiển thị lại text trợ giúp cho mật khẩu
+            var passwordHelpText = dialogContent.FindName("PasswordHelpText") as TextBlock;
+            if (passwordHelpText != null)
+            {
+                passwordHelpText.Text = " *(Bắt buộc khi thêm mới)";
+                passwordHelpText.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.DarkRed);
+            }
+
+            var dialog = new ContentDialog
+            {
+                Title = "Thêm người dùng mới",
+                Content = dialogContent,
+                PrimaryButtonText = "Lưu",
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            dialog.Closing += async (s, e) =>
+            {
+                if (e.Result == ContentDialogResult.Primary)
+                {
+                    var ok = await SaveAsync(isEdit: false);
+                    if (!ok)
+                        e.Cancel = true;
+                    else
+                        Users.Add(UserForDialog); // Thêm vào danh sách UI
+                }
+            };
+
+            await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
         }
 
         [RelayCommand]
         private async Task EditAsync(UserModel user)
         {
             if (user == null) return;
-            // TODO: Mở dialog 'ThemSuaNguoiDungDialog' với thông tin của 'user'
-            System.Windows.MessageBox.Show($"Chức năng sửa cho: {user.Username} cần được triển khai.", "Thông báo");
+
+            var dialogContent = App.Services.GetRequiredService<ThemSuaNguoiDungDialog>();
+
+            // Chuẩn bị dữ liệu cho dialog
+            DialogPassword = string.Empty; // Xóa mật khẩu cũ
+            ErrorSummary = string.Empty;
+
+            // Clone object để chỉnh sửa (tránh ảnh hưởng đến DataGrid)
+            UserForDialog = new UserModel
+            {
+                Id = user.Id,
+                Username = user.Username,
+                FullName = user.FullName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Role = user.Role,
+                PasswordHash = user.PasswordHash // Giữ lại hash cũ
+            };
+
+            // Thay đổi text trợ giúp mật khẩu
+            var passwordHelpText = dialogContent.FindName("PasswordHelpText") as TextBlock;
+            if (passwordHelpText != null)
+            {
+                passwordHelpText.Text = "(Để trống nếu không muốn thay đổi)";
+                passwordHelpText.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Gray);
+            }
+
+            var dialog = new ContentDialog
+            {
+                Title = "Sửa thông tin người dùng",
+                Content = dialogContent,
+                PrimaryButtonText = "Lưu",
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            dialog.Closing += async (s, e) =>
+            {
+                if (e.Result == ContentDialogResult.Primary)
+                {
+                    e.Cancel = true; // Giữ dialog mở
+                    var ok = await SaveAsync(isEdit: true);
+                    if (ok)
+                    {
+                        // Cập nhật lại item trong danh sách UI
+                        var index = Users.IndexOf(user);
+                        if (index != -1)
+                            Users[index] = UserForDialog; // Thay thế bằng object đã sửa
+
+                        e.Cancel = false; // Đóng dialog
+                    }
+                }
+            };
+
+            await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
         }
 
         [RelayCommand]
@@ -97,7 +261,7 @@ namespace UiDesktopApp1.ViewModels.Pages
             // Không cho phép Admin tự xóa mình
             if (user.Id == _currentUserService.CurrentUser?.Id)
             {
-                MessageBox.Show("Bạn không thể tự xóa tài khoản Admin của chính mình.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Bạn không thể tự xóa tài khoản của chính mình.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -124,5 +288,7 @@ namespace UiDesktopApp1.ViewModels.Pages
             }
             finally { IsBusy = false; }
         }
+
+        
     }
 }

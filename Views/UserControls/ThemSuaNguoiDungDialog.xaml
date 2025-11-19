@@ -4,9 +4,69 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:UiDesktopApp1.Views.UserControls"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
-    </Grid>
+             d:DesignWidth="300">
+    <StackPanel Margin="16" MinWidth="300">
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Tên đăng nhập" FontWeight="SemiBold"/>
+            <TextBlock Text=" *(Bắt buộc)" Foreground="DarkRed" Margin="0,0,0,5"/>
+            <ui:TextBox 
+                PlaceholderText="Nhập tên đăng nhập"
+                Text="{Binding UserForDialog.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Mật khẩu" FontWeight="SemiBold"/>
+            <TextBlock x:Name="PasswordHelpText" Text=" *(Bắt buộc khi thêm mới)" Foreground="DarkRed" Margin="0,0,0,5"/>
+            <ui:PasswordBox 
+                PlaceholderText="Nhập mật khẩu"
+                Password="{Binding DialogPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Họ và Tên" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ui:TextBox 
+        PlaceholderText="Nhập họ và tên"
+        Text="{Binding UserForDialog.FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Email" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ui:TextBox 
+                PlaceholderText="Nhập email"
+                Text="{Binding UserForDialog.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Số điện thoại" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ui:TextBox 
+                PlaceholderText="Nhập số điện thoại"
+                Text="{Binding UserForDialog.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <TextBlock Text="Vai trò" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ComboBox
+                ItemsSource="{Binding AvailableRoles}"
+                SelectedItem="{Binding UserForDialog.Role, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+        </StackPanel>
+
+
+        <ui:InfoBar 
+            Margin="0,10,0,0"
+            Severity="Error"
+            Title="Dữ liệu chưa hợp lệ"
+            Message="{Binding ErrorSummary, Mode=OneWay}"
+            IsOpen="{Binding UserForDialog.HasErrors}"
+            IsClosable="False"/>
+
+        <ui:InfoBar Margin='0,5,0,0'
+            Severity="Informational"
+            Message="Đang xử lý, vui lòng chờ..."
+            IsOpen="{Binding IsBusy}"
+            IsClosable="False" />
+
+    </StackPanel>
 </UserControl>

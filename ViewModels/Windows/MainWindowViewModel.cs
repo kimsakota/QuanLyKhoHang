@@ -24,92 +24,6 @@ namespace UiDesktopApp1.ViewModels.Windows
         [ObservableProperty]
         private ObservableCollection<object> _menuItems = new();
 
-        /*private ObservableCollection<object> _menuItems = new()
-        {
-            new NavigationViewItem()
-            {
-                Content = "Báo cáo",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Home12 },
-                MenuItems =
-                {
-                    new NavigationViewItem()
-                    {
-                        Content = "Tài chính",
-                        TargetPageType = typeof(Views.Pages.BaoCao.TaiChinhPage)
-                    },
-                    new NavigationViewItem()
-                    {
-                        Content = "Tồn kho",
-                        TargetPageType = typeof(Views.Pages.BaoCao.TonKhoPage)
-                    },
-                    new NavigationViewItem()
-                    {
-                        Content = "Khách hàng",
-                        TargetPageType = typeof(Views.Pages.BaoCao.KhachHangPage)
-                    }
-                }
-            },
-            new NavigationViewItem()
-            {
-                Content = "Sản phẩm",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Box16 },
-                TargetPageType = typeof(Views.Pages.SanPhamPage)
-            },
-            new NavigationViewItem()
-            {
-                Content = "Nhập kho",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.BoxArrowLeft24 },
-                TargetPageType = typeof(Views.Pages.NhapKhoPage)
-            },
-            new NavigationViewItem()
-            {
-                Content = "Xuất kho",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.BoxArrowUp24 },
-                TargetPageType = typeof(Views.Pages.XuatKhoPage)
-            },
-            new NavigationViewItem()
-            {
-                Content = "Kiểm kê kho",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.ClipboardCheckmark24 },
-                TargetPageType = typeof(Views.Pages.KiemKeKhoPage)
-            },
-            new NavigationViewItem()
-            {
-                Content = "Lịch sử",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.History24 },
-                TargetPageType = typeof(Views.Pages.LichSuPage)
-            },
-            new NavigationViewItem()
-            {
-                Content = "Chi phí",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Money24 },
-                TargetPageType = typeof(Views.Pages.ChiPhiPage)
-            },
-            new NavigationViewItem()
-            {
-                Content = "Liên hệ",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.PersonCall24 },
-                MenuItems = 
-                {
-                    new NavigationViewItem()
-                    {
-                        Content = "Khách hàng",
-                        TargetPageType = typeof(Views.Pages.LienHe.KhachHangPage)
-                    },
-                    new NavigationViewItem()
-                    {
-                        Content = "Nhà cung cấp",
-                        TargetPageType = typeof(Views.Pages.LienHe.NhaCungCapPage)
-                    },
-                    new NavigationViewItem()
-                    {
-                        Content = "Nhân viên",
-                        TargetPageType = typeof(Views.Pages.LienHe.NhanVienPage)
-                    }
-                }
-            }
-        };*/
-
         [ObservableProperty]
         private ObservableCollection<object> _footerMenuItems = new()
         {
@@ -254,6 +168,75 @@ namespace UiDesktopApp1.ViewModels.Windows
                         Content = "Kiểm kê kho",
                         Icon = new SymbolIcon { Symbol = SymbolRegular.ClipboardCheckmark24 },
                         TargetPageType = typeof(Views.Pages.KiemKeKhoPage)
+                    });
+                    break;
+                default:
+                    // Manager: Báo cáo, SP, Nhập, Xuất, Kiểm kê
+                    menu.Add(CreateBaoCaoMenuItem());
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Sản phẩm",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.Box16 },
+                        TargetPageType = typeof(Views.Pages.SanPhamPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Nhập kho",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.BoxArrowLeft24 },
+                        TargetPageType = typeof(Views.Pages.NhapKhoPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Xuất kho",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.BoxArrowUp24 },
+                        TargetPageType = typeof(Views.Pages.XuatKhoPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Kiểm kê kho",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.ClipboardCheckmark24 },
+                        TargetPageType = typeof(Views.Pages.KiemKeKhoPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Lịch sử",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.History24 },
+                        TargetPageType = typeof(Views.Pages.LichSuPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Chi phí",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.Money24 },
+                        TargetPageType = typeof(Views.Pages.ChiPhiPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Liên hệ",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.PersonCall24 },
+                        MenuItems =
+                        {
+                            new NavigationViewItem()
+                            {
+                                Content = "Khách hàng",
+                                TargetPageType = typeof(Views.Pages.LienHe.KhachHangPage)
+                            },
+                            new NavigationViewItem()
+                            {
+                                Content = "Nhà cung cấp",
+                                TargetPageType = typeof(Views.Pages.LienHe.NhaCungCapPage)
+                            },
+                            new NavigationViewItem()
+                            {
+                                Content = "Nhân viên",
+                                TargetPageType = typeof(Views.Pages.LienHe.NhanVienPage)
+                            }
+                        }
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Quản lý người dùng",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.PeopleSettings20 },
+                        TargetPageType = typeof(Views.Pages.QuanLyNguoiDungPage)
                     });
                     break;
             }

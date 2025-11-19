@@ -11,6 +11,8 @@
       xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
       mc:Ignorable="d" 
       d:DesignWidth="800"
+      ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
       ScrollViewer.VerticalScrollBarVisibility="Disabled"
       Title="KhachHangPage">
 

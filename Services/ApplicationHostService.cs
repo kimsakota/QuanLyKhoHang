@@ -70,26 +70,27 @@ namespace UiDesktopApp1.Services
                     // Kiểm tra và tạo user "admin" nếu chưa có
                     if (!await dbContext.Users.AnyAsync(cancellationToken)) // Kiểm tra nhanh hơn nếu bảng trống
                     {
-                        if (!await dbContext.Users.AnyAsync(u => u.Username == "admin", cancellationToken))
+                        if (!await dbContext.Users.AnyAsync(u => u.Username == "test", cancellationToken))
                         {
                             var adminUser = new UserModel
                             {
-                                Username = "admin",
+                                Username = "test",
                                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("123"), // Mật khẩu là 123
-                                Role = "Admin"
+                                Role = "Test"
                             };
                             dbContext.Users.Add(adminUser);
                             await dbContext.SaveChangesAsync(cancellationToken);
-                            Debug.WriteLine("Admin user created.");
+                            Debug.WriteLine("Test user created.");
                         }
                         else
                         {
-                            Debug.WriteLine("Admin user already exists.");
+                            Debug.WriteLine("Test user already exists.");
                         }
+
                     }
                     else // Bảng đã có dữ liệu, kiểm tra cụ thể user admin
                     {
-                        if (!await dbContext.Users.AnyAsync(u => u.Username == "admin", cancellationToken))
+                        if (!await dbContext.Users.AnyAsync(u => u.Username == "test", cancellationToken))
                         {
                             var adminUser = new UserModel { /* ... */ }; // Tạo user admin như trên
                             dbContext.Users.Add(adminUser);
@@ -126,21 +127,30 @@ namespace UiDesktopApp1.Services
         /// </summary>
         private async Task HandleActivationAsync()
         {
-            /*await Application.Current.Dispatcher.InvokeAsync(() =>
+            await Application.Current.Dispatcher.InvokeAsync(() =>
             {
+
                 // Lấy MainWindow trực tiếp
                 var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
+
+                var mainWindowViewModel = (navigationWindow as MainWindow)?.ViewModel;
+                if (mainWindowViewModel != null)
+                {
+                    Debug.WriteLine("Building menu with updated roles...");
+                    mainWindowViewModel.BuildMenu();
+                }
+
                 navigationWindow.ShowWindow(); // Hiển thị MainWindow
 
                 // Điều hướng đến trang mặc định
-                bool navigationResult = _navigationService.Navigate(typeof(NhaCungCapPage));
+                bool navigationResult = _navigationService.Navigate(typeof(SanPhamPage));
                 if (!navigationResult)
                 {
                     Debug.WriteLine("Initial navigation failed using INavigationService.");
                 }
-            });*/
+            });
 
-            await Application.Current.Dispatcher.InvokeAsync(() => // Đảm bảo chạy trên UI thread
+            /*await Application.Current.Dispatcher.InvokeAsync(() => // Đảm bảo chạy trên UI thread
             {
                 var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
 
@@ -181,6 +191,9 @@ namespace UiDesktopApp1.Services
                         case Roles.Manager:
                             startPage = typeof(Views.Pages.SanPhamPage); // Manager bắt đầu ở trang Sản phẩm
                             break;
+                        case Roles.Test:
+                            startPage = typeof(Views.Pages.SanPhamPage); // Manager bắt đầu ở trang Sản phẩm
+                            break;
                         default: // Employee
                             startPage = typeof(Views.Pages.NhapKhoPage); // Employee bắt đầu ở trang Nhập kho
                             break;
@@ -197,7 +210,7 @@ namespace UiDesktopApp1.Services
                     Debug.WriteLine("Login failed or cancelled. Shutting down.");
                     Application.Current.Shutdown();
                 }
-            });
+            });*/
 
             // await Task.CompletedTask; // Dòng này không cần thiết
         }

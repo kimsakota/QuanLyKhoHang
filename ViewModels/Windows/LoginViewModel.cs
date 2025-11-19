@@ -21,7 +21,7 @@ namespace UiDesktopApp1.ViewModels.Windows
         public bool IsLoginSuccessful { get; private set; } = false;
 
         [ObservableProperty]
-        private string _username = "admin";
+        private string _username = "test";
 
         [ObservableProperty]
         private string _errorMessage = string.Empty;
@@ -30,7 +30,6 @@ namespace UiDesktopApp1.ViewModels.Windows
         private bool _isLoggingIn = false;
 
         public string Password { get; set; } = "123";
-        // ===========================================
 
         private readonly IAuthenticationService _authService;
         private readonly CurrentUserService _currentUserService;
@@ -62,13 +61,10 @@ namespace UiDesktopApp1.ViewModels.Windows
                 IsLoggingIn = false;
                 return;
             }
-            // ===============================
 
             try
             {
-                // === GỌI SERVICE VỚI string Password ===
                 UserModel? user = await _authService.AuthenticateAsync(Username, Password); // Truyền thẳng string
-                // =======================================
 
                 if (user != null)
                 {
