@@ -13,6 +13,7 @@ using UiDesktopApp1.Views.UserControls.LienHe;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Controls;
+using MessageBox = System.Windows.MessageBox;
 
 namespace UiDesktopApp1.ViewModels.Pages.LienHe
 {
@@ -77,10 +78,59 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             finally { IsBusy = false; }
         }
 
-        private async Task<bool> SaveAsync(bool isEdit)
+        [RelayCommand]
+        private async Task AddAsync() => await ShowSupplierDialogAsync(null);
+
+        [RelayCommand]
+        private async Task EditAsync() => await ShowSupplierDialogAsync(SelectedSupplier);
+
+        private async Task ShowSupplierDialogAsync(SupplierModel? supplier)
         {
+            if(supplier == null && SelectedSupplier != null)
+                SelectedSupplier = null;
             
+            Supplier = supplier != null ? new SupplierModel
+            {
+                Id = supplier.Id,
+                Name = supplier.Name,
+                ContactPerson = supplier.ContactPerson,
+                PhoneNumber = supplier.PhoneNumber,
+                Email = supplier.Email,
+                Address = supplier.Address,
+                TaxCode = supplier.TaxCode,
+                BankName = supplier.BankName,
+                AccountName = supplier.AccountName,
+                AccountNumber = supplier.AccountNumber,
+                Notes = supplier.Notes
+            } : new SupplierModel();
+
+            var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
+            ErrorSummary = string.Empty;
+
+            var dialog = new ContentDialog
+            {
+                Title = supplier == null ? "Thêm nhà cung cấp mới" : "Sửa thông tin nhà cung cấp",
+                Content = dialogContent,
+                PrimaryButtonText = "Lưu",
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            dialog.Closing += async (s, e) =>
+            {
+                if (e.Result == ContentDialogResult.Primary)
+                {
+                    bool success = await HandleSaveToDbAsync();
+                    if (!success) e.Cancel = true;
+                }
+            };
+            await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
+        }
+
+        private async Task<bool> HandleSaveToDbAsync()
+        {
             Supplier.ValidateAll();
+
             if (Supplier.HasErrors)
             {
                 var allErrors = Supplier.GetErrors()
@@ -92,17 +142,29 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             }
 
             IsBusy = true;
+
             try
             {
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
-
+                bool isEdit = Supplier.Id != 0;
                 if (isEdit)
                     db.Suppliers.Update(Supplier);
                 else
                     db.Suppliers.Add(Supplier);
-
                 await db.SaveChangesAsync();
-                    return true;
+                if (isEdit)
+                {
+                    var index = Suppliers.IndexOf(SelectedSupplier!);
+                    Suppliers[index] = Supplier;
+                    SelectedSupplier = Suppliers[index];
+                }
+                else
+                {
+                    Suppliers.Add(Supplier);
+                    SearchText = string.Empty;
+                    SelectedSupplier = Suppliers[Suppliers.Count - 1];
+                }
+                return true;
             }
             catch (Exception ex)
             {
@@ -113,124 +175,30 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         }
 
         [RelayCommand]
-        private async Task AddAsync()
-        {
-            var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
-
-            Supplier = new SupplierModel();
-            ErrorSummary = string.Empty;
-
-            var dialog = new ContentDialog
-            {
-                Title = "Thêm nhà cung cấp mới",
-                Content = dialogContent,
-                PrimaryButtonText = "Lưu",
-                CloseButtonText = "Hủy",
-                DefaultButton = ContentDialogButton.Primary
-            };
-
-            dialog.Closing += async (s, e) => 
-            {
-                if (e.Result == ContentDialogResult.Primary)
-                {
-                    var ok = await SaveAsync(isEdit: false);
-                    if (!ok)
-                        e.Cancel = true;
-                    else
-                    {
-                        Suppliers.Add(Supplier);
-
-                        SearchText = string.Empty;
-                        SelectedSupplier = Suppliers[Suppliers.Count - 1];
-                    }
-                }
-            };
-
-            await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
-        }
-
-        [RelayCommand]
-        private async Task EditAsync()
-        {
-            if (SelectedSupplier == null) return;
-            var dialogContent = App.Services.GetRequiredService<ThemSuaNhaCungCapDialog>();
-
-            Supplier = new SupplierModel();
-            ErrorSummary = string.Empty;
-
-            Supplier = new SupplierModel
-            {
-                Id = SelectedSupplier.Id,
-                Name = SelectedSupplier.Name,
-                ContactPerson = SelectedSupplier.ContactPerson,
-                PhoneNumber = SelectedSupplier.PhoneNumber,
-                Email = SelectedSupplier.Email,
-                Address = SelectedSupplier.Address,
-                TaxCode = SelectedSupplier.TaxCode,
-                BankName = SelectedSupplier.BankName,
-                AccountName = SelectedSupplier.AccountName,
-                AccountNumber = SelectedSupplier.AccountNumber,
-                Notes = SelectedSupplier.Notes
-            };
-
-            var dialog = new ContentDialog
-            {
-                Title = "Sửa thông tin nhà cung cấp",
-                Content = dialogContent,
-                PrimaryButtonText = "Lưu",
-                CloseButtonText = "Hủy",
-                DefaultButton = ContentDialogButton.Primary
-            };
-
-            
-            dialog.Closing += async (s, e) =>
-            {
-                if (e.Result == ContentDialogResult.Primary)
-                {
-                    var ok = await SaveAsync(isEdit: true);
-                    if (!ok)
-                        e.Cancel = true;
-                    else
-                    {
-                        var index = Suppliers.IndexOf(SelectedSupplier);
-                        Suppliers[index] = Supplier;
-                        SelectedSupplier = Suppliers[index];
-                    }
-                }
-            };
-
-            await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
-
-        }
-
-        [RelayCommand]
         private async Task DeleteAsync()
         {
             if (SelectedSupplier == null) return;
-            var result = System.Windows.MessageBox.Show("Bạn có chắc muốn xóa không?",
+            var result = MessageBox.Show("Bạn có chắc muốn xóa không?",
                                                         "Xác nhận xóa",
                                                         System.Windows.MessageBoxButton.YesNo,
-                                                        System.Windows.MessageBoxImage.Warning);
+                                                        MessageBoxImage.Warning);
             if (result != System.Windows.MessageBoxResult.Yes) return;
 
             IsBusy = true;
             try
             {
-                var supplierToDelete = SelectedSupplier;
-
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
-
-                db.Suppliers.Attach(supplierToDelete);
-                db.Suppliers.Remove(supplierToDelete);
-
-                await db.SaveChangesAsync();
-
-                Suppliers.Remove(supplierToDelete);
-
+                
+                await db.Suppliers.Where(s => s.Id == SelectedSupplier.Id).ExecuteDeleteAsync();
+                Suppliers.Remove(SelectedSupplier);
                 SelectedSupplier = null;
             }
             catch (Exception)
             {
+                MessageBox.Show("Đã xảy ra lỗi khi xóa nhà cung cấp. Dữ liệu sẽ được tải lại.",
+                                "Lỗi",
+                                System.Windows.MessageBoxButton.OK,
+                                MessageBoxImage.Error);
                 await LoadDataAsync();
             }
             finally
@@ -239,7 +207,6 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             }
         }
 
-        
         partial void OnSearchTextChanged(string value) => SuppliersView?.Refresh();
 
         private bool FilterSuppliers(object obj)

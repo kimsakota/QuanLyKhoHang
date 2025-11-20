@@ -10,6 +10,7 @@
       xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
       mc:Ignorable="d" 
       d:DesignWidth="800"
+      ScrollViewer.CanContentScroll="False"
       Title="NhaCungCapPage">
 
     <Border>
@@ -30,17 +31,15 @@
                                            Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Border>
 
-                    <ui:ListView d:ItemsSource="{d:SampleData ItemCount=5}" Height="380"
-                                    ItemsSource="{Binding SuppliersView}"
-                                    SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
-                                    VerticalAlignment="Top"
-                                    HorizontalAlignment="Stretch"
-                                    ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                    ScrollViewer.CanContentScroll="True"
-                                    VirtualizingPanel.IsVirtualizing="True"
-                                    VirtualizingPanel.ScrollUnit="Item"
-                                    VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ui:ListView d:ItemsSource="{d:SampleData ItemCount=5}" 
+                                 ItemsSource="{Binding SuppliersView}"
+                                 SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
+                                 VerticalAlignment="Top"
+                                 HorizontalAlignment="Stretch"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 VirtualizingPanel.IsVirtualizing="True"
+                                 VirtualizingPanel.ScrollUnit="Item"
+                                 VirtualizingPanel.VirtualizationMode="Recycling">
                         <b:Interaction.Behaviors>
                             <beh:ScrollIntoViewBehavior SelectedItem="{Binding SelectedSupplier}"/>
                         </b:Interaction.Behaviors>
@@ -52,19 +51,20 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <Ellipse x:Name="Ellipse"
-                                            Grid.RowSpan="2"
-                                            Width="32"
-                                            Height="32"
-                                            Margin="6"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Fill="{ui:ThemeResource ControlStrongStrokeColorDefaultBrush}" />
-                                    <TextBlock Grid.Column="1"
-                                            FontWeight="SemiBold"
-                                            Margin="5,0,0,0"
-                                            FontSize="15"
-                                            VerticalAlignment="Center"
-                                            Text="{Binding Name, Mode=OneWay}"/>
+                                             Grid.RowSpan="2"
+                                             Width="32"
+                                             Height="32"
+                                             Margin="6"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"
+                                             Fill="{ui:ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+                                    <ui:TextBlock Grid.Column="1"
+                                               FontWeight="SemiBold"
+                                               Margin="5,0,0,0"
+                                               FontSize="15"
+                                               VerticalAlignment="Center"
+                                               TextWrapping="Wrap"
+                                               Text="{Binding Name, Mode=OneWay}"/>
                                 </Grid>
                             </DataTemplate>
                         </ui:ListView.ItemTemplate>
@@ -142,7 +142,7 @@
                         </Grid>
                     </Border>
 
-                    <ScrollViewer Height="476" Grid.Row="1" VerticalScrollBarVisibility="Auto" 
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" 
                                   VerticalAlignment="Top"
                                   Padding="0,0,10,0">
                         <StackPanel Orientation="Vertical">
@@ -153,8 +153,8 @@
                                 </Grid.ColumnDefinitions>
                                 <ui:SymbolIcon Symbol="Person24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Người liên hệ" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
-                                    <TextBlock Text="{Binding SelectedSupplier.ContactPerson}" FontSize="18" TextWrapping="Wrap"/>
+                                    <ui:TextBlock Text="Người liên hệ" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <ui:TextBlock Text="{Binding SelectedSupplier.ContactPerson}" FontSize="18" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Grid>
 
@@ -165,8 +165,8 @@
                                 </Grid.ColumnDefinitions>
                                 <ui:SymbolIcon Symbol="Call24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Số điện thoại" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
-                                    <TextBlock Text="{Binding SelectedSupplier.PhoneNumber}" FontSize="18" TextWrapping="Wrap"/>
+                                    <ui:TextBlock Text="Số điện thoại" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <ui:TextBlock Text="{Binding SelectedSupplier.PhoneNumber}" FontSize="18" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Grid>
 
@@ -177,8 +177,8 @@
                                 </Grid.ColumnDefinitions>
                                 <ui:SymbolIcon Symbol="Location24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Địa chỉ" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
-                                    <TextBlock Text="{Binding SelectedSupplier.Address}" FontSize="18" TextWrapping="Wrap"/>
+                                    <ui:TextBlock Text="Địa chỉ" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <ui:TextBlock Text="{Binding SelectedSupplier.Address}" FontSize="18" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Grid>
 
@@ -189,8 +189,8 @@
                                 </Grid.ColumnDefinitions>
                                 <ui:SymbolIcon Symbol="Tag24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Mã số thuế" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
-                                    <TextBlock Text="{Binding SelectedSupplier.TaxCode}" FontSize="18" TextWrapping="Wrap"/>
+                                    <ui:TextBlock Text="Mã số thuế" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <ui:TextBlock Text="{Binding SelectedSupplier.TaxCode}" FontSize="18" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Grid>
 
@@ -203,8 +203,8 @@
                                 </Grid.ColumnDefinitions>
                                 <ui:SymbolIcon Symbol="BuildingBank24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Ngân hàng" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
-                                    <TextBlock Text="{Binding SelectedSupplier.BankName}" FontSize="18" TextWrapping="Wrap"/>
+                                    <ui:TextBlock Text="Ngân hàng" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <ui:TextBlock Text="{Binding SelectedSupplier.BankName}" FontSize="18" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Grid>
 
@@ -215,8 +215,8 @@
                                 </Grid.ColumnDefinitions>
                                 <ui:SymbolIcon Symbol="PersonMoney24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Chủ tài khoản" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
-                                    <TextBlock Text="{Binding SelectedSupplier.AccountName}" FontSize="18" TextWrapping="Wrap"/>
+                                    <ui:TextBlock Text="Chủ tài khoản" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <ui:TextBlock Text="{Binding SelectedSupplier.AccountName}" FontSize="18" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Grid>
 
@@ -227,8 +227,8 @@
                                 </Grid.ColumnDefinitions>
                                 <ui:SymbolIcon Symbol="NumberSymbol24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Số tài khoản" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
-                                    <TextBlock Text="{Binding SelectedSupplier.AccountNumber}" FontSize="18" TextWrapping="Wrap"/>
+                                    <ui:TextBlock Text="Số tài khoản" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <ui:TextBlock Text="{Binding SelectedSupplier.AccountNumber}" FontSize="18" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Grid>
 
@@ -239,8 +239,8 @@
                                 </Grid.ColumnDefinitions>
                                 <ui:SymbolIcon Symbol="Note24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Ghi chú" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
-                                    <TextBlock Text="{Binding SelectedSupplier.Notes}" FontSize="18" TextWrapping="Wrap" FontStyle="Italic" Opacity="0.9"/>
+                                    <ui:TextBlock Text="Ghi chú" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <ui:TextBlock Text="{Binding SelectedSupplier.Notes}" FontSize="18" TextWrapping="Wrap" FontStyle="Italic" Opacity="0.9"/>
                                 </StackPanel>
                             </Grid>
 

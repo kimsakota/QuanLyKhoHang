@@ -10,36 +10,43 @@
       ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
       d:DesignHeight="450" d:DesignWidth="800"
+      ScrollViewer.CanContentScroll="False"
       Title="QuanLySanPhamPage">
     <Page.Resources>
         <beh:ZeroToCollapsedConverter x:Key="ZeroToCollapsedConverter"/>
     </Page.Resources>
 
-    <StackPanel Orientation="Vertical">
-        <StackPanel Margin="20">
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <ui:TextBox Width="200" Height="36" Margin="0,0,10,0"
+    <Border>
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <ui:TextBox Width="200" Height="36" Margin="0,0,10,0"
                          PlaceholderText="Tìm kiếm"
                          Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                <ComboBox Width="200" Height="36" ItemsSource="{Binding Categories}"
+                    <ComboBox Width="200" Height="36" ItemsSource="{Binding Categories}"
                   SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
                   DisplayMemberPath="Name" Margin="0,0,10,0" />
-                <Button Content="Làm mới" Command="{Binding LoadDataCommand}" Width="100" Height="36"/>
-            </StackPanel>
+                    <Button Content="Làm mới" Command="{Binding LoadDataCommand}" Width="100" Height="36"/>
+                </StackPanel>
 
-            <StackPanel Orientation="Horizontal"  Margin="0,0,0,10" 
+                <StackPanel Orientation="Horizontal"  Margin="0,0,0,10" 
                         Visibility="{Binding SelectedCount, Converter={StaticResource ZeroToCollapsedConverter}}">
-                <ui:TextBlock Text="{Binding SelectedCount, StringFormat='Đã chọn {0} sản phẩm'}" FontWeight="Bold" VerticalAlignment="Center" />
-                <ui:Button Content="Hủy chọn" 
+                    <ui:TextBlock Text="{Binding SelectedCount, StringFormat='Đã chọn {0} sản phẩm'}" FontWeight="Bold" VerticalAlignment="Center" />
+                    <ui:Button Content="Hủy chọn" 
                            Command="{Binding SelectAllCommand}" Margin="10,0" />
-                <ui:Button Content="Xóa đã chọn" 
+                    <ui:Button Content="Xóa đã chọn" 
                            Command="{Binding DeleteSelectedCommand}" 
                            Margin="10,0"
                            Appearance="Danger"
                            />
-            </StackPanel>
+                </StackPanel>
+            </Grid>
 
-            <Border>
+            <Border Grid.Row="1">
                 <ui:DataGrid ItemsSource="{Binding ProductsView}"
                              AutoGenerateColumns="False"
                              CanUserAddRows="False"
@@ -101,7 +108,7 @@
                                                HorizontalAlignment="Center"
                                                ClipToBounds="True"
                                                SnapsToDevicePixels="True"
-                                               RenderOptions.BitmapScalingMode="HighQuality"/>         
+                                               RenderOptions.BitmapScalingMode="HighQuality"/>
                                     </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -121,13 +128,13 @@
                                                Appearance="Transparent"
                                                Command="{Binding DataContext.EditProductCommand, 
                                                                  RelativeSource={RelativeSource AncestorType={x:Type local:QuanLySanPhamPage}}}"
-                                               CommandParameter="{Binding}"/>    
+                                               CommandParameter="{Binding}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                     </ui:DataGrid.Columns>
                 </ui:DataGrid>
             </Border>
-        </StackPanel>
-    </StackPanel>
+        </Grid>
+    </Border>
 </Page>

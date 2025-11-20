@@ -45,9 +45,6 @@ namespace UiDesktopApp1.ViewModels.Pages
         [ObservableProperty]
         private string _errorSummary = string.Empty;
 
-        [ObservableProperty]
-        private int _selectedIndex = -1;
-
         public List<string> AvailableRoles { get; } = new List<string>
         {
             Roles.Admin.ToString(),
@@ -85,9 +82,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
                 var userList = await db.Users.AsNoTracking().ToListAsync();
                 foreach (var user in userList)
-                {
                     Users.Add(user);
-                }
             }
             finally { IsBusy = false; }
         }
@@ -193,6 +188,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                     await db.SaveChangesAsync();
 
                     Users.Add(UserForDialog);
+                    SelectedUser = Users[Users.Count - 1];
                 }
                 else
                 {

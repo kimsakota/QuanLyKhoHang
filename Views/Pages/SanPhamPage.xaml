@@ -11,54 +11,54 @@
       d:DesignHeight="450" d:DesignWidth="800"
       ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+      ScrollViewer.CanContentScroll="False"
       Title="SanPhamPage">
 
-    <StackPanel>
-        <Border Padding="16" BorderBrush="#DDD" BorderThickness="0,0,0,0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+    <Border Padding="16" BorderBrush="#DDD" BorderThickness="0,0,0,0">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
-                    <ui:AutoSuggestBox Icon="{ui:SymbolIcon Search24}"
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+                <ui:AutoSuggestBox Icon="{ui:SymbolIcon Search24}"
                                        PlaceholderText="Tìm kiếm"
                                        Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        Width="200" Height="35"
                                        OriginalItemsSource="{Binding AllProducts, Mode=OneWay}" 
                                        UpdateTextOnSelect="True">
-                        <ui:AutoSuggestBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Margin="8,6">
-                                    <Image Source="{Binding }" Width="32" Height="35" Margin="0,0,8,0"/>
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding Code}" Opacity=".6" FontSize="12"/>
-                                    </StackPanel>
+                    <ui:AutoSuggestBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="8,6">
+                                <Image Source="{Binding }" Width="32" Height="35" Margin="0,0,8,0"/>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Code}" Opacity=".6" FontSize="12"/>
                                 </StackPanel>
-                            </DataTemplate>
-                        </ui:AutoSuggestBox.ItemTemplate>
-                    </ui:AutoSuggestBox>
-                    <ComboBox ItemsSource="{Binding Categories}"
+                            </StackPanel>
+                        </DataTemplate>
+                    </ui:AutoSuggestBox.ItemTemplate>
+                </ui:AutoSuggestBox>
+                <ComboBox ItemsSource="{Binding Categories}"
                               DisplayMemberPath="Name"
                               SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
                               Height="Auto" Width="Auto" 
                               Margin="10,0,0,0">
-                        
-                    </ComboBox>
-                    <ui:Button Content="Làm mới" 
+
+                </ComboBox>
+                <ui:Button Content="Làm mới" 
                                MouseOverBackground="LightBlue"
                                Command="{Binding LoadDataCommand}"
                                Height="36" Margin="10,0,0,0">
-                        <ui:Button.Icon>
-                            <ui:SymbolIcon Symbol="ArrowClockwise20"/>
-                        </ui:Button.Icon>
-                    </ui:Button>
-                </StackPanel>
+                    <ui:Button.Icon>
+                        <ui:SymbolIcon Symbol="ArrowClockwise20"/>
+                    </ui:Button.Icon>
+                </ui:Button>
+            </StackPanel>
 
-                <Grid Grid.Row="1">
-                    <ui:DataGrid ItemsSource="{Binding ProductsView}"
+            <Grid Grid.Row="1">
+                <ui:DataGrid ItemsSource="{Binding ProductsView}"
                                  AutoGenerateColumns="False"
                                  CanUserAddRows="False"
                                  CanUserDeleteRows="False"    
@@ -73,30 +73,30 @@
                                  BorderThickness="1"
                                  BorderBrush="#DDD">
 
-                        <!-- Style mặc định -->
-                        <ui:DataGrid.TextColumnElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                <Setter Property="FontSize" Value="13"/>
-                                <Setter Property="Padding" Value="8,0"/>
-                                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                            </Style>
-                        </ui:DataGrid.TextColumnElementStyle>
+                    <!-- Style mặc định -->
+                    <ui:DataGrid.TextColumnElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="FontSize" Value="13"/>
+                            <Setter Property="Padding" Value="8,0"/>
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                        </Style>
+                    </ui:DataGrid.TextColumnElementStyle>
 
-                        <ui:DataGrid.CellStyle>
-                            <Style TargetType="DataGridCell">
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
-                            </Style>
-                        </ui:DataGrid.CellStyle>
+                    <ui:DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+                        </Style>
+                    </ui:DataGrid.CellStyle>
 
-                        <ui:DataGrid.Columns>
-                            <DataGridTemplateColumn Header="Hình ảnh" Width="90">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border Padding="4">
-                                            <ui:Image Source="{Binding Image}"
+                    <ui:DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Hình ảnh" Width="90">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Padding="4">
+                                        <ui:Image Source="{Binding Image}"
                                                       Width="48"
                                                       Height="48"
                                                       CornerRadius="10" BorderBrush="#33000000"
@@ -106,21 +106,20 @@
                                                       ClipToBounds="True"
                                                       SnapsToDevicePixels="True"
                                                       RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        </Border>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                            <DataGridTextColumn Header="Tên" Binding="{Binding ProductName}" Width="*" />
-                            <DataGridTextColumn Header="Tồn kho" Binding="{Binding InitialQty}" Width="Auto" />
-                            <DataGridTextColumn Header="Giá bán" Binding="{Binding SalePrice, StringFormat={}{0:N0} ₫}" Width="Auto" />
-                            <DataGridTextColumn Header="Mã số" Binding="{Binding ProductCode}" Width="Auto" />
-                            <DataGridTextColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate, StringFormat={}{0:dd/MM/yyyy}}" Width="Auto" />
-                        </ui:DataGrid.Columns>
-                    </ui:DataGrid>
-                </Grid>
+                        <DataGridTextColumn Header="Tên" Binding="{Binding ProductName}" Width="*" />
+                        <DataGridTextColumn Header="Tồn kho" Binding="{Binding InitialQty}" Width="Auto" />
+                        <DataGridTextColumn Header="Giá bán" Binding="{Binding SalePrice, StringFormat={}{0:N0} ₫}" Width="Auto" />
+                        <DataGridTextColumn Header="Mã số" Binding="{Binding ProductCode}" Width="Auto" />
+                        <DataGridTextColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate, StringFormat={}{0:dd/MM/yyyy}}" Width="Auto" />
+                    </ui:DataGrid.Columns>
+                </ui:DataGrid>
             </Grid>
+        </Grid>
 
-        </Border>
-    </StackPanel>
+    </Border>
 </Page>

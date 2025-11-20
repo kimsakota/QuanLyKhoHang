@@ -12,15 +12,9 @@
       mc:Ignorable="d" 
       d:DesignWidth="800"
       ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
-ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
-      ScrollViewer.VerticalScrollBarVisibility="Disabled"
+      ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+      ScrollViewer.CanContentScroll="False"
       Title="KhachHangPage">
-
-    <Page.Resources>
-        <ResourceDictionary>
-            <beh:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter" />
-        </ResourceDictionary>
-    </Page.Resources>
 
     <Border>
         <Grid>
@@ -32,7 +26,7 @@ ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
                 <Grid Width="300" >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="480"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
                         <ui:AutoSuggestBox Icon="{ui:SymbolIcon Search24}" 
@@ -44,7 +38,10 @@ ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
                         <ui:ListView d:ItemsSource="{d:SampleData ItemCount=5}"
                                      ItemsSource="{Binding CustomersView}"
                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                     SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}">
+                                     SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
+                                     VirtualizingPanel.IsVirtualizing="True"
+                                     VirtualizingPanel.ScrollUnit="Item"
+                                     VirtualizingPanel.VirtualizationMode="Recycling">
                             <b:Interaction.Behaviors>
                                 <beh:ScrollIntoViewBehavior SelectedItem="{Binding SelectedCustomer}"/>
                             </b:Interaction.Behaviors>
@@ -68,6 +65,7 @@ ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
                                                    Margin="5,0,0,0"
                                                    FontSize="20"
                                                    VerticalAlignment="Center"
+                                                   TextWrapping="Wrap"
                                                    Text="{Binding Name, Mode=OneWay}"/>
                                     </Grid>
                                 </DataTemplate>
@@ -126,37 +124,38 @@ ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
                                   VerticalAlignment="Top"
                                   Padding="0,0,10,0">
                         <StackPanel Orientation="Vertical">
-                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedCustomer.PhoneNumber, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedCustomer.PhoneNumber, Converter={x:Static beh:StringNullOrEmptyToVisibilityConverter.Instance}}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <ui:SymbolIcon Symbol="Call24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Số điện thoại" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
-                                    <TextBlock Text="{Binding SelectedCustomer.PhoneNumber}" FontSize="18" TextWrapping="Wrap"/>
+                                    <ui:TextBlock Text="Số điện thoại" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <ui:TextBlock Text="{Binding SelectedCustomer.PhoneNumber}" FontSize="18" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Grid>
-                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedCustomer.Address, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedCustomer.Address, Converter={x:Static beh:StringNullOrEmptyToVisibilityConverter.Instance}}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <ui:SymbolIcon Symbol="Location24" FontSize="18" Margin="0,3,10,0" Grid.Column="0"          VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                                <ui:SymbolIcon Symbol="Location24" FontSize="18" Margin="0,3,10,0" Grid.Column="0"          
+                                               VerticalAlignment="Top" Foreground="DeepSkyBlue" />
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Địa chỉ" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
-                                    <TextBlock Text="{Binding SelectedCustomer.Address}" FontSize="18" TextWrapping="Wrap"/>
+                                    <ui:TextBlock Text="Địa chỉ" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <ui:TextBlock Text="{Binding SelectedCustomer.Address}" FontSize="18" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Grid>
-                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedCustomer.Notes, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}">
+                            <Grid Margin="0,10,0,5" Visibility="{Binding SelectedCustomer.Notes, Converter={x:Static beh:StringNullOrEmptyToVisibilityConverter.Instance}}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <ui:SymbolIcon Symbol="Note24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Ghi chú" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
-                                    <TextBlock Text="{Binding SelectedCustomer.Notes}" FontSize="18" TextWrapping="Wrap" FontStyle="Italic" Opacity="0.9"/>
+                                    <ui:TextBlock Text="Ghi chú" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                    <ui:TextBlock Text="{Binding SelectedCustomer.Notes}" FontSize="18" TextWrapping="Wrap" FontStyle="Italic" Opacity="0.9"/>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
