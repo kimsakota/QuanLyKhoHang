@@ -5,15 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:UiDesktopApp1.Views.UserControls"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-             xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
+             xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors" 
+             xmlns:pages="clr-namespace:UiDesktopApp1.ViewModels.Pages" d:DataContext="{d:DesignInstance Type=pages:QuanLyNguoiDungViewModel}"
              mc:Ignorable="d" 
              ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
              ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
              d:DesignHeight="60" d:DesignWidth="800">
-    <UserControl.Resources>
-        <beh:ZeroToCollapsedConverter x:Key="ZeroToCollapsedConverter"/>
-    </UserControl.Resources>
-    
     <Border BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
         <Grid Margin="0,2,0,0">
             <Grid.ColumnDefinitions>
@@ -34,10 +31,10 @@
                         Orientation="Horizontal"
                         HorizontalAlignment="Right">
                 <StackPanel Orientation="Horizontal"
-                            Visibility="{Binding SelectedUser, Converter={StaticResource ZeroToCollapsedConverter}}">
+                            Visibility="{Binding SelectedUser, Converter={x:Static beh:NullToVisibilityConverter.Instance}}">
                     <ui:Button Content="Xóa"
+                               Command="{Binding DeleteCommand}"
                                Margin="0,0,10,0"
-                               
                                Appearance="Danger">
                         <ui:Button.Icon>
                             <ui:SymbolIcon Symbol="Delete20"
@@ -46,6 +43,7 @@
                         </ui:Button.Icon>
                     </ui:Button>
                     <ui:Button Content="Sửa"
+                               Command="{Binding EditCommand}"
                                Appearance="Caution"
                                Margin="0,0,10,0">
                         <ui:Button.Icon>

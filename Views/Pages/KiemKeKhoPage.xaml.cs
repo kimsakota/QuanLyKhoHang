@@ -26,7 +26,7 @@ namespace UiDesktopApp1.Views.Pages
         public KiemKeKhoPage(KiemKeKhoViewModel viewModel)
         {
             ViewModel = viewModel;
-            DataContext = this;
+            DataContext = viewModel;
 
             InitializeComponent();
         }

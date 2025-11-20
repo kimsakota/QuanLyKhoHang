@@ -77,7 +77,8 @@ ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
                 </Grid>
             </Border>
             <Grid Grid.Column="1">
-                <Grid Margin="15,15,50,15">
+                <Grid Margin="15,15,50,15"
+                      Visibility="{Binding SelectedCustomer, Converter={x:Static beh:NullToVisibilityConverter.Instance}}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="5*"/>

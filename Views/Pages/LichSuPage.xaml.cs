@@ -26,7 +26,7 @@ namespace UiDesktopApp1.Views.Pages
         public LichSuPage(LichSuViewModel viewModel)
         {
             ViewModel = viewModel;
-            DataContext = this;
+            DataContext = viewModel;
 
             InitializeComponent();
         }

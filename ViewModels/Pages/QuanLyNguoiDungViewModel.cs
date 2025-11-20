@@ -28,7 +28,7 @@ namespace UiDesktopApp1.ViewModels.Pages
         private ObservableCollection<UserModel> _users = new();
 
         [ObservableProperty]
-        private UserModel? _selectedUser;
+        private UserModel? _selectedUser = null;
 
         [ObservableProperty]
         private UserModel _userForDialog = new();
@@ -41,6 +41,9 @@ namespace UiDesktopApp1.ViewModels.Pages
 
         [ObservableProperty]
         private string _errorSummary = string.Empty;
+
+        [ObservableProperty]
+        private int _selectedIndex = -1;
 
         public List<string> AvailableRoles { get; } = new List<string>
         {
@@ -193,102 +196,29 @@ namespace UiDesktopApp1.ViewModels.Pages
         }
 
         [RelayCommand]
-        private async Task EditAsync(UserModel user)
+        private async Task EditAsync()
         {
-            if (user == null) return;
-
-            var dialogContent = App.Services.GetRequiredService<ThemSuaNguoiDungDialog>();
-
-            // Chuẩn bị dữ liệu cho dialog
-            DialogPassword = string.Empty; // Xóa mật khẩu cũ
-            ErrorSummary = string.Empty;
-
-            // Clone object để chỉnh sửa (tránh ảnh hưởng đến DataGrid)
-            UserForDialog = new UserModel
-            {
-                Id = user.Id,
-                Username = user.Username,
-                FullName = user.FullName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                Role = user.Role,
-                PasswordHash = user.PasswordHash // Giữ lại hash cũ
-            };
-
-            // Thay đổi text trợ giúp mật khẩu
-            var passwordHelpText = dialogContent.FindName("PasswordHelpText") as TextBlock;
-            if (passwordHelpText != null)
-            {
-                passwordHelpText.Text = "(Để trống nếu không muốn thay đổi)";
-                passwordHelpText.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Gray);
-            }
-
-            var dialog = new ContentDialog
-            {
-                Title = "Sửa thông tin người dùng",
-                Content = dialogContent,
-                PrimaryButtonText = "Lưu",
-                CloseButtonText = "Hủy",
-                DefaultButton = ContentDialogButton.Primary
-            };
-
-            dialog.Closing += async (s, e) =>
-            {
-                if (e.Result == ContentDialogResult.Primary)
-                {
-                    e.Cancel = true; // Giữ dialog mở
-                    var ok = await SaveAsync(isEdit: true);
-                    if (ok)
-                    {
-                        // Cập nhật lại item trong danh sách UI
-                        var index = Users.IndexOf(user);
-                        if (index != -1)
-                            Users[index] = UserForDialog; // Thay thế bằng object đã sửa
-
-                        e.Cancel = false; // Đóng dialog
-                    }
-                }
-            };
-
-            await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
+            
         }
 
         [RelayCommand]
-        private async Task DeleteAsync(UserModel user)
+        private async Task DeleteAsync()
         {
-            if (user == null) return;
-
-            // Không cho phép Admin tự xóa mình
-            if (user.Id == _currentUserService.CurrentUser?.Id)
-            {
-                MessageBox.Show("Bạn không thể tự xóa tài khoản của chính mình.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            var result = MessageBox.Show($"Bạn có chắc muốn xóa người dùng '{user.Username}' không?",
-                                         "Xác nhận xóa",
-                                         MessageBoxButton.YesNo,
-                                         MessageBoxImage.Warning);
-
-            if (result != MessageBoxResult.Yes) return;
-
-            IsBusy = true;
-            try
-            {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
-                db.Users.Attach(user);
-                db.Users.Remove(user);
-                await db.SaveChangesAsync();
-
-                Users.Remove(user); // Cập nhật UI
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"Lỗi khi xóa: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally { IsBusy = false; }
+            
         }
 
-        
+
+        partial void OnSelectedUserChanged(UserModel? value)
+        {
+            if (value != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"Đã chọn user: {value.Username}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Đã bỏ chọn user (null)");
+            }
+        }
+
     }
 }

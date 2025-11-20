@@ -9,7 +9,8 @@ using System.Windows.Data;
 namespace UiDesktopApp1.Behaviors
 {
     public class StringNullOrEmptyToVisibilityConverter : IValueConverter
-    {   
+    {
+        public static readonly StringNullOrEmptyToVisibilityConverter Instance = new();
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             // Nếu chuỗi là null hoặc rỗng, HÃY ẨN NÓ (Collapsed)

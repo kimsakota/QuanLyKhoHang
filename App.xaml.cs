@@ -83,49 +83,49 @@ namespace UiDesktopApp1
                     services.AddDbContextFactory<AppDbContext>(opt => opt.UseSqlServer(connStr));
 
                     services.AddSingleton<TaiChinhPage>();
-                    services.AddScoped<TaiChinhViewModel>();
+                    services.AddSingleton<TaiChinhViewModel>();
                     services.AddSingleton<TonKhoPage>();
-                    services.AddScoped<TonKhoViewModel>();
+                    services.AddSingleton<TonKhoViewModel>();
                     services.AddSingleton<Views.Pages.BaoCao.KhachHangPage>();
-                    services.AddScoped<ViewModels.Pages.BaoCao.KhachHangViewModel>();
+                    services.AddSingleton<ViewModels.Pages.BaoCao.KhachHangViewModel>();
                     services.AddSingleton<SanPhamPage>();
                     services.AddTransient<SanPhamViewModel>();
                     services.AddSingleton<NhapKhoPage>();
-                    services.AddScoped<NhapKhoViewModel>();
+                    services.AddSingleton<NhapKhoViewModel>();
                     services.AddSingleton<XuatKhoPage>();
-                    services.AddScoped<XuatKhoViewModel>();
+                    services.AddSingleton<XuatKhoViewModel>();
                     services.AddSingleton<KiemKeKhoPage>();
-                    services.AddScoped<KiemKeKhoViewModel>();
+                    services.AddSingleton<KiemKeKhoViewModel>();
                     services.AddSingleton<LichSuPage>();
-                    services.AddScoped<LichSuViewModel>();
+                    services.AddSingleton<LichSuViewModel>();
                     services.AddSingleton<ChiPhiPage>();
-                    services.AddScoped<ChiPhiViewModel>();
+                    services.AddSingleton<ChiPhiViewModel>();
 
 
                     services.AddTransient<ThemSanPhamPage>();
-                    services.AddScoped<ThemSanPhamViewModel>();
+                    services.AddSingleton<ThemSanPhamViewModel>();
 
                     services.AddSingleton<SanPhamPageHeader>();
                     services.AddSingleton<NhapKhoPageHeader>();
                     services.AddTransient<ThemSanPhamPageHeader>();
                     services.AddSingleton<ThemDanhMucPage>();
-                    services.AddScoped<ThemDanhMucViewModel>();
+                    services.AddSingleton<ThemDanhMucViewModel>();
                     services.AddSingleton<QuanLySanPhamPage>();
-                    services.AddScoped<QuanLySanPhamViewModel>();
+                    services.AddSingleton<QuanLySanPhamViewModel>();
                     services.AddSingleton<QuanLySanPhamPageHeader>();
                     services.AddSingleton<SuaSanPhamPage>();
-                    services.AddScoped<SuaSanPhamViewModel>();
+                    services.AddSingleton<SuaSanPhamViewModel>();
                     services.AddSingleton<SuaSanPhamPageHeader>();
 
 
                     //Liên hệ
                     services.AddSingleton<Views.Pages.LienHe.KhachHangPage>();
-                    services.AddScoped<ViewModels.Pages.LienHe.KhachHangViewModel>();
+                    services.AddSingleton<ViewModels.Pages.LienHe.KhachHangViewModel>();
                     services.AddSingleton<KhachHangPageHeader>();
                     services.AddTransient<ThemSuaKhachHangDialog>();
 
                     services.AddSingleton<NhaCungCapPage>();
-                    services.AddScoped<NhaCungCapViewModel>();
+                    services.AddSingleton<NhaCungCapViewModel>();
                     services.AddSingleton<NhaCungCapPageHeader>();
                     services.AddTransient<ThemSuaNhaCungCapDialog>();
 
@@ -134,7 +134,7 @@ namespace UiDesktopApp1
 
                     //Quản lý người dùng
                     services.AddSingleton<QuanLyNguoiDungPage>();
-                    services.AddScoped<QuanLyNguoiDungViewModel>();
+                    services.AddSingleton<QuanLyNguoiDungViewModel>();
                     services.AddSingleton<QuanLyNguoiDungPageHeader>();
                     services.AddTransient<ThemSuaNguoiDungDialog>();
 

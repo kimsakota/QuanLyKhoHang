@@ -10,6 +10,7 @@ namespace UiDesktopApp1.Behaviors
 {
     public class ZeroToCollapsedConverter : IValueConverter
     {
+        public static readonly ZeroToCollapsedConverter Instance = new();
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is int intValue)

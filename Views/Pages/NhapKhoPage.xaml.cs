@@ -29,7 +29,7 @@ namespace UiDesktopApp1.Views.Pages
         public NhapKhoPage(NhapKhoViewModel viewModel, NhapKhoPageHeader header)
         {
             ViewModel = viewModel;
-            DataContext = this;
+            DataContext = viewModel;
             _header = header;
 
             InitializeComponent();
