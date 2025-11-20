@@ -153,20 +153,26 @@ namespace UiDesktopApp1.ViewModels.Pages
         private async Task<bool> HandleSaveToDbAsync()
         {
             UserForDialog.ValidateAll();
+            ClearErrors(nameof(DialogPassword));
 
-            
             var errors = UserForDialog.GetErrors()
                                         .Select(e => e.ErrorMessage)
                                         .Where(msg => !string.IsNullOrWhiteSpace(msg))
                                         .Distinct()
                                         .ToList();
-
-            ClearErrors(nameof(DialogPassword));
-            if (string.IsNullOrWhiteSpace(UserForDialog.PasswordHash))
+            
+            if (string.IsNullOrWhiteSpace(UserForDialog.PasswordHash) && string.IsNullOrWhiteSpace(DialogPassword))
             {
                 if (string.IsNullOrWhiteSpace(DialogPassword))
-                    errors.Add("Mật khẩu là bắt buộc");
+                {
+                    ValidateProperty(DialogPassword, nameof(DialogPassword));
+                    var passwordError = GetErrors(nameof(DialogPassword))
+                                        .Select(e => e.ErrorMessage)
+                                        .FirstOrDefault();
+                    errors.AddRange(passwordError);
+                }
             }
+
             if (errors.Any())
             {
                 ErrorSummary = string.Join("\n", errors);
