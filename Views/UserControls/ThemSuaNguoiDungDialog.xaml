@@ -22,7 +22,7 @@
             <TextBlock x:Name="PasswordHelpText" Text=" *(Bắt buộc khi thêm mới)" Foreground="DarkRed" Margin="0,0,0,5"/>
             <ui:PasswordBox 
                 PlaceholderText="Nhập mật khẩu"
-                Password="{Binding DialogPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                Password="{Binding DialogPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True, NotifyOnValidationError=True}"/>
         </StackPanel>
 
         <StackPanel Orientation="Vertical" Margin="0,0,0,10">

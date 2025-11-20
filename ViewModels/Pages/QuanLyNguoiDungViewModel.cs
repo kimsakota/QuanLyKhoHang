@@ -2,9 +2,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using UiDesktopApp1.Models;
 using UiDesktopApp1.Services;
 using UiDesktopApp1.Views.UserControls;
@@ -17,7 +19,7 @@ using MessageBoxResult = System.Windows.MessageBoxResult;
 
 namespace UiDesktopApp1.ViewModels.Pages
 {
-    public partial class QuanLyNguoiDungViewModel : ObservableObject, INavigationAware
+    public partial class QuanLyNguoiDungViewModel : ObservableValidator, INavigationAware
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly IContentDialogService _contentDialogService;
@@ -33,6 +35,7 @@ namespace UiDesktopApp1.ViewModels.Pages
         [ObservableProperty]
         private UserModel _userForDialog = new();
 
+        [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
         [ObservableProperty]
         private string _dialogPassword = string.Empty;
 
@@ -89,60 +92,120 @@ namespace UiDesktopApp1.ViewModels.Pages
             finally { IsBusy = false; }
         }
 
-        private async Task<bool> SaveAsync(bool isEdit)
+        [RelayCommand]
+        private async Task AddAsync() => await ShowUserDialogAsync(null);
+
+        [RelayCommand]
+        private async Task EditAsync() => await ShowUserDialogAsync(SelectedUser);
+
+        private async Task ShowUserDialogAsync(UserModel? user)
+        {
+            if(user == null && SelectedUser != null) SelectedUser = null;
+            ClearErrors();
+            UserForDialog = user == null ? new UserModel() : new UserModel
+            {
+                Id = user.Id,
+                Username = user.Username,
+                FullName = user.FullName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Role = user.Role,
+                PasswordHash = user.PasswordHash
+            };
+
+            DialogPassword = string.Empty;
+            ErrorSummary = string.Empty;
+
+            var dialogContent = App.Services.GetRequiredService<ThemSuaNguoiDungDialog>();  
+
+            var passwordHelpText = dialogContent.FindName("PasswordHelpText") as TextBlock;
+            if(passwordHelpText != null)
+            {
+                bool isNewUser = user == null;
+                passwordHelpText.Text = isNewUser ?
+                    "Mật khẩu ban đầu cho người dùng mới." :
+                    "Để trống nếu không muốn thay đổi mật khẩu.";
+                passwordHelpText.Foreground = isNewUser ?
+                    new SolidColorBrush(Colors.Red) :
+                    new SolidColorBrush(Colors.Gray);
+            }
+
+            var dialog = new ContentDialog
+            {
+                Title = user == null ? "Thêm người dùng mới" : "Sửa thông tin người dùng",
+                Content = dialogContent,
+                PrimaryButtonText = "Lưu",
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            dialog.Closing += async (s, e) =>
+            {
+                if (e.Result == ContentDialogResult.Primary)
+                {
+                    bool success = await HandleSaveToDbAsync();
+                    if (!success) e.Cancel = true;
+                }
+            };
+            await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
+        }
+
+        private async Task<bool> HandleSaveToDbAsync()
         {
             UserForDialog.ValidateAll();
 
-            bool passwordError = false;
-
-            if (!isEdit && string.IsNullOrWhiteSpace(DialogPassword))
-                passwordError = true;
-
-            if (UserForDialog.HasErrors || passwordError)
-            {
-                var allErrors = UserForDialog.GetErrors()
+            
+            var errors = UserForDialog.GetErrors()
                                         .Select(e => e.ErrorMessage)
                                         .Where(msg => !string.IsNullOrWhiteSpace(msg))
                                         .Distinct()
                                         .ToList();
-                if (passwordError)
-                    allErrors.Add("Mật khẩu là bắt buộc khi thêm mới.");
-                ErrorSummary = string.Join("\n", allErrors);
+
+            ClearErrors(nameof(DialogPassword));
+            if (string.IsNullOrWhiteSpace(UserForDialog.PasswordHash))
+            {
+                if (string.IsNullOrWhiteSpace(DialogPassword))
+                    errors.Add("Mật khẩu là bắt buộc");
+            }
+            if (errors.Any())
+            {
+                ErrorSummary = string.Join("\n", errors);
                 return false;
             }
-
             IsBusy = true;
             try
             {
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
-
-                // Nếu người dùng có nhập mật khẩu, hash nó
-                if (!string.IsNullOrWhiteSpace(DialogPassword))
+                bool isNew = UserForDialog.Id == 0;
+                if(isNew)
                 {
-                    // Sử dụng BCrypt (giống như trong ApplicationHostService)
+                    if(await db.Users.AnyAsync(u => u.Username == UserForDialog.Username))
+                    {
+                        ErrorSummary = "Tên đăng nhập này đã tồn tại.";
+                        return false;
+                    }
+
                     UserForDialog.PasswordHash = BCrypt.Net.BCrypt.HashPassword(DialogPassword);
-                }
+                    db.Users.Add(UserForDialog);
+                    await db.SaveChangesAsync();
 
-                if (isEdit)
-                {
-                    db.Users.Update(UserForDialog);
+                    Users.Add(UserForDialog);
                 }
                 else
                 {
-                    // Kiểm tra tên đăng nhập trùng
-                    if (await db.Users.AnyAsync(u => u.Username == UserForDialog.Username))
-                    {
-                        ErrorSummary = "Tên đăng nhập này đã tồn tại.";
-                        IsBusy = false;
-                        return false;
-                    }
-                    db.Users.Add(UserForDialog);
-                }
+                    if(!string.IsNullOrWhiteSpace(DialogPassword))
+                        UserForDialog.PasswordHash = BCrypt.Net.BCrypt.HashPassword(DialogPassword);
 
-                await db.SaveChangesAsync();
+                    db.Users.Update(UserForDialog);
+                    await db.SaveChangesAsync();
+
+                    var index = Users.IndexOf(SelectedUser!);
+                    if(index >= 0) Users[index] = UserForDialog;
+                    SelectedUser = UserForDialog;
+                }
                 return true;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 ErrorSummary = "Lỗi khi lưu: " + ex.Message;
                 return false;
@@ -154,71 +217,43 @@ namespace UiDesktopApp1.ViewModels.Pages
         }
 
         [RelayCommand]
-        private async Task AddAsync()
-        {
-            var dialogContent = App.Services.GetRequiredService<ThemSuaNguoiDungDialog>();
-
-            // Chuẩn bị dữ liệu cho dialog
-            UserForDialog = new UserModel(); // Tạo object mới
-            DialogPassword = string.Empty;
-            ErrorSummary = string.Empty;
-
-            // Hiển thị lại text trợ giúp cho mật khẩu
-            var passwordHelpText = dialogContent.FindName("PasswordHelpText") as TextBlock;
-            if (passwordHelpText != null)
-            {
-                passwordHelpText.Text = " *(Bắt buộc khi thêm mới)";
-                passwordHelpText.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.DarkRed);
-            }
-
-            var dialog = new ContentDialog
-            {
-                Title = "Thêm người dùng mới",
-                Content = dialogContent,
-                PrimaryButtonText = "Lưu",
-                CloseButtonText = "Hủy",
-                DefaultButton = ContentDialogButton.Primary
-            };
-
-            dialog.Closing += async (s, e) =>
-            {
-                if (e.Result == ContentDialogResult.Primary)
-                {
-                    var ok = await SaveAsync(isEdit: false);
-                    if (!ok)
-                        e.Cancel = true;
-                    else
-                        Users.Add(UserForDialog); // Thêm vào danh sách UI
-                }
-            };
-
-            await _contentDialogService.ShowAsync(dialog, CancellationToken.None);
-        }
-
-        [RelayCommand]
-        private async Task EditAsync()
-        {
-            
-        }
-
-        [RelayCommand]
         private async Task DeleteAsync()
         {
-            
-        }
-
-
-        partial void OnSelectedUserChanged(UserModel? value)
-        {
-            if (value != null)
+            if (SelectedUser == null) return;
+            if (_currentUserService.CurrentUser != null &&
+                SelectedUser.Username == _currentUserService.CurrentUser.Username)
             {
-                System.Diagnostics.Debug.WriteLine($"Đã chọn user: {value.Username}");
+                MessageBox.Show("Bạn không thể xóa tài khoản đang đăng nhập!",
+                    "Thao tác bị từ chối", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
-            else
+
+            var result = MessageBox.Show(
+                $"Bạn có chắc chắn muốn xóa người dùng '{SelectedUser.FullName}' ({SelectedUser.Username}) không?\nHành động này không thể hoàn tác.",
+                "Xác nhận xóa",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (result != MessageBoxResult.Yes) return;
+            IsBusy = true;
+            try
             {
-                System.Diagnostics.Debug.WriteLine("Đã bỏ chọn user (null)");
+                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                
+                await db.Users.Where(u => u.Id == SelectedUser.Id)
+                              .ExecuteDeleteAsync();
+                Users.Remove(SelectedUser);
+                SelectedUser = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xóa người dùng:\n{ex.Message}",
+                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                await LoadDataAsync();
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
-
     }
 }
