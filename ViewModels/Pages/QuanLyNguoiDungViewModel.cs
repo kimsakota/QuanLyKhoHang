@@ -163,14 +163,11 @@ namespace UiDesktopApp1.ViewModels.Pages
             
             if (string.IsNullOrWhiteSpace(UserForDialog.PasswordHash) && string.IsNullOrWhiteSpace(DialogPassword))
             {
-                if (string.IsNullOrWhiteSpace(DialogPassword))
-                {
-                    ValidateProperty(DialogPassword, nameof(DialogPassword));
-                    var passwordError = GetErrors(nameof(DialogPassword))
-                                        .Select(e => e.ErrorMessage)
-                                        .FirstOrDefault();
-                    errors.AddRange(passwordError);
-                }
+                ValidateProperty(DialogPassword, nameof(DialogPassword));
+                var passwordError = GetErrors(nameof(DialogPassword))
+                                    .Select(e => e.ErrorMessage)
+                                    .FirstOrDefault();
+                errors.AddRange(passwordError);
             }
 
             if (errors.Any())
