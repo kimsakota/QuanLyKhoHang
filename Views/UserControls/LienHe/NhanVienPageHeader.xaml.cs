@@ -12,28 +12,21 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using UiDesktopApp1.Contracts;
 using UiDesktopApp1.ViewModels.Pages.LienHe;
-using UiDesktopApp1.Views.UserControls.LienHe;
 
-namespace UiDesktopApp1.Views.Pages.LienHe
+namespace UiDesktopApp1.Views.UserControls.LienHe
 {
     /// <summary>
-    /// Interaction logic for NhanVienPage.xaml
+    /// Interaction logic for NhanVienPageHeader.xaml
     /// </summary>
-    public partial class NhanVienPage : Page, IHasHeader
+    public partial class NhanVienPageHeader : UserControl
     {
         public NhanVienViewModel ViewModel { get; }
-        public NhanVienPageHeader _header;
-
-        public NhanVienPage(NhanVienViewModel viewModel, NhanVienPageHeader header)
+        public NhanVienPageHeader(NhanVienViewModel viewModel)
         {
-            ViewModel = viewModel;
-            DataContext = viewModel;
-            _header = header;   
-
             InitializeComponent();
+            ViewModel = viewModel;
+            DataContext = ViewModel;
         }
-        public object? GetHeader() => _header;
     }
 }

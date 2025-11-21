@@ -130,6 +130,7 @@ namespace UiDesktopApp1
                     services.AddTransient<ThemSuaNhaCungCapDialog>();
 
                     services.AddSingleton<NhanVienPage>();
+                    services.AddSingleton<NhanVienPageHeader>();
                     services.AddScoped<NhanVienViewModel>();
 
                     //Quản lý người dùng

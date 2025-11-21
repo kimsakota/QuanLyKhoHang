@@ -207,6 +207,8 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             }
         }
 
+        [RelayCommand]
+        private async Task RefreshList() => await LoadDataAsync();
         partial void OnSearchTextChanged(string value) => SuppliersView?.Refresh();
 
         private bool FilterSuppliers(object obj)

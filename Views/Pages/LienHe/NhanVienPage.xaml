@@ -4,11 +4,186 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages.LienHe"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
+      xmlns:models="clr-namespace:UiDesktopApp1.Models"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors" xmlns:lienhe="clr-namespace:UiDesktopApp1.ViewModels.Pages.LienHe" d:DataContext="{d:DesignInstance Type=lienhe:NhanVienViewModel}"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignWidth="800"
+      ScrollViewer.CanContentScroll="False"
       Title="NhanVienPage">
 
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0"
+                BorderBrush="LightGray"
+                BorderThickness="0,0,0.5,0"
+                VerticalAlignment="Stretch">
+            <DockPanel Width="300" LastChildFill="True">
+                <Border DockPanel.Dock="Top"
+                        BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ui:AutoSuggestBox Icon="{ui:SymbolIcon Search24}" 
+                                           PlaceholderText="Tìm kiếm theo tên" Margin="10,10,10,20"
+                                           Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                           Grid.Column="0"/>        
+                        <ui:Button Content="Làm mới"
+                                   Command="{Binding RefreshListCommand}"
+                                   Margin="0,-10,10,0"
+                                   HorizontalAlignment="Right"
+                                   Height="35.62"
+                                   Grid.Column="1"/>
+                    </Grid>
+                </Border>
+
+                <ui:ListView d:ItemsSource="{d:SampleData ItemCount = 5}"
+                             ItemsSource="{Binding EmployeeView}"
+                             SelectedItem="{Binding SelectedEmployee, Mode=TwoWay}"
+                             VerticalAlignment="Top"
+                             HorizontalAlignment="Stretch"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.ScrollUnit="Item"
+                             VirtualizingPanel.VirtualizationMode="Recycling">
+                    <b:Interaction.Behaviors>
+                        <beh:ScrollIntoViewBehavior SelectedItem="{Binding SelectedEmployee}"/>
+                    </b:Interaction.Behaviors>
+                    <ui:ListView.ItemTemplate>
+                        <DataTemplate DataType="{x:Type models:UserModel}">
+                            <Grid Margin="8,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Ellipse x:Name="Ellipse"
+                                         Grid.RowSpan="2"
+                                         Width="32"
+                                         Height="32"
+                                         Margin="6"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         Fill="{ui:ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+                                <ui:TextBlock Grid.Column="1"
+                                               FontWeight="SemiBold"
+                                               Margin="5,0,0,0"
+                                               FontSize="15"
+                                               VerticalAlignment="Center"
+                                               TextWrapping="Wrap"
+                                               Text="{Binding FullName, Mode=OneWay}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ui:ListView.ItemTemplate>
+                </ui:ListView>
+            </DockPanel>
+        </Border>
+        <Grid Grid.Column="1">
+            <Grid Margin="15,15,50,15"
+                  Visibility="{Binding SelectedEmployee, Converter={x:Static beh:NullToVisibilityConverter.Instance}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="0"
+                      VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                   Symbol="ChartPerson24"
+                                   Width="40"
+                                   FontSize="25"
+                                   Margin="0,0,8,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="DeepSkyBlue"/>
+                            <ui:TextBlock Grid.Column="1"
+                                  Text="{Binding SelectedEmployee.FullName}"
+                                  FontSize="30"
+                                  FontWeight="SemiBold"
+                                  VerticalAlignment="Center"
+                                  TextWrapping="Wrap"
+                                  TextTrimming="CharacterEllipsis"
+                                  ToolTipService.ShowDuration="60000">
+                                <ui:TextBlock.ToolTip>
+                                    <ToolTip Content="{Binding SelectedSupplier.Name}" />
+                                </ui:TextBlock.ToolTip>
+                            </ui:TextBlock>
+                        </Grid>
+
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Right"
+                                    Margin="8,0,0,0">
+                            <ui:Button Grid.Column="1" Margin="10,0,10,0"
+                                       Width="50" Height="40"
+                                       Command="{Binding DeleteCommand}"
+                                       CornerRadius="10"
+                                       MouseOverBackground="LightBlue"
+                                       Appearance="Danger">
+                                <ui:Button.Icon>
+                                    <ui:SymbolIcon Symbol="Delete24" FontWeight="Bold"
+                                       FontSize="20"/>
+                                </ui:Button.Icon>
+                            </ui:Button>
+                            <ui:Button Grid.Column="2" Margin="5,0,10,0"
+                                       Width="50" Height="40"
+                                       Command="{Binding EditCommand}"
+                                       CornerRadius="10"
+                                       MouseOverBackground="LightBlue"
+                                       Appearance="Primary">    
+                                <ui:Button.Icon>
+                                    <ui:SymbolIcon Symbol="Edit24" FontWeight="Bold"
+                                                   FontSize="20"/>
+                                </ui:Button.Icon>
+                            </ui:Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" 
+                      VerticalAlignment="Top"
+                      Padding="0,0,10,0">
+                    <StackPanel Orientation="Vertical">
+                        <Grid Margin="0,10,0,5" Visibility="{Binding SelectedEmployee.PhoneNumber, Converter={x:Static beh:StringNullOrEmptyToVisibilityConverter.Instance}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Symbol="Call24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                            <StackPanel Grid.Column="1">
+                                <ui:TextBlock Text="Số điện thoại" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                <ui:TextBlock Text="{Binding SelectedEmployee.PhoneNumber}" FontSize="18" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,10,0,5" Visibility="{Binding SelectedEmployee.Email, Converter={x:Static beh:StringNullOrEmptyToVisibilityConverter.Instance}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Symbol="Location24" FontSize="18" Margin="0,3,10,0" Grid.Column="0" VerticalAlignment="Top" Foreground="DeepSkyBlue" />
+                            <StackPanel Grid.Column="1">
+                                <ui:TextBlock Text="Địa chỉ" FontWeight="SemiBold" FontSize="14" Opacity="0.7"/>
+                                <ui:TextBlock Text="{Binding SelectedEmployee.Email}" FontSize="18" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
     </Grid>
 </Page>

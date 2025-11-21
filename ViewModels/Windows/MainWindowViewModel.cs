@@ -24,16 +24,16 @@ namespace UiDesktopApp1.ViewModels.Windows
         [ObservableProperty]
         private ObservableCollection<object> _menuItems = new();
 
-        [ObservableProperty]
+        /*[ObservableProperty]
         private ObservableCollection<object> _footerMenuItems = new()
         {
-            /*new NavigationViewItem()
+            *//*new NavigationViewItem()
             {
                 Content = "Settings",
                 Icon = new SymbolIcon { Symbol = SymbolRegular.Settings24 },
                 TargetPageType = typeof(Views.Pages.SettingsPage)
-            }*/
-        };
+            }*//*
+        };*/
 
         [ObservableProperty]
         private ObservableCollection<System.Windows.Controls.MenuItem> _trayMenuItems = new()

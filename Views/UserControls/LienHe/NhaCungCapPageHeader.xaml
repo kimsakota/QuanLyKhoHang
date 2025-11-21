@@ -23,10 +23,10 @@
             VerticalAlignment="Center"
             Orientation="Horizontal"
             HorizontalAlignment="Right">
-                <ui:Button Content="Khách hàng" 
-               Command="{Binding AddCommand}"
-               Appearance="Primary"
-               Margin="5,10,15,10">
+                <ui:Button Content="Nhà cung cấp" 
+                    Command="{Binding AddCommand}"
+                    Appearance="Primary"
+                    Margin="5,10,15,10"> 
                     <ui:Button.Icon>
                         <ui:SymbolIcon FontSize="17" Symbol="AddCircle12"/>
                     </ui:Button.Icon>
