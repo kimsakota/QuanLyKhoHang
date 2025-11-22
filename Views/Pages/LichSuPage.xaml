@@ -3,12 +3,103 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages"
+      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors" 
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="LichSuPage">
+      d:DataContext="{d:DesignInstance local:LichSuPage, IsDesignTimeCreatable=False}"
+      d:DesignHeight="650" d:DesignWidth="1000"
+      ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+      ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+      Title="Lịch sử giao dịch">
 
-    <Grid>
-        
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Padding="12" Margin="0,0,0,15"
+                BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" 
+                BorderThickness="1" CornerRadius="8" 
+                Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,15,0">
+                    <ui:CalendarDatePicker Date="{Binding StartDate, Mode=TwoWay}" Width="130" />
+                    <TextBlock Text="-" VerticalAlignment="Center" Margin="8,0"/>
+                    <ui:CalendarDatePicker Date="{Binding EndDate, Mode=TwoWay}" Width="130" />
+                </StackPanel>
+
+                <ComboBox Grid.Column="1" Width="140" SelectedIndex="{Binding SelectedTypeIndex, Mode=TwoWay}" Margin="0,0,15,0">
+                    <ComboBoxItem Content="Tất cả loại"/>
+                    <ComboBoxItem Content="Nhập kho"/>
+                    <ComboBoxItem Content="Xuất kho"/>
+                    <ComboBoxItem Content="Kiểm kê kho"/>
+                </ComboBox>
+
+                <ui:TextBox Grid.Column="3" PlaceholderText="Tìm mã phiếu, đối tác..." 
+                            Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Icon="{ui:SymbolIcon Search24}" Margin="0,0,10,0"/>
+
+                <ui:Button Grid.Column="4" Content="Lọc dữ liệu" Icon="{ui:SymbolIcon Filter24}" 
+                           Appearance="Primary" Command="{Binding LoadDataCommand}"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <ui:DataGrid ItemsSource="{Binding HistoryList}"
+                         AutoGenerateColumns="False"
+                         CanUserAddRows="False"
+                         SelectionMode="Single"
+                         IsReadOnly="True"
+                         HeadersVisibility="All"
+                         RowHeight="48">
+                <ui:DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã phiếu" Binding="{Binding TransactionCode}" Width="110" FontWeight="SemiBold"/>
+
+                    <DataGridTemplateColumn Header="Loại phiếu" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="4" Padding="8,2" HorizontalAlignment="Left"
+                                        Background="{Binding Type, Converter={x:Static beh:StringToColorConverter.Instance}}">
+                                    <TextBlock Text="{Binding Type}" FontWeight="Medium" Foreground="#333"/>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="Ngày tạo" Binding="{Binding Date, StringFormat='dd/MM/yyyy HH:mm'}" Width="150"/>
+                    <DataGridTextColumn Header="Đối tác / Ghi chú" Binding="{Binding PartnerName}" Width="*"/>
+
+                    <DataGridTextColumn Header="Tổng tiền" Binding="{Binding TotalAmount, StringFormat={}{0:N0} đ, TargetNullValue='--'}" Width="130" FontWeight="Bold"/>
+
+                    <DataGridTextColumn Header="Người tạo" Binding="{Binding Creator}" Width="130"/>
+
+                    <DataGridTemplateColumn Header="Chi tiết" Width="80">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ui:Button Icon="{ui:SymbolIcon Eye24}"
+                                           Appearance="Transparent"
+                                           ToolTip="Xem chi tiết"
+                                           Command="{Binding DataContext.ViewDetailsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                           CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </ui:DataGrid.Columns>
+            </ui:DataGrid>
+        </Border>
+
+        <Grid Grid.RowSpan="2" Background="#80000000" Visibility="{Binding IsBusy, Converter={x:Static beh:BooleanToVisibilityConverter.Instance}}">
+            <ui:ProgressRing IsIndeterminate="True" Width="50" Height="50"/>
+        </Grid>
     </Grid>
 </Page>

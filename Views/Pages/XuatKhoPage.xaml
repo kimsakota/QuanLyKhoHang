@@ -4,11 +4,190 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
+      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
+      xmlns:pages="clr-namespace:UiDesktopApp1.ViewModels.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="XuatKhoPage">
+      d:DataContext="{d:DesignInstance pages:XuatKhoViewModel, IsDesignTimeCreatable=False}"
+      d:DesignHeight="650" d:DesignWidth="1000"
+      Title="XuatKhoPage"
+      ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+      ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
 
-    <Grid>
-        
+    <Page.Resources>
+        <beh:NumberVnConverter x:Key="NumberVnConverter"/>
+        <beh:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter"/>
+        <beh:ZeroToCollapsedConverter x:Key="ZeroToCollapsedConverter"/>
+    </Page.Resources>
+
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" 
+                BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" 
+                BorderThickness="1" 
+                CornerRadius="8" 
+                Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                Margin="0,0,12,0" Padding="16">
+
+            <StackPanel>
+                <ui:TextBlock Text="Thông tin xuất kho" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                <ui:TextBlock Text="Khách hàng" FontWeight="Medium" Margin="0,0,0,6"/>
+                <ui:AutoSuggestBox PlaceholderText="Tìm hoặc thêm khách hàng..."
+                                   Text="{Binding CustomerSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   OriginalItemsSource="{Binding Customers}"
+                                   DisplayMemberPath="Name"
+                                   UpdateTextOnSelect="True"
+                                   Margin="0,0,0,12"
+                                   HorizontalAlignment="Stretch">
+                    <ui:AutoSuggestBox.Icon>
+                        <ui:SymbolIcon Symbol="PersonSearch24"/>
+                    </ui:AutoSuggestBox.Icon>
+                </ui:AutoSuggestBox>
+
+                <ui:TextBlock Text="Sản phẩm" FontWeight="Medium" Margin="0,0,0,6"/>
+                <ui:AutoSuggestBox PlaceholderText="Tìm tên hoặc mã sản phẩm..."
+                                   Text="{Binding ProductSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   OriginalItemsSource="{Binding Products}"
+                                   DisplayMemberPath="ProductName"
+                                   UpdateTextOnSelect="True"
+                                   Margin="0,0,0,12"
+                                   HorizontalAlignment="Stretch">
+                    <ui:AutoSuggestBox.Icon>
+                        <ui:SymbolIcon Symbol="BoxSearch24"/>
+                    </ui:AutoSuggestBox.Icon>
+                </ui:AutoSuggestBox>
+
+                <Border Background="{ui:ThemeResource ControlFillColorSecondaryBrush}" 
+                        CornerRadius="4" Padding="8" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Mã sản phẩm" Foreground="Gray" FontSize="11"/>
+                            <TextBlock Text="{Binding SelectedProduct.ProductCode, TargetNullValue='--'}" FontWeight="Medium"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                            <TextBlock Text="Tồn kho hiện tại" Foreground="Gray" FontSize="11" TextAlignment="Right"/>
+                            <TextBlock Text="{Binding CurrentStock, StringFormat='{}{0:N0} cái'}" 
+                                       FontWeight="Bold" 
+                                       Foreground="DeepSkyBlue" 
+                                       FontSize="14" 
+                                       TextAlignment="Right"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <ui:TextBlock Text="Giá bán" FontWeight="Medium" Margin="0,0,0,6"/>
+                        <ui:TextBox PlaceholderText="0"
+                                    Text="{Binding InputPrice, Mode=TwoWay, Converter={StaticResource NumberVnConverter}, UpdateSourceTrigger=PropertyChanged}"
+                                    beh:TextBoxBehaviors.SelectAllOnFocus="True"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <ui:TextBlock Text="Số lượng" FontWeight="Medium" Margin="0,0,0,6"/>
+                        <ui:NumberBox PlaceholderText="1"
+                                      Value="{Binding InputQuantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Minimum="1"
+                                      SpinButtonPlacementMode="Compact"/>
+                    </StackPanel>
+                </Grid>
+
+                <ui:Button Content="Thêm vào phiếu" 
+                           Appearance="Secondary" 
+                           Icon="AddCircle24"
+                           Command="{Binding AddToExportListCommand}"
+                           HorizontalAlignment="Stretch" Height="36" Margin="0,10,0,0"/>
+
+                <TextBlock Text="{Binding ErrorMessage}" 
+                           Foreground="#FFD63838" 
+                           FontSize="12"
+                           TextWrapping="Wrap" 
+                           Margin="0,10,0,0"
+                           Visibility="{Binding ErrorMessage, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
+
+                <Rectangle Height="20"/>
+
+                <ui:Button Content="XUẤT KHO" 
+                           Command="{Binding SaveExportCommand}"
+                           Appearance="Primary" 
+                           Icon="SignOut24"
+                           FontSize="14" FontWeight="Bold"
+                           HorizontalAlignment="Stretch" Height="45"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <ui:DataGrid Grid.Row="0"
+                         ItemsSource="{Binding ExportDetails}"
+                         AutoGenerateColumns="False"
+                         CanUserAddRows="False"
+                         SelectionMode="Single"
+                         HeadersVisibility="Column"
+                         BorderThickness="1"
+                         BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                         RowHeight="45">
+                <ui:DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã SP" Binding="{Binding Product.ProductCode}" Width="90"/>
+                    <DataGridTextColumn Header="Tên sản phẩm" Binding="{Binding Product.ProductName}" Width="*"/>
+                    <DataGridTextColumn Header="SL" Binding="{Binding Quantity}" Width="60"/>
+                    <DataGridTextColumn Header="Giá bán" Binding="{Binding UnitPrice, StringFormat={}{0:N0}}" Width="100"/>
+                    <DataGridTemplateColumn Header="Thành tiền" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TotalPrice, StringFormat={}{0:N0}}" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="50">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ui:Button Icon="Delete24" Appearance="Transparent" Foreground="#D13438"
+                                           Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                           CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </ui:DataGrid.Columns>
+            </ui:DataGrid>
+
+            <Border Grid.Row="1" Margin="0,12,0,0" Padding="16" Background="{ui:ThemeResource ControlFillColorSecondaryBrush}" CornerRadius="8" BorderThickness="1" BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <ui:SymbolIcon Symbol="Cart24" Margin="0,0,8,0" Foreground="Gray"/>
+                        <TextBlock Text="{Binding ExportDetails.Count, StringFormat='Số lượng mặt hàng: {0}'}" FontStyle="Italic" VerticalAlignment="Center" Foreground="Gray"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBlock Text="TỔNG TIỀN:" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                        <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:N0} VNĐ}" FontSize="24" FontWeight="Bold" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

@@ -30,5 +30,11 @@ namespace UiDesktopApp1.Models
 
         [ForeignKey(nameof(ExportId))]
         public ExportModel? Export { get; set; }
+
+        [NotMapped]
+        public decimal TotalPrice => Quantity * UnitPrice;
+        partial void OnQuantityChanged(int value) => OnPropertyChanged(nameof(TotalPrice));
+        partial void OnUnitPriceChanged(decimal value) => OnPropertyChanged(nameof(TotalPrice));
+
     }
 }

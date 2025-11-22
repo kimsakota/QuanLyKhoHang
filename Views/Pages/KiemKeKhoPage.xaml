@@ -4,11 +4,124 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="KiemKeKhoPage">
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
+      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors" xmlns:pages="clr-namespace:UiDesktopApp1.ViewModels.Pages"
+      mc:Ignorable="d"
+      d:DataContext="{d:DesignInstance pages:KiemKeKhoViewModel, IsDesignTimeCreatable=False}"
+      d:DesignHeight="650" d:DesignWidth="1000"
+      Title="KiemKeKhoPage"
+      ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+      ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
 
-    <Grid>
-        
+    <Page.Resources>
+        <beh:NumberToColorConverter x:Key="NumberToColorConverter"/>
+        <beh:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter"/>
+    </Page.Resources>
+
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}" Margin="0,0,12,0" Padding="16">
+            <StackPanel>
+                <TextBlock Text="Phiếu kiểm kê" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                <TextBlock Text="Ngày kiểm kê" FontWeight="Medium" Margin="0,0,0,6"/>
+                <ui:CalendarDatePicker Date="{Binding CheckDate, Mode=TwoWay}" HorizontalAlignment="Stretch" Margin="0,0,0,12"/>
+
+                <TextBlock Text="Sản phẩm" FontWeight="Medium" Margin="0,0,0,6"/>
+                <ui:AutoSuggestBox PlaceholderText="Tìm tên hoặc mã sản phẩm..."
+                                   Text="{Binding ProductSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   OriginalItemsSource="{Binding SuggestedProducts}"
+                                   DisplayMemberPath="ProductName"
+                                   UpdateTextOnSelect="True"
+                                   Margin="0,0,0,12"
+                                   HorizontalAlignment="Stretch">sss
+                    <ui:AutoSuggestBox.Icon>
+                        <ui:SymbolIcon Symbol="BoxSearch24"/>
+                    </ui:AutoSuggestBox.Icon>
+                </ui:AutoSuggestBox>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Mã sản phẩm" Foreground="Gray" FontSize="12" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding SelectedProduct.ProductCode, Mode=OneWay, TargetNullValue='--'}" IsReadOnly="True" Background="{ui:ThemeResource ControlFillColorSecondaryBrush}" BorderThickness="0"/>
+                </StackPanel>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Tồn hệ thống" FontWeight="Medium" Margin="0,0,0,6"/>
+                        <TextBox Text="{Binding SystemQty}" IsReadOnly="True" Background="#F0F0F0" Foreground="Gray" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Tồn thực tế" FontWeight="Medium" Margin="0,0,0,6"/>
+                        <ui:NumberBox Value="{Binding ActualQty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                      Minimum="0" SpinButtonPlacementMode="Compact"
+                                      PlaceholderText="Nhập số đếm được"/>
+                    </StackPanel>
+                </Grid>
+
+                <ui:Button Content="Ghi nhận" Appearance="Secondary" Icon="Checkmark24"
+                           Command="{Binding AddToListCommand}"
+                           HorizontalAlignment="Stretch" Height="36" Margin="0,10,0,0"/>
+
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="#FFD63838" FontSize="12" TextWrapping="Wrap" Margin="0,10,0,0"
+                           Visibility="{Binding ErrorMessage, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
+
+                <Rectangle Height="20"/>
+
+                <ui:Button Content="LƯU &amp; CÂN BẰNG KHO" 
+                           Command="{Binding SaveCheckCommand}"
+                           Appearance="Primary" Icon="Save24"
+                           FontSize="14" FontWeight="Bold"
+                           HorizontalAlignment="Stretch" Height="45"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Column="1">
+            <ui:DataGrid ItemsSource="{Binding CheckDetails}"
+                         AutoGenerateColumns="False"
+                         CanUserAddRows="False"
+                         SelectionMode="Single"
+                         HeadersVisibility="Column"
+                         BorderThickness="1"
+                         BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                         RowHeight="45">
+                <ui:DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã SP" Binding="{Binding Product.ProductCode}" Width="90"/>
+                    <DataGridTextColumn Header="Tên sản phẩm" Binding="{Binding Product.ProductName}" Width="*"/>
+                    <DataGridTextColumn Header="Hệ thống" Binding="{Binding SystemQty}" Width="90"/>
+                    <DataGridTextColumn Header="Thực tế" Binding="{Binding ActualQty}" Width="90" FontWeight="Bold"/>
+
+                    <DataGridTemplateColumn Header="Chênh lệch" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Diff, StringFormat='{}{0:+0;-0;0}'}" 
+                                           FontWeight="Bold" VerticalAlignment="Center"
+                                           Foreground="{Binding Diff, Converter={StaticResource NumberToColorConverter}}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Width="50">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ui:Button Icon="Delete24" Appearance="Transparent" Foreground="#D13438"
+                                           Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                           CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </ui:DataGrid.Columns>
+            </ui:DataGrid>
+        </Grid>
     </Grid>
 </Page>

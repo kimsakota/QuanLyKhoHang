@@ -20,6 +20,8 @@ namespace UiDesktopApp1.Models
         public DbSet<ImportDetailModel> ImportDetails => Set<ImportDetailModel>();
         public DbSet<ExportModel> Exports => Set<ExportModel>();
         public DbSet<ExportDetailModel> ExportDetails => Set<ExportDetailModel>();
+        public DbSet<InventoryCheckModel> InventoryChecks => Set<InventoryCheckModel>();
+        public DbSet<InventoryCheckDetailModel> InventoryCheckDetails => Set<InventoryCheckDetailModel>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

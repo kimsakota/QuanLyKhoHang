@@ -45,7 +45,6 @@
                                        Grid.Column="0"
                                        Text="{Binding SupplierSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        OriginalItemsSource="{Binding Suppliers}"
-                                       IsEnabled="{Binding CanEdit}"
                                        DisplayMemberPath="Name"
                                        UpdateTextOnSelect="True"
                                        Margin="0,0,0,12"
