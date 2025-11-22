@@ -21,7 +21,7 @@
                       Margin="20,10,0,10"/>
 
             <ui:Button Content="Lưu phiếu" 
-                   Grid.Column="1"
+                   Grid.Column="1" 
                    Command="{Binding SaveExportCommand}"
                    Appearance="Primary"
                    Margin="20,10,15,10"
