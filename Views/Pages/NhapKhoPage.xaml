@@ -193,13 +193,13 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <ui:SymbolIcon Symbol="Calculator24" Margin="0,0,8,0" Foreground="Gray"/>
-                        <TextBlock Text="{Binding ImportDetails.Count, StringFormat='Tổng số mặt hàng: {0}'}" 
+                        <ui:SymbolIcon Symbol="Cart24" Margin="0,0,8,0" Foreground="Gray"/>
+                        <TextBlock Text="{Binding ImportDetails.Count, StringFormat='Số lượng mặt hàng: {0}'}" 
                                    FontStyle="Italic" VerticalAlignment="Center" Foreground="Gray"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <ui:TextBlock Text="TỔNG CỘNG:" 
+                        <ui:TextBlock Text="TỔNG TIỀN:" 
                                    FontSize="16" 
                                    FontWeight="SemiBold" 
                                    VerticalAlignment="Center"

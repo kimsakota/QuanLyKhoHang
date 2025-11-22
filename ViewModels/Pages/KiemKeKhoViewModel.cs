@@ -54,22 +54,53 @@ namespace UiDesktopApp1.ViewModels.Pages
             if (string.IsNullOrWhiteSpace(value))
             {
                 SuggestedProducts.Clear();
+                SelectedProduct = null; // Reset khi xóa hết text
                 return;
             }
             var keyword = value.ToLower();
+
+            // 1. Lọc danh sách gợi ý
             var results = Products.Where(p =>
                 (p.ProductName?.ToLower().Contains(keyword) ?? false) ||
                 (p.ProductCode?.ToLower().Contains(keyword) ?? false)).Take(20);
 
             SuggestedProducts.Clear();
             foreach (var item in results) SuggestedProducts.Add(item);
+
+            // 2. Tự động chọn sản phẩm nếu tên hoặc mã khớp chính xác
+            // (Logic này giúp khi chọn từ AutoSuggestBox, Text thay đổi -> tự động set SelectedProduct)
+            var match = Products.FirstOrDefault(p =>
+                (p.ProductName?.Equals(value, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (p.ProductCode?.Equals(value, StringComparison.OrdinalIgnoreCase) ?? false));
+
+            if (match != null)
+            {
+                SelectedProduct = match;
+            }
+            else
+            {
+                SelectedProduct = null;
+                // Reset thông tin nếu không khớp
+                SystemQty = 0;
+                ActualQty = 0;
+            }
         }
 
         // --- Khi chọn sản phẩm -> Lấy tồn kho hiện tại ---
         partial void OnSelectedProductChanged(ProductModel? value)
         {
-            if (value == null) return;
-            ProductSearchText = value.ProductName;
+            if (value == null)
+            {
+                SystemQty = 0;
+                ActualQty = 0;
+                return;
+            }
+
+            // Cập nhật lại text hiển thị nếu cần (tránh vòng lặp vô tận vì ObservableProperty kiểm tra equality)
+            if (!string.Equals(ProductSearchText, value.ProductName, StringComparison.OrdinalIgnoreCase))
+            {
+                ProductSearchText = value.ProductName ?? string.Empty;
+            }
 
             // Lấy tồn kho realtime từ DB
             Task.Run(async () =>
@@ -126,7 +157,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                 });
             }
 
-            // Reset
+            // Reset form sau khi thêm
             SelectedProduct = null;
             ProductSearchText = string.Empty;
             SystemQty = 0;

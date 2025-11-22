@@ -27,6 +27,11 @@ namespace UiDesktopApp1.Behaviors
                 // Nếu là Xuất kho -> Màu Vàng cam nhạt
                 if (type.Contains("Xuất", StringComparison.OrdinalIgnoreCase))
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF3CD"));
+
+                // --- THÊM MỚI ---
+                // Nếu là Kiểm kê -> Màu Xanh dương nhạt
+                if (type.Contains("Kiểm kê", StringComparison.OrdinalIgnoreCase))
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CFE2FF"));
             }
 
             // Mặc định trong suốt
