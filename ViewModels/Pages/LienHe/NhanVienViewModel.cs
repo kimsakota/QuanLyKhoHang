@@ -88,9 +88,8 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         [RelayCommand]
         private void Edit() => Notify();
         [RelayCommand]
-        private void Delete() => Notify();
-
-        public void Notify() => MessageBox.Show("Đang phát triển!", "Lời nhắc", MessageBoxButton.OK, MessageBoxImage.Information);
+        private void Delete() => Notify(); 
+        public void Notify() => MessageBox.Show("Đang phát triển!", "Lời nhắc", MessageBoxButton.OK, MessageBoxImage.Warning);
 
         [RelayCommand]
         private async Task RefreshList() => await LoadDataAsync();

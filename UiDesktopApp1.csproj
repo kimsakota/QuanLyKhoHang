@@ -41,6 +41,9 @@
 
   <ItemGroup>
     <Resource Include="Assets\Images\Backgrounds\back_image.jpg" />
+    <Resource Include="Assets\Images\Backgrounds\back-image.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Assets\Images\logo-image.png" />
     <Resource Include="Assets\wpfui-icon-256.png" />
     <Resource Include="Assets\wpfui-icon-1024.png" />

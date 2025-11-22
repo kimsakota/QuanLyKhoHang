@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Automation;
 using System.Windows.Controls;
 using Wpf.Ui;
+using System.Windows.Input;
 
 namespace UiDesktopApp1.ViewModels.Windows
 {
@@ -86,6 +87,15 @@ namespace UiDesktopApp1.ViewModels.Windows
             {
                 IsLoggingIn = false;
             }
+        }
+
+        [RelayCommand]
+        private void Exit() {
+            InputBinding.Equals(new KeyGesture(Key.Escape), new RelayCommand(() =>
+            {
+                CloseAction?.Invoke();
+            }));
+            CloseAction?.Invoke();
         }
     }
 }
