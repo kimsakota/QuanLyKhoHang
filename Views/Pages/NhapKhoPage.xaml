@@ -62,30 +62,18 @@
                 </Grid>
 
                 <ui:TextBlock Text="Sản phẩm" FontWeight="Medium" Margin="0,0,0,6"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <ui:AutoSuggestBox PlaceholderText="Tìm tên hoặc mã sản phẩm..."
-                                       Grid.Column="0"
-                                       Text="{Binding ProductSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       OriginalItemsSource="{Binding Products}"
-                                       DisplayMemberPath="ProductName"
-                                       UpdateTextOnSelect="True"
-                                       Margin="0,0,0,12"
-                                       HorizontalAlignment="Stretch">
-                        <ui:AutoSuggestBox.Icon>
-                            <ui:SymbolIcon Symbol="BoxSearch24"/>
-                        </ui:AutoSuggestBox.Icon>
-                    </ui:AutoSuggestBox>
-                    <ui:Button Grid.Column="1"
-                               Icon="{ui:SymbolIcon Symbol=AddCircle24,FontSize = 19}"
-                               VerticalAlignment="Top"
-                               Height="35.62"
-                               Margin="10,0,0,0"
-                               MouseOverBackground="LightBlue"/>    
-                </Grid>
+                <ui:AutoSuggestBox PlaceholderText="Tìm tên hoặc mã sản phẩm..."
+                   Grid.Column="0"
+                   Text="{Binding ProductSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   OriginalItemsSource="{Binding Products}"
+                   DisplayMemberPath="ProductName"
+                   UpdateTextOnSelect="True"
+                   Margin="0,0,0,12"
+                   HorizontalAlignment="Stretch">
+                    <ui:AutoSuggestBox.Icon>
+                        <ui:SymbolIcon Symbol="BoxSearch24"/>
+                    </ui:AutoSuggestBox.Icon>
+                </ui:AutoSuggestBox>
 
                 <StackPanel Margin="0,0,0,12">
                     <ui:TextBlock Text="Mã sản phẩm" Foreground="Gray" FontSize="12" Margin="0,0,0,4"/>

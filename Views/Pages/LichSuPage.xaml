@@ -6,8 +6,9 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages"
       xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors" 
-      mc:Ignorable="d" 
-      d:DataContext="{d:DesignInstance local:LichSuPage, IsDesignTimeCreatable=False}"
+      xmlns:pages="clr-namespace:UiDesktopApp1.ViewModels.Pages"
+      mc:Ignorable="d"
+      d:DataContext="{d:DesignInstance pages:LichSuViewModel, IsDesignTimeCreatable=False}"
       d:DesignHeight="650" d:DesignWidth="1000"
       ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
@@ -32,10 +33,40 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,15,0">
-                    <ui:CalendarDatePicker Date="{Binding StartDate, Mode=TwoWay}" Width="130" />
-                    <TextBlock Text="-" VerticalAlignment="Center" Margin="8,0"/>
-                    <ui:CalendarDatePicker Date="{Binding EndDate, Mode=TwoWay}" Width="130" />
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,15,0">
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,25,0">
+                        <ui:CalendarDatePicker Date="{Binding StartDate, Mode=TwoWay}" 
+                                               Icon="{ui:SymbolIcon Symbol=CalendarEdit24}"
+                                               Width="30" Height="30"
+                                               Padding="0"
+                                               HorizontalContentAlignment="Center"
+                                               ToolTip="Chọn ngày bắt đầu">
+                        </ui:CalendarDatePicker>
+
+                        <ui:TextBlock Text="{Binding StartDate, StringFormat='dd/MM/yyyy'}" 
+                                      VerticalAlignment="Center" 
+                                      Margin="10,0,0,0" 
+                                      FontWeight="Medium"
+                                      FontSize="14"/>   
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <ui:CalendarDatePicker Date="{Binding EndDate, Mode=TwoWay}" 
+                                               Icon="{ui:SymbolIcon Symbol=CalendarEdit24}"
+                                               Width="30" Height="30"
+                                               Padding="0"
+                                               HorizontalContentAlignment="Center"
+                                               ToolTip="Chọn ngày kết thúc">
+                        </ui:CalendarDatePicker>
+
+                        <ui:TextBlock Text="{Binding EndDate, StringFormat='dd/MM/yyyy'}" 
+                                      VerticalAlignment="Center" 
+                                      Margin="10,0,0,0" 
+                                      FontWeight="Medium"
+                                      FontSize="14"/>       
+                    </StackPanel>
+
                 </StackPanel>
 
                 <ComboBox Grid.Column="1" Width="140" SelectedIndex="{Binding SelectedTypeIndex, Mode=TwoWay}" Margin="0,0,15,0">

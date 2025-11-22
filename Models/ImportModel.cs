@@ -15,10 +15,10 @@ namespace UiDesktopApp1.Models
 
         [Required]
         [ObservableProperty]
-        public DateTime importDate;
+        private DateTime importDate;
 
         [ObservableProperty]
-        private string? importedBy; //Nguoi nhap
+        private string? importedBy; 
 
         public int? SupplierId { get; set; }
 

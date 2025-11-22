@@ -75,7 +75,7 @@
                                         <TextBlock Grid.Column="1"
                                                    FontWeight="SemiBold"
                                                    Margin="5,0,0,0"
-                                                   FontSize="20"
+                                                   FontSize="15"
                                                    VerticalAlignment="Center"
                                                    TextWrapping="Wrap"
                                                    Text="{Binding Name, Mode=OneWay}"/>

@@ -1,9 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using UiDesktopApp1.Models;
+using UiDesktopApp1.Services; // Thêm namespace này
 using Wpf.Ui.Abstractions.Controls;
 
 namespace UiDesktopApp1.ViewModels.Pages
@@ -11,28 +15,34 @@ namespace UiDesktopApp1.ViewModels.Pages
     public partial class KiemKeKhoViewModel : ObservableObject, INavigationAware
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly CurrentUserService _currentUserService; // Inject service
 
-        // --- Tìm kiếm & Chọn ---
         [ObservableProperty] private ObservableCollection<ProductModel> _products = new();
         [ObservableProperty] private ObservableCollection<ProductModel> _suggestedProducts = new();
         [ObservableProperty] private string _productSearchText = string.Empty;
         [ObservableProperty] private ProductModel? _selectedProduct;
 
-        // --- Form nhập liệu ---
         [ObservableProperty] private DateTime _checkDate = DateTime.Now;
-        [ObservableProperty] private int _systemQty = 0; // Tồn trên máy
-        [ObservableProperty] private int _actualQty = 0; // Tồn thực tế đếm được
+        [ObservableProperty] private int _systemQty = 0;
+        [ObservableProperty] private int _actualQty = 0;
         [ObservableProperty] private string _errorMessage = string.Empty;
 
-        // --- Danh sách chi tiết ---
         [ObservableProperty] private ObservableCollection<InventoryCheckDetailModel> _checkDetails = new();
 
-        public KiemKeKhoViewModel(IDbContextFactory<AppDbContext> dbContextFactory)
+        // Cập nhật Constructor
+        public KiemKeKhoViewModel(IDbContextFactory<AppDbContext> dbContextFactory, CurrentUserService currentUserService)
         {
             _dbContextFactory = dbContextFactory;
+            _currentUserService = currentUserService;
         }
 
-        public async Task OnNavigatedToAsync() => await LoadDataAsync();
+        public async Task OnNavigatedToAsync()
+        {
+            CheckDate = DateTime.Now; // Cập nhật thời gian hiển thị
+            RefreshForm();
+            await LoadDataAsync();
+        }
+
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
         private async Task LoadDataAsync()
@@ -41,52 +51,51 @@ namespace UiDesktopApp1.ViewModels.Pages
             {
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
                 Products.Clear();
+                // AsNoTracking để tối ưu
                 var list = await db.Products.AsNoTracking().OrderBy(p => p.ProductName).ToListAsync();
                 foreach (var p in list) Products.Add(p);
-                ProductSearchText = string.Empty;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải danh sách sản phẩm: " + ex.Message);
+            }
         }
 
-        // --- Tìm kiếm sản phẩm ---
         partial void OnProductSearchTextChanged(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
                 SuggestedProducts.Clear();
-                SelectedProduct = null; // Reset khi xóa hết text
+                SelectedProduct = null;
                 return;
             }
-            var keyword = value.ToLower();
 
-            // 1. Lọc danh sách gợi ý
-            var results = Products.Where(p =>
-                (p.ProductName?.ToLower().Contains(keyword) ?? false) ||
-                (p.ProductCode?.ToLower().Contains(keyword) ?? false)).Take(20);
+            var keyword = value.Trim(); // Trim khoảng trắng
 
+            // Logic lọc gợi ý
             SuggestedProducts.Clear();
+            var results = Products.Where(p =>
+                (p.ProductName != null && p.ProductName.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                (p.ProductCode != null && p.ProductCode.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+                .Take(20); // Chỉ lấy 20 kết quả đầu để nhẹ giao diện
+
             foreach (var item in results) SuggestedProducts.Add(item);
 
-            // 2. Tự động chọn sản phẩm nếu tên hoặc mã khớp chính xác
-            // (Logic này giúp khi chọn từ AutoSuggestBox, Text thay đổi -> tự động set SelectedProduct)
+            // Logic tự động chọn nếu khớp hoàn toàn
             var match = Products.FirstOrDefault(p =>
-                (p.ProductName?.Equals(value, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (p.ProductCode?.Equals(value, StringComparison.OrdinalIgnoreCase) ?? false));
+                string.Equals(p.ProductName, keyword, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(p.ProductCode, keyword, StringComparison.OrdinalIgnoreCase));
 
-            if (match != null)
-            {
-                SelectedProduct = match;
-            }
+            if (match != null) SelectedProduct = match;
             else
             {
-                SelectedProduct = null;
-                // Reset thông tin nếu không khớp
+                // Nếu không khớp thì reset số liệu
+                if (SelectedProduct != null) SelectedProduct = null; // Chỉ set null nếu đang có giá trị để tránh loop
                 SystemQty = 0;
                 ActualQty = 0;
             }
         }
 
-        // --- Khi chọn sản phẩm -> Lấy tồn kho hiện tại ---
         partial void OnSelectedProductChanged(ProductModel? value)
         {
             if (value == null)
@@ -96,23 +105,22 @@ namespace UiDesktopApp1.ViewModels.Pages
                 return;
             }
 
-            // Cập nhật lại text hiển thị nếu cần (tránh vòng lặp vô tận vì ObservableProperty kiểm tra equality)
+            // Đồng bộ text hiển thị
             if (!string.Equals(ProductSearchText, value.ProductName, StringComparison.OrdinalIgnoreCase))
-            {
                 ProductSearchText = value.ProductName ?? string.Empty;
-            }
 
-            // Lấy tồn kho realtime từ DB
+            // Lấy tồn kho realtime
             Task.Run(async () =>
             {
                 try
                 {
                     await using var db = await _dbContextFactory.CreateDbContextAsync();
                     var p = await db.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Id == value.Id);
+
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         SystemQty = p?.InitialQty ?? 0;
-                        ActualQty = SystemQty; // Mặc định thực tế = hệ thống
+                        ActualQty = SystemQty; // Mặc định thực tế bằng hệ thống
                     });
                 }
                 catch { }
@@ -123,25 +131,16 @@ namespace UiDesktopApp1.ViewModels.Pages
         private void AddToList()
         {
             ErrorMessage = string.Empty;
-            if (SelectedProduct == null)
-            {
-                ErrorMessage = "Vui lòng chọn sản phẩm.";
-                return;
-            }
-            if (ActualQty < 0)
-            {
-                ErrorMessage = "Số lượng thực tế không được âm.";
-                return;
-            }
+            if (SelectedProduct == null) { ErrorMessage = "Vui lòng chọn sản phẩm."; return; }
+            if (ActualQty < 0) { ErrorMessage = "Số lượng thực tế không được âm."; return; }
 
             var existing = CheckDetails.FirstOrDefault(x => x.ProductId == SelectedProduct.Id);
             if (existing != null)
             {
-                // Nếu đã có, cập nhật lại số thực tế
                 existing.ActualQty = ActualQty;
-                existing.SystemQty = SystemQty; // Cập nhật lại tồn hệ thống lỡ có thay đổi
+                existing.SystemQty = SystemQty; // Cập nhật lại tồn hệ thống nếu có thay đổi
 
-                // Refresh UI
+                // Hack để UI cập nhật
                 int index = CheckDetails.IndexOf(existing);
                 CheckDetails.RemoveAt(index);
                 CheckDetails.Insert(index, existing);
@@ -157,7 +156,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                 });
             }
 
-            // Reset form sau khi thêm
+            // Reset vùng nhập liệu
             SelectedProduct = null;
             ProductSearchText = string.Empty;
             SystemQty = 0;
@@ -175,7 +174,10 @@ namespace UiDesktopApp1.ViewModels.Pages
         {
             if (CheckDetails.Count == 0) return;
 
-            var confirm = MessageBox.Show($"Lưu phiếu kiểm kê sẽ cập nhật tồn kho của {CheckDetails.Count} sản phẩm theo số liệu thực tế.\nBạn có chắc chắn không?",
+            var message = $"Hành động này sẽ CẬP NHẬT LẠI TỒN KHO của {CheckDetails.Count} sản phẩm theo số liệu thực tế bạn đã nhập.\n\n" +
+                  "Dữ liệu tồn kho cũ sẽ bị thay thế. Bạn có chắc chắn muốn tiếp tục?";
+
+            var confirm = MessageBox.Show($"Lưu phiếu kiểm kê sẽ cập nhật tồn kho của {CheckDetails.Count} sản phẩm.\nBạn có chắc chắn không?",
                 "Xác nhận cân bằng kho", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (confirm != MessageBoxResult.Yes) return;
@@ -189,14 +191,14 @@ namespace UiDesktopApp1.ViewModels.Pages
                 {
                     var checkHeader = new InventoryCheckModel
                     {
-                        CheckDate = CheckDate,
-                        CheckedBy = "Admin", // Thay bằng User hiện tại
+                        CheckDate = DateTime.Now, // Lấy thời gian thực lúc lưu
+                        CheckedBy = _currentUserService.CurrentUser?.Username ?? "Unknown",
+                        Notes = "Kiểm kê kho định kỳ",
                         Details = new List<InventoryCheckDetailModel>()
                     };
 
                     foreach (var item in CheckDetails)
                     {
-                        // 1. Lưu chi tiết phiếu
                         checkHeader.Details.Add(new InventoryCheckDetailModel
                         {
                             ProductId = item.ProductId,
@@ -204,8 +206,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                             ActualQty = item.ActualQty
                         });
 
-                        // 2. CẬP NHẬT KHO (Quan trọng)
-                        // Tồn kho mới = Số lượng thực tế đếm được
+                        // Cập nhật tồn kho sản phẩm
                         var product = await db.Products.FindAsync(item.ProductId);
                         if (product != null)
                         {
@@ -219,19 +220,28 @@ namespace UiDesktopApp1.ViewModels.Pages
 
                     MessageBox.Show("Đã lưu và cân bằng kho thành công!", "Hoàn tất", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    CheckDetails.Clear();
-                    ProductSearchText = string.Empty;
-                    SelectedProduct = null;
-                    SystemQty = 0;
-                    ActualQty = 0;
+                    RefreshForm();
                 }
                 catch (Exception ex)
                 {
                     await trans.RollbackAsync();
-                    MessageBox.Show($"Lỗi: {ex.Message}");
+                    MessageBox.Show($"Lỗi chi tiết: {ex.Message}", "Lỗi Database", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            catch (Exception ex) { MessageBox.Show(ex.Message); }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi kết nối: {ex.Message}", "Lỗi hệ thống", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void RefreshForm()
+        {
+            CheckDetails.Clear();
+            SelectedProduct = null;
+            ProductSearchText = string.Empty;
+            ErrorMessage = string.Empty;
+            SystemQty = 0;
+            ActualQty = 0;
         }
     }
 }

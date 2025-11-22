@@ -1,9 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using UiDesktopApp1.Models;
+using UiDesktopApp1.Services;
+using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 
 namespace UiDesktopApp1.ViewModels.Pages
@@ -11,6 +16,8 @@ namespace UiDesktopApp1.ViewModels.Pages
     public partial class XuatKhoViewModel : ObservableObject, INavigationAware
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly CurrentUserService _currentUserService;
+        private readonly IContentDialogService _contentDialogService;
 
         // --- Danh sách nguồn ---
         [ObservableProperty] private ObservableCollection<CustomerModel> _customers = new();
@@ -35,12 +42,22 @@ namespace UiDesktopApp1.ViewModels.Pages
         [ObservableProperty] private ObservableCollection<ExportDetailModel> _exportDetails = new();
         [ObservableProperty] private decimal _totalAmount;
 
-        public XuatKhoViewModel(IDbContextFactory<AppDbContext> dbContextFactory)
+        public XuatKhoViewModel(IDbContextFactory<AppDbContext> dbContextFactory,
+            CurrentUserService currentUserService,
+            IContentDialogService contentDialogService)
         {
             _dbContextFactory = dbContextFactory;
+            _currentUserService = currentUserService;
+            _contentDialogService = contentDialogService;
         }
 
-        public async Task OnNavigatedToAsync() => await LoadDataAsync();
+        public async Task OnNavigatedToAsync()
+        {
+            ExportDate = DateTime.Now; // Cập nhật giờ hiện tại
+            RefreshForm(); // Reset form sạch sẽ
+            await LoadDataAsync();
+        }
+
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
         private async Task LoadDataAsync()
@@ -57,16 +74,21 @@ namespace UiDesktopApp1.ViewModels.Pages
                 var listPro = await db.Products.AsNoTracking().OrderBy(p => p.ProductName).ToListAsync();
                 foreach (var p in listPro) Products.Add(p);
 
-                CustomerSearchText = string.Empty;
-                ProductSearchText = string.Empty;
+                // Không xóa SearchText ở đây để tránh mất dữ liệu nếu người dùng đang nhập mà trang reload
             }
-            catch (Exception ex) { ErrorMessage = ex.Message; }
+            catch (Exception ex) { ErrorMessage = $"Lỗi tải dữ liệu: {ex.Message}"; }
         }
 
-        // Logic tìm kiếm Khách hàng
+        // Logic tìm kiếm Khách hàng (An toàn Null & IgnoreCase)
         partial void OnCustomerSearchTextChanged(string value)
         {
-            var match = Customers.FirstOrDefault(c => c.Name.Equals(value, StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                SelectedCustomer = null;
+                return;
+            }
+
+            var match = Customers.FirstOrDefault(c => c.Name != null && c.Name.Equals(value.Trim(), StringComparison.OrdinalIgnoreCase));
             if (match != null) SelectedCustomer = match;
             else SelectedCustomer = null;
         }
@@ -74,9 +96,18 @@ namespace UiDesktopApp1.ViewModels.Pages
         // Logic tìm kiếm Sản phẩm
         partial void OnProductSearchTextChanged(string value)
         {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                SelectedProduct = null;
+                InputPrice = 0;
+                CurrentStock = 0;
+                return;
+            }
+
+            var keyword = value.Trim();
             var match = Products.FirstOrDefault(p =>
-                p.ProductName.Equals(value, StringComparison.OrdinalIgnoreCase) ||
-                p.ProductCode.Equals(value, StringComparison.OrdinalIgnoreCase));
+                (p.ProductName != null && p.ProductName.Equals(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                (p.ProductCode != null && p.ProductCode.Equals(keyword, StringComparison.OrdinalIgnoreCase)));
 
             if (match != null) SelectedProduct = match;
             else
@@ -87,13 +118,14 @@ namespace UiDesktopApp1.ViewModels.Pages
             }
         }
 
-        // Khi chọn sản phẩm -> Lấy giá bán & Tồn kho thực tế
+        // Khi chọn sản phẩm -> Lấy giá bán & Tồn kho thực tế từ DB
         partial void OnSelectedProductChanged(ProductModel? value)
         {
             if (value == null) return;
 
-            if (ProductSearchText != value.ProductName)
-                ProductSearchText = value.ProductName;
+            // Đồng bộ text hiển thị
+            if (!string.Equals(ProductSearchText, value.ProductName, StringComparison.OrdinalIgnoreCase))
+                ProductSearchText = value.ProductName ?? string.Empty;
 
             // Lấy dữ liệu mới nhất từ DB để đảm bảo tồn kho chính xác
             Task.Run(async () =>
@@ -107,8 +139,8 @@ namespace UiDesktopApp1.ViewModels.Pages
                     {
                         if (realTimeProduct != null)
                         {
-                            InputPrice = realTimeProduct.SalePrice; // Giá bán
-                            CurrentStock = realTimeProduct.InitialQty; // Tồn kho
+                            InputPrice = realTimeProduct.SalePrice; // Giá bán mặc định
+                            CurrentStock = realTimeProduct.InitialQty; // Tồn kho thực tế
                         }
                     });
                 }
@@ -118,7 +150,10 @@ namespace UiDesktopApp1.ViewModels.Pages
 
         partial void OnSelectedCustomerChanged(CustomerModel? value)
         {
-            if (value != null) CustomerSearchText = value.Name;
+            if (value != null && !string.Equals(CustomerSearchText, value.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                CustomerSearchText = value.Name ?? string.Empty;
+            }
         }
 
         [RelayCommand]
@@ -132,15 +167,15 @@ namespace UiDesktopApp1.ViewModels.Pages
                 return;
             }
 
-            // --- KIỂM TRA TỒN KHO ---
-            // Tính tổng số lượng đang chờ xuất trong lưới của sản phẩm này
-            var pendingQty = ExportDetails.Where(x => x.ProductId == SelectedProduct.Id).Sum(x => x.Quantity);
-
             if (InputQuantity <= 0)
             {
                 ErrorMessage = "Số lượng xuất phải lớn hơn 0.";
                 return;
             }
+
+            // --- KIỂM TRA TỒN KHO ---
+            // Tính tổng số lượng đang chờ xuất trong lưới của sản phẩm này
+            var pendingQty = ExportDetails.Where(x => x.ProductId == SelectedProduct.Id).Sum(x => x.Quantity);
 
             if ((pendingQty + InputQuantity) > CurrentStock)
             {
@@ -155,7 +190,8 @@ namespace UiDesktopApp1.ViewModels.Pages
                 existingItem.Quantity += InputQuantity;
                 existingItem.UnitPrice = InputPrice;
 
-                var index = ExportDetails.IndexOf(existingItem);
+                // Refresh Grid
+                int index = ExportDetails.IndexOf(existingItem);
                 ExportDetails.RemoveAt(index);
                 ExportDetails.Insert(index, existingItem);
             }
@@ -170,11 +206,13 @@ namespace UiDesktopApp1.ViewModels.Pages
                 });
             }
 
+            // Reset vùng nhập liệu sản phẩm
             InputQuantity = 1;
             ProductSearchText = string.Empty;
             SelectedProduct = null;
             CurrentStock = 0;
             InputPrice = 0;
+
             CalculateTotal();
         }
 
@@ -195,21 +233,38 @@ namespace UiDesktopApp1.ViewModels.Pages
         {
             if (SelectedCustomer == null)
             {
-                // Logic tạo nhanh khách hàng nếu chưa có (tương tự nhập kho)
                 if (!string.IsNullOrWhiteSpace(CustomerSearchText))
                 {
-                    var ask = MessageBox.Show($"Khách hàng '{CustomerSearchText}' chưa có. Tạo mới?", "Xác nhận", MessageBoxButton.YesNo);
+                    var ask = MessageBox.Show($"Khách hàng \"{CustomerSearchText}\" chưa có trong hệ thống. Bạn có muốn tạo mới?",
+                                              "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (ask == MessageBoxResult.Yes)
+                    {
                         SelectedCustomer = new CustomerModel { Name = CustomerSearchText, PhoneNumber = "", Address = "" };
+                    }
                     else return;
                 }
                 else
                 {
-                    MessageBox.Show("Chưa chọn khách hàng."); return;
+                    MessageBox.Show("Vui lòng chọn Khách hàng nhận hàng.",
+                                    "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
                 }
             }
 
-            if (ExportDetails.Count == 0) return;
+            if (ExportDetails.Count == 0)
+            {
+                MessageBox.Show("Danh sách xuất kho đang trống. Vui lòng thêm ít nhất một sản phẩm.",
+                                "Chưa có hàng hóa", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var message = $"Bạn đang chuẩn bị xuất kho {ExportDetails.Count} mặt hàng.\n" +
+                  $"Tổng tiền: {TotalAmount:N0} VNĐ.\n\n" +
+                  "Bạn có chắc chắn muốn thực hiện không?";
+
+            var confirm = MessageBox.Show($"Xác nhận xuất kho {ExportDetails.Count} mặt hàng?\nTổng tiền: {TotalAmount:N0} đ",
+                                          "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (confirm != MessageBoxResult.Yes) return;
 
             try
             {
@@ -218,21 +273,23 @@ namespace UiDesktopApp1.ViewModels.Pages
 
                 try
                 {
-                    // Lưu khách hàng mới nếu cần
+                    // 1. Lưu khách hàng mới nếu cần (ID == 0)
                     if (SelectedCustomer.Id == 0)
                     {
                         db.Customers.Add(SelectedCustomer);
                         await db.SaveChangesAsync();
                     }
 
+                    // 2. Tạo phiếu xuất
                     var newExport = new ExportModel
                     {
                         CustomerId = SelectedCustomer.Id,
                         ExportDate = ExportDate,
-                        ExportName = "Xuất bán hàng", // Hoặc binding từ UI nếu có ô ghi chú
+                        ExportedBy = _currentUserService.CurrentUser?.Username ?? "Unknown", 
                         ExportDetails = new List<ExportDetailModel>()
                     };
 
+                    // 3. Xử lý chi tiết & Trừ kho
                     foreach (var item in ExportDetails)
                     {
                         // Kiểm tra tồn kho lần cuối trong DB (tránh trường hợp nhiều người cùng xuất)
@@ -261,24 +318,36 @@ namespace UiDesktopApp1.ViewModels.Pages
 
                     MessageBox.Show("Xuất kho thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // Reset UI
-                    ExportDetails.Clear();
-                    TotalAmount = 0;
-                    CustomerSearchText = string.Empty;
-                    ProductSearchText = string.Empty;
-                    SelectedCustomer = null;
-                    SelectedProduct = null;
+                    // 4. Reset toàn bộ form
+                    RefreshForm();
                 }
                 catch (Exception ex)
                 {
                     await trans.RollbackAsync();
-                    MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Lỗi khi lưu: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi hệ thống: {ex.Message}");
+                MessageBox.Show($"Lỗi hệ thống: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        // Hàm reset form sạch sẽ
+        private void RefreshForm()
+        {
+            ExportDetails.Clear();
+            TotalAmount = 0;
+            CustomerSearchText = string.Empty;
+            SelectedCustomer = null;
+
+            // Input fields
+            ProductSearchText = string.Empty;
+            SelectedProduct = null;
+            InputQuantity = 1;
+            InputPrice = 0;
+            CurrentStock = 0;
+            ErrorMessage = string.Empty;
         }
     }
 }

@@ -104,6 +104,12 @@ namespace UiDesktopApp1.Models
             modelBuilder.Entity<ExportDetailModel>()
                 .Property(d => d.UnitPrice)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<InventoryCheckModel>()
+                .HasMany(c => c.Details)
+                .WithOne(d => d.InventoryCheck)
+                .HasForeignKey(d => d.InventoryCheckId)
+                .OnDelete(DeleteBehavior.Cascade); // Xóa phiếu kiểm kê sẽ xóa luôn chi tiết
         }
     }
 }

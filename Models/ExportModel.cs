@@ -18,7 +18,7 @@ namespace UiDesktopApp1.Models
         private DateTime exportDate;
 
         [ObservableProperty]
-        private string? exportName;
+        private string? exportedBy;
 
         public int? CustomerId { get; set; }
 

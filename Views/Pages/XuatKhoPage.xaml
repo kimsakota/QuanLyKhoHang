@@ -37,17 +37,30 @@
                 <ui:TextBlock Text="Thông tin xuất kho" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,16"/>
 
                 <ui:TextBlock Text="Khách hàng" FontWeight="Medium" Margin="0,0,0,6"/>
-                <ui:AutoSuggestBox PlaceholderText="Tìm hoặc thêm khách hàng..."
-                                   Text="{Binding CustomerSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                   OriginalItemsSource="{Binding Customers}"
-                                   DisplayMemberPath="Name"
-                                   UpdateTextOnSelect="True"
-                                   Margin="0,0,0,12"
-                                   HorizontalAlignment="Stretch">
-                    <ui:AutoSuggestBox.Icon>
-                        <ui:SymbolIcon Symbol="PersonSearch24"/>
-                    </ui:AutoSuggestBox.Icon>
-                </ui:AutoSuggestBox>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:AutoSuggestBox PlaceholderText="Tìm hoặc thêm khách hàng..."
+                                       Text="{Binding CustomerSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       OriginalItemsSource="{Binding Customers}"
+                                       DisplayMemberPath="Name"
+                                       UpdateTextOnSelect="True"
+                                       Margin="0,0,0,12"
+                                       HorizontalAlignment="Stretch">   
+                        <ui:AutoSuggestBox.Icon>
+                            <ui:SymbolIcon Symbol="PersonSearch24"/>
+                        </ui:AutoSuggestBox.Icon>
+                    </ui:AutoSuggestBox>
+                    <ui:Button Grid.Column="1"
+                               Icon="{ui:SymbolIcon Symbol=AddCircle24,FontSize = 19}"
+                               VerticalAlignment="Top"
+                               Height="35.62"
+                               Margin="10,0,0,0"
+                               MouseOverBackground="LightBlue"/>
+                </Grid>
 
                 <ui:TextBlock Text="Sản phẩm" FontWeight="Medium" Margin="0,0,0,6"/>
                 <ui:AutoSuggestBox PlaceholderText="Tìm tên hoặc mã sản phẩm..."

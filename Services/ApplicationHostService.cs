@@ -127,51 +127,13 @@ namespace UiDesktopApp1.Services
         /// </summary>
         private async Task HandleActivationAsync()
         {
-            await Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-
-                // Lấy MainWindow trực tiếp
-                var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
-
-                var mainWindowViewModel = (navigationWindow as MainWindow)?.ViewModel;
-                if (mainWindowViewModel != null)
+            int a = 1;
+            if (a == 0) 
+                await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    Debug.WriteLine("Building menu with updated roles...");
-                    mainWindowViewModel.BuildMenu();
-                }
 
-                navigationWindow.ShowWindow(); // Hiển thị MainWindow
-
-                // Điều hướng đến trang mặc định
-                bool navigationResult = _navigationService.Navigate(typeof(SanPhamPage));
-                if (!navigationResult)
-                {
-                    Debug.WriteLine("Initial navigation failed using INavigationService.");
-                }
-            });
-
-            /*await Application.Current.Dispatcher.InvokeAsync(() => // Đảm bảo chạy trên UI thread
-            {
-                var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
-
-                //navigationWindow.ShowWindow(); 
-
-                // 1. Lấy LoginWindow
-                var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
-
-                // 2. Hiển thị và ĐỢI LoginWindow đóng
-                Debug.WriteLine("Showing LoginWindow...");
-                loginWindow.ShowDialog(); // Chặn ở đây
-                Debug.WriteLine("LoginWindow closed.");
-
-                // 3. KIỂM TRA KẾT QUẢ NGAY SAU KHI ĐÓNG
-                // Dùng ?? false để tránh lỗi nếu ViewModel bị null (dù không nên)
-                bool isLoginSuccess = loginWindow.ViewModel?.IsLoginSuccessful ?? false;
-                Debug.WriteLine($"Login successful: {isLoginSuccess}"); // In ra Output để kiểm tra
-
-                if (isLoginSuccess) // Chỉ tiếp tục nếu IsLoginSuccessful là true
-                {
-                    loginWindow.Close();
+                    // Lấy MainWindow trực tiếp
+                    var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
 
                     var mainWindowViewModel = (navigationWindow as MainWindow)?.ViewModel;
                     if (mainWindowViewModel != null)
@@ -180,39 +142,78 @@ namespace UiDesktopApp1.Services
                         mainWindowViewModel.BuildMenu();
                     }
 
-                    navigationWindow.ShowWindow();
-                    var currentUserService = _serviceProvider.GetRequiredService<CurrentUserService>();
-                    Type startPage;
-                    switch (currentUserService.CurrentRole)
-                    {
-                        case Roles.Admin:
-                            startPage = typeof(Views.Pages.QuanLyNguoiDungPage);
-                            break;
-                        case Roles.Manager:
-                            startPage = typeof(Views.Pages.SanPhamPage); // Manager bắt đầu ở trang Sản phẩm
-                            break;
-                        case Roles.Test:
-                            startPage = typeof(Views.Pages.SanPhamPage); // Manager bắt đầu ở trang Sản phẩm
-                            break;
-                        default: // Employee
-                            startPage = typeof(Views.Pages.NhapKhoPage); // Employee bắt đầu ở trang Nhập kho
-                            break;
-                    }
-                    _navigationService.Navigate(startPage);
-                    //var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
-                    //navigationWindow.ShowWindow();
-                    // Điều hướng đến trang mặc định
-                    //_navigationService.Navigate(typeof(SanPhamPage));
-                }
-                else
-                {
-                    // Nếu không thành công, đóng ứng dụng
-                    Debug.WriteLine("Login failed or cancelled. Shutting down.");
-                    Application.Current.Shutdown();
-                }
-            });*/
+                    navigationWindow.ShowWindow(); // Hiển thị MainWindow
 
-            // await Task.CompletedTask; // Dòng này không cần thiết
+                    // Điều hướng đến trang mặc định
+                    bool navigationResult = _navigationService.Navigate(typeof(SanPhamPage));
+                    if (!navigationResult)
+                    {
+                        Debug.WriteLine("Initial navigation failed using INavigationService.");
+                    }
+                });
+
+            else 
+                await Application.Current.Dispatcher.InvokeAsync(() => // Đảm bảo chạy trên UI thread
+                {
+                    var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
+
+                    //navigationWindow.ShowWindow(); 
+
+                    // 1. Lấy LoginWindow
+                    var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
+
+                    // 2. Hiển thị và ĐỢI LoginWindow đóng
+                    Debug.WriteLine("Showing LoginWindow...");
+                    loginWindow.ShowDialog(); // Chặn ở đây
+                    Debug.WriteLine("LoginWindow closed.");
+
+                    // 3. KIỂM TRA KẾT QUẢ NGAY SAU KHI ĐÓNG
+                    // Dùng ?? false để tránh lỗi nếu ViewModel bị null (dù không nên)
+                    bool isLoginSuccess = loginWindow.ViewModel?.IsLoginSuccessful ?? false;
+                    Debug.WriteLine($"Login successful: {isLoginSuccess}"); // In ra Output để kiểm tra
+
+                    if (isLoginSuccess) // Chỉ tiếp tục nếu IsLoginSuccessful là true
+                    {
+                        loginWindow.Close();
+
+                        var mainWindowViewModel = (navigationWindow as MainWindow)?.ViewModel;
+                        if (mainWindowViewModel != null)
+                        {
+                            Debug.WriteLine("Building menu with updated roles...");
+                            mainWindowViewModel.BuildMenu();
+                        }
+
+                        navigationWindow.ShowWindow();
+                        var currentUserService = _serviceProvider.GetRequiredService<CurrentUserService>();
+                        Type startPage;
+                        switch (currentUserService.CurrentRole)
+                        {
+                            case Roles.Admin:
+                                startPage = typeof(Views.Pages.QuanLyNguoiDungPage);
+                                break;
+                            case Roles.Manager:
+                                startPage = typeof(Views.Pages.SanPhamPage); // Manager bắt đầu ở trang Sản phẩm
+                                break;
+                            case Roles.Test:
+                                startPage = typeof(Views.Pages.SanPhamPage); // Manager bắt đầu ở trang Sản phẩm
+                                break;
+                            default: // Employee
+                                startPage = typeof(Views.Pages.NhapKhoPage); // Employee bắt đầu ở trang Nhập kho
+                                break;
+                        }
+                        _navigationService.Navigate(startPage);
+                        //var navigationWindow = _serviceProvider.GetRequiredService<INavigationWindow>();
+                        //navigationWindow.ShowWindow();
+                        // Điều hướng đến trang mặc định
+                        //_navigationService.Navigate(typeof(SanPhamPage));
+                    }
+                    else
+                    {
+                        // Nếu không thành công, đóng ứng dụng
+                        Debug.WriteLine("Login failed or cancelled. Shutting down.");
+                        Application.Current.Shutdown();
+                    }
+                });
         }
     }
 }

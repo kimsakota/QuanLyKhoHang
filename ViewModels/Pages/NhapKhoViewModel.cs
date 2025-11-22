@@ -1,16 +1,14 @@
-﻿using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
-using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using UiDesktopApp1.Models;
-using UiDesktopApp1.Views.Pages;
+using UiDesktopApp1.Services;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 
@@ -18,49 +16,45 @@ namespace UiDesktopApp1.ViewModels.Pages
 {
     public partial class NhapKhoViewModel : ObservableObject, INavigationAware
     {
-        private readonly INavigationService _navigationService;
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly CurrentUserService _currentUserService; // Inject service
+        private readonly IContentDialogService _contentDialogService;
 
-        [ObservableProperty]
-        private ObservableCollection<SupplierModel> _suppliers = new();
-        [ObservableProperty]
-        private ObservableCollection<ProductModel> _products = new();
+        [ObservableProperty] private ObservableCollection<SupplierModel> _suppliers = new();
+        [ObservableProperty] private ObservableCollection<ProductModel> _products = new();
 
-        [ObservableProperty] 
-        private string _supplierSearchText = string.Empty;
-        [ObservableProperty] 
-        private string _productSearchText = string.Empty;
+        [ObservableProperty] private string _supplierSearchText = string.Empty;
+        [ObservableProperty] private string _productSearchText = string.Empty;
 
-        [ObservableProperty] 
-        private SupplierModel? _selectedSupplier;
-        [ObservableProperty] 
-        private ProductModel? _selectedProduct;
-        [ObservableProperty]
-        private DateTime _importDate = DateTime.Now;
-        [ObservableProperty] 
-        private int _inputQuantity = 1;
-        [ObservableProperty] 
-        private decimal _inputPrice = 0;
-        [ObservableProperty] 
-        private string _errorMessage = string.Empty;
+        [ObservableProperty] private SupplierModel? _selectedSupplier;
+        [ObservableProperty] private ProductModel? _selectedProduct;
 
-        [ObservableProperty] 
-        private ObservableCollection<ImportDetailModel> _importDetails = new();
-        [ObservableProperty] 
-        private decimal _totalAmount;
+        [ObservableProperty] private DateTime _importDate = DateTime.Now;
+        [ObservableProperty] private int _inputQuantity = 1;
+        [ObservableProperty] private decimal _inputPrice = 0;
+        [ObservableProperty] private string _errorMessage = string.Empty;
 
-        public NhapKhoViewModel (INavigationService navigationService, IDbContextFactory<AppDbContext> dbContextFactory)
+        [ObservableProperty] private ObservableCollection<ImportDetailModel> _importDetails = new();
+        [ObservableProperty] private decimal _totalAmount;
+
+        // Cập nhật Constructor để nhận CurrentUserService
+        public NhapKhoViewModel(IDbContextFactory<AppDbContext> dbContextFactory, 
+            CurrentUserService currentUserService,
+            IContentDialogService contentDialogService)
         {
-            _navigationService = navigationService;
             _dbContextFactory = dbContextFactory;
+            _currentUserService = currentUserService;
+            _contentDialogService = contentDialogService;
         }
+
         public async Task OnNavigatedToAsync()
         {
+            ImportDate = DateTime.Now; // Cập nhật giờ mới nhất khi vào trang
             await LoadDataAsync();
         }
+
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
-        // 1. Tải dữ liệu ban đầu
         private async Task LoadDataAsync()
         {
             try
@@ -68,13 +62,16 @@ namespace UiDesktopApp1.ViewModels.Pages
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
 
                 Suppliers.Clear();
+                // AsNoTracking giúp tải nhanh hơn cho danh sách chỉ đọc
                 var suppliers = await db.Suppliers.AsNoTracking().OrderBy(s => s.Name).ToListAsync();
                 foreach (var s in suppliers) Suppliers.Add(s);
 
                 Products.Clear();
                 var products = await db.Products.AsNoTracking().OrderBy(p => p.ProductName).ToListAsync();
                 foreach (var p in products) Products.Add(p);
-
+                
+                // Reset các trường tìm kiếmd
+                SupplierSearchText = string.Empty;
                 ProductSearchText = string.Empty;
             }
             catch (Exception ex)
@@ -85,37 +82,34 @@ namespace UiDesktopApp1.ViewModels.Pages
 
         partial void OnSupplierSearchTextChanged(string value)
         {
-            // Thử tìm trong danh sách xem có khớp tên không
-            var match = Suppliers.FirstOrDefault(s => s.Name.Equals(value, StringComparison.OrdinalIgnoreCase));
-
-            if (match != null)
+            if (string.IsNullOrWhiteSpace(value))
             {
-                SelectedSupplier = match;
-            }
-            else
-            {
-                // Nếu không khớp -> Có thể là nhập mới (Xử lý sau ở nút Lưu)
-                // Hoặc gán tạm null để biết chưa chọn đúng danh mục cũ
                 SelectedSupplier = null;
+                return;
             }
+
+            var match = Suppliers.FirstOrDefault(s => s.Name != null && s.Name.Equals(value, StringComparison.OrdinalIgnoreCase));
+            if (match != null) SelectedSupplier = match;
+            else SelectedSupplier = null;
         }
 
         partial void OnProductSearchTextChanged(string value)
         {
-            
-            // Tìm theo Tên hoặc Mã
-            var match = Products.FirstOrDefault(p =>
-                p.ProductName.Equals(value, StringComparison.OrdinalIgnoreCase) ||
-                p.ProductCode.Equals(value, StringComparison.OrdinalIgnoreCase));
-
-            if (match != null)
+            if (string.IsNullOrWhiteSpace(value))
             {
-                SelectedProduct = match;
+                SelectedProduct = null;
+                InputPrice = 0;
+                return;
             }
+
+            var match = Products.FirstOrDefault(p =>
+                (p.ProductName != null && p.ProductName.Equals(value, StringComparison.OrdinalIgnoreCase)) ||
+                (p.ProductCode != null && p.ProductCode.Equals(value, StringComparison.OrdinalIgnoreCase)));
+
+            if (match != null) SelectedProduct = match;
             else
             {
                 SelectedProduct = null;
-                // Reset giá nhập nếu không tìm thấy SP
                 InputPrice = 0;
             }
         }
@@ -124,11 +118,10 @@ namespace UiDesktopApp1.ViewModels.Pages
         {
             if (value == null) return;
 
-            // Đồng bộ lại text hiển thị nếu chọn từ code-behind (optional)
-            if (ProductSearchText != value.ProductName)
-                ProductSearchText = value.ProductName;
+            if (!string.Equals(ProductSearchText, value.ProductName, StringComparison.OrdinalIgnoreCase))
+                ProductSearchText = value.ProductName ?? string.Empty;
 
-            // Chạy ngầm lấy giá cũ
+            // Lấy giá nhập cũ nhất trong nền
             Task.Run(async () =>
             {
                 try
@@ -137,11 +130,12 @@ namespace UiDesktopApp1.ViewModels.Pages
                     var lastImport = await db.ImportDetails
                         .Include(d => d.Import)
                         .Where(d => d.ProductId == value.Id)
-                        .OrderByDescending(d => d.Import.ImportDate)
+                        .OrderByDescending(d => d.Import!.ImportDate)
                         .FirstOrDefaultAsync();
 
                     Application.Current.Dispatcher.Invoke(() =>
                     {
+                        // Nếu có giá cũ thì lấy, không thì lấy 70% giá bán
                         InputPrice = lastImport != null ? lastImport.UnitPrice : (value.SalePrice * 0.7m);
                     });
                 }
@@ -149,7 +143,6 @@ namespace UiDesktopApp1.ViewModels.Pages
             });
         }
 
-        // 3. Thêm sản phẩm vào danh sách tạm
         [RelayCommand]
         private void AddToImportList()
         {
@@ -166,41 +159,42 @@ namespace UiDesktopApp1.ViewModels.Pages
                 return;
             }
 
-            // Kiểm tra sản phẩm đã có trong lưới chưa
             var existingItem = ImportDetails.FirstOrDefault(x => x.ProductId == SelectedProduct.Id);
 
             if (existingItem != null)
             {
-                // Logic cộng dồn: Tăng số lượng, cập nhật giá mới nhất
                 existingItem.Quantity += InputQuantity;
-                existingItem.UnitPrice = InputPrice;
+                existingItem.UnitPrice = InputPrice; // Cập nhật giá mới nhất
 
-                // Hack nhỏ để UI cập nhật lại dòng đó (Refresh)
+                // Refresh UI dòng đó
                 int index = ImportDetails.IndexOf(existingItem);
                 ImportDetails.RemoveAt(index);
                 ImportDetails.Insert(index, existingItem);
             }
             else
             {
-                // Tạo dòng mới
                 var newItem = new ImportDetailModel
                 {
                     ProductId = SelectedProduct.Id,
-                    Product = SelectedProduct, // Gán object để hiển thị Tên, Mã trên Grid
+                    Product = SelectedProduct,
                     Quantity = InputQuantity,
                     UnitPrice = InputPrice
                 };
                 ImportDetails.Add(newItem);
             }
 
-            // Reset form nhập liệu để nhập tiếp cho nhanh
-            InputQuantity = 1;
-            // Giữ nguyên InputPrice hoặc reset về 0 tùy trải nghiệm, ở đây giữ nguyên tiện nhập nhiều dòng
-
+            ResetInputFields();
             CalculateTotal();
         }
 
-        // 4. Xóa dòng
+        private void ResetInputFields()
+        {
+            InputQuantity = 1;
+            InputPrice = 0;
+            SelectedProduct = null;
+            ProductSearchText = string.Empty;
+        }
+
         [RelayCommand]
         private void RemoveItem(ImportDetailModel item)
         {
@@ -211,25 +205,55 @@ namespace UiDesktopApp1.ViewModels.Pages
             }
         }
 
-        // 5. Tính tổng tiền
-        private void CalculateTotal()
-        {
-            TotalAmount = ImportDetails.Sum(x => x.Quantity * x.UnitPrice);
-        }
+        private void CalculateTotal() => TotalAmount = ImportDetails.Sum(x => x.Quantity * x.UnitPrice);
 
-        // 6. LƯU PHIẾU NHẬP (Quan trọng nhất)
         [RelayCommand]
         private async Task SaveImportAsync()
         {
-            // Validation đầu vào
+            
             if (SelectedSupplier == null)
             {
-                MessageBox.Show("Vui lòng chọn nhà cung cấp!", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                if (!string.IsNullOrWhiteSpace(SupplierSearchText))
+                {
+                    var ask = MessageBox.Show($"Nhà cung cấp \"{SupplierSearchText}\" chưa có trong hệ thống. Bạn có muốn tạo mới?",
+                                              "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if(ask == MessageBoxResult.Yes)
+                    {
+                        try
+                        {
+                            await using var db = await _dbContextFactory.CreateDbContextAsync();
+                            var newSupplier = new SupplierModel
+                            {
+                                Name = SupplierSearchText
+                            };
+                            db.Suppliers.Add(newSupplier);
+                            await db.SaveChangesAsync();
+                            Suppliers.Add(newSupplier);
+                            SelectedSupplier = newSupplier;
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Lỗi khi tạo nhà cung cấp mới: {ex.Message}",
+                                            "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        return; // Người dùng không muốn tạo mới, dừng lưu
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Bạn chưa chọn Nhà cung cấp. Vui lòng chọn để tiếp tục.",
+                                "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
             }
             if (ImportDetails.Count == 0)
             {
-                MessageBox.Show("Danh sách hàng hóa đang trống!", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Danh sách nhập kho đang trống. Vui lòng thêm ít nhất một sản phẩm.",
+                                "Chưa có hàng hóa", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -240,25 +264,20 @@ namespace UiDesktopApp1.ViewModels.Pages
             try
             {
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
-
-                // Sử dụng Transaction để đảm bảo tính toàn vẹn dữ liệu (hoặc lưu tất cả hoặc không lưu gì cả)
                 using var transaction = await db.Database.BeginTransactionAsync();
 
                 try
                 {
-                    // A. Tạo phiếu nhập (Header)
                     var newImport = new ImportModel
                     {
                         SupplierId = SelectedSupplier.Id,
                         ImportDate = ImportDate,
-                        ImportedBy = "Admin", // Sau này thay bằng CurrentUser.Username
-                        ImportDetails = new List<ImportDetailModel>() // Khởi tạo list rỗng
+                        ImportedBy = _currentUserService.CurrentUser?.Username ?? "Unknown",
+                        ImportDetails = new List<ImportDetailModel>()
                     };
 
-                    // B. Xử lý chi tiết & Cập nhật tồn kho
                     foreach (var item in ImportDetails)
                     {
-                        // 1. Thêm chi tiết
                         newImport.ImportDetails.Add(new ImportDetailModel
                         {
                             ProductId = item.ProductId,
@@ -266,46 +285,39 @@ namespace UiDesktopApp1.ViewModels.Pages
                             UnitPrice = item.UnitPrice
                         });
 
-                        // 2. Tìm và cập nhật tồn kho sản phẩm
                         var productInDb = await db.Products.FindAsync(item.ProductId);
                         if (productInDb != null)
-                        {
                             productInDb.InitialQty += item.Quantity;
-                            // Có thể cập nhật giá vốn bình quân tại đây nếu muốn logic phức tạp hơn
-                        }
                     }
 
                     db.Imports.Add(newImport);
-                    await db.SaveChangesAsync(); // Lưu tất cả thay đổi vào DB
-                    await transaction.CommitAsync(); // Xác nhận transaction
+                    await db.SaveChangesAsync();
+                    await transaction.CommitAsync();
 
                     MessageBox.Show("Lưu phiếu nhập thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                    // C. Reset giao diện về trạng thái ban đầu
                     RefreshPage();
                 }
                 catch (Exception ex)
                 {
-                    await transaction.RollbackAsync(); // Hoàn tác nếu lỗi
-                    throw ex; // Ném lỗi ra ngoài để catch bên dưới hiển thị
+                    await transaction.RollbackAsync();
+                    MessageBox.Show($"Lỗi lưu dữ liệu: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi lưu phiếu: {ex.Message}", "Lỗi hệ thống", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Lỗi kết nối: {ex.Message}", "Lỗi hệ thống", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
         private void RefreshPage()
         {
             ImportDetails.Clear();
             SelectedSupplier = null;
-            SelectedProduct = null;
+            SupplierSearchText = string.Empty;
+            ResetInputFields();
             TotalAmount = 0;
-            InputQuantity = 1;
-            InputPrice = 0;
             ErrorMessage = string.Empty;
+            ImportDate = DateTime.Now;
         }
-
-
     }
 }
