@@ -38,7 +38,7 @@
                                    DisplayMemberPath="ProductName"
                                    UpdateTextOnSelect="True"
                                    Margin="0,0,0,12"
-                                   HorizontalAlignment="Stretch">sss
+                                   HorizontalAlignment="Stretch">
                     <ui:AutoSuggestBox.Icon>
                         <ui:SymbolIcon Symbol="BoxSearch24"/>
                     </ui:AutoSuggestBox.Icon>
