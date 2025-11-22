@@ -5,9 +5,10 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
-      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
-      xmlns:models="clr-namespace:UiDesktopApp1.Models"
-      mc:Ignorable="d" 
+      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors" 
+      xmlns:pages="clr-namespace:UiDesktopApp1.ViewModels.Pages"
+      mc:Ignorable="d"
+      d:DataContext="{d:DesignInstance pages:NhapKhoViewModel, IsDesignTimeCreatable=False}"
       d:DesignHeight="650" d:DesignWidth="1000"
       Title="NhapKhoPage"
       ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
@@ -31,57 +32,107 @@
                 Margin="0,0,12,0" Padding="16">
 
             <StackPanel>
-                <TextBlock Text="Chi tiết nhập hàng" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,16"/>
+                <ui:TextBlock Text="Thông tin nhập kho" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,16"/>
 
-                <TextBlock Text="Sản phẩm" FontWeight="Medium" Margin="0,0,0,6"/>
-                <ComboBox ItemsSource="{Binding Products}"
-                          SelectedItem="{Binding SelectedProduct, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          DisplayMemberPath="ProductName"
-                          
-                          IsEditable="True"
-                          Margin="0,0,0,12"
-                          HorizontalAlignment="Stretch"/>
+                <ui:TextBlock Text="Nhà cung cấp" FontWeight="Medium" Margin="0,0,0,6"/>
 
-                <Grid Margin="0,0,0,12">
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                        <TextBlock Text="Mã SP" Foreground="Gray" FontSize="12" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding SelectedProduct.ProductCode, Mode=OneWay}" 
-                                 IsReadOnly="True" Background="Transparent"/>
+                    <ui:AutoSuggestBox PlaceholderText="Tìm nhà cung cấp ..."
+                                       Grid.Column="0"
+                                       Text="{Binding SupplierSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       OriginalItemsSource="{Binding Suppliers}"
+                                       IsEnabled="{Binding CanEdit}"
+                                       DisplayMemberPath="Name"
+                                       UpdateTextOnSelect="True"
+                                       Margin="0,0,0,12"
+                                       HorizontalAlignment="Stretch">
+                        <ui:AutoSuggestBox.Icon>
+                            <ui:SymbolIcon Symbol="PersonSearch24"/>
+                        </ui:AutoSuggestBox.Icon>
+                    </ui:AutoSuggestBox>
+                    <ui:Button Grid.Column="1"
+                               Icon="{ui:SymbolIcon Symbol=AddCircle24,FontSize = 19}"
+                               VerticalAlignment="Top"
+                               Height="35.62"
+                               Margin="10,0,0,0"
+                               MouseOverBackground="LightBlue"/>
+                </Grid>
+
+                <ui:TextBlock Text="Sản phẩm" FontWeight="Medium" Margin="0,0,0,6"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:AutoSuggestBox PlaceholderText="Tìm tên hoặc mã sản phẩm..."
+                                       Grid.Column="0"
+                                       Text="{Binding ProductSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       OriginalItemsSource="{Binding Products}"
+                                       DisplayMemberPath="ProductName"
+                                       UpdateTextOnSelect="True"
+                                       Margin="0,0,0,12"
+                                       HorizontalAlignment="Stretch">
+                        <ui:AutoSuggestBox.Icon>
+                            <ui:SymbolIcon Symbol="BoxSearch24"/>
+                        </ui:AutoSuggestBox.Icon>
+                    </ui:AutoSuggestBox>
+                    <ui:Button Grid.Column="1"
+                               Icon="{ui:SymbolIcon Symbol=AddCircle24,FontSize = 19}"
+                               VerticalAlignment="Top"
+                               Height="35.62"
+                               Margin="10,0,0,0"
+                               MouseOverBackground="LightBlue"/>    
+                </Grid>
+
+                <StackPanel Margin="0,0,0,12">
+                    <ui:TextBlock Text="Mã sản phẩm" Foreground="Gray" FontSize="12" Margin="0,0,0,4"/>
+                    <ui:TextBox Text="{Binding SelectedProduct.ProductCode, Mode=OneWay, TargetNullValue='--'}" 
+                             IsReadOnly="True" 
+                             Background="{ui:ThemeResource ControlFillColorSecondaryBrush}"
+                             BorderThickness="0"/>
+                </StackPanel>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <ui:TextBlock Text="Đơn giá" FontWeight="Medium" Margin="0,0,0,6"/>
+                        <ui:TextBox PlaceholderText="0"
+                                    Text="{Binding InputPrice, Mode=TwoWay, Converter={StaticResource NumberVnConverter}, UpdateSourceTrigger=PropertyChanged}"
+                                    beh:TextBoxBehaviors.SelectAllOnFocus="True"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Text="Đơn vị" Foreground="Gray" FontSize="12" Margin="0,0,0,4"/>
-                        <TextBox Text="Cái" IsReadOnly="True" Width="60" TextAlignment="Center" Background="Transparent"/>
+
+                    <StackPanel Grid.Column="2">
+                        <ui:TextBlock Text="Số lượng" FontWeight="Medium" Margin="0,0,0,6"/>
+                        <ui:NumberBox PlaceholderText="1"
+                                      Value="{Binding InputQuantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Minimum="1"
+                                      SpinButtonPlacementMode="Compact"/>
                     </StackPanel>
                 </Grid>
 
-                <TextBlock Text="Đơn giá nhập" FontWeight="Medium" Margin="0,0,0,6"/>
-                <ui:TextBox PlaceholderText="0"
-                            Text="{Binding InputPrice, Mode=TwoWay, Converter={StaticResource NumberVnConverter}, UpdateSourceTrigger=PropertyChanged}"
-                            beh:TextBoxBehaviors.SelectAllOnFocus="True"
-                            Margin="0,0,0,12"/>
-
-                <TextBlock Text="Số lượng" FontWeight="Medium" Margin="0,0,0,6"/>
-                <ui:NumberBox PlaceholderText="0"
-                              Value="{Binding InputQuantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              Minimum="1"
-                              
-                              Margin="0,0,0,24"/>
-
-                <ui:Button Content="Thêm vào phiếu" 
-                           Appearance="Primary" 
-                           Icon="AddCircle24"
+                <ui:Button Content="Thêm vào danh sách" 
+                           FontWeight="SemiBold"
+                           Appearance="Secondary" 
+                           Icon="{ui:SymbolIcon Symbol=AddCircle24, FontSize=20}"
                            Command="{Binding AddToImportListCommand}"
-                           HorizontalAlignment="Stretch" Height="40"/>
+                           HorizontalAlignment="Stretch" Height="36" Margin="0,10,0,0"
+                           MouseOverBackground="LightBlue"/>
 
-                <TextBlock Text="{Binding ErrorMessage}" 
-                           Foreground="Red" 
+                <ui:TextBlock Text="{Binding ErrorMessage}" 
+                           Foreground="#FFD63838" 
+                           FontSize="12"
                            TextWrapping="Wrap" 
                            Margin="0,10,0,0"
-                           />
+                           Visibility="{Binding ErrorMessage, Converter={x:Static beh:StringNullOrEmptyToVisibilityConverter.Instance}}"/>
             </StackPanel>
         </Border>
 
@@ -101,17 +152,18 @@
                          BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
                          RowHeight="45">
                 <ui:DataGrid.Columns>
-                    <DataGridTextColumn Header="Mã SP" Binding="{Binding Product.ProductCode}" Width="80"/>
+                    <DataGridTextColumn Header="Mã SP" Binding="{Binding Product.ProductCode}" Width="90"/>
                     <DataGridTextColumn Header="Tên sản phẩm" Binding="{Binding Product.ProductName}" Width="*"/>
-
-                    <DataGridTextColumn Header="Số lượng" Binding="{Binding Quantity}" Width="80"/>
-
+                    <DataGridTextColumn Header="SL" Binding="{Binding Quantity}" Width="60"/>
                     <DataGridTextColumn Header="Đơn giá" Binding="{Binding UnitPrice, StringFormat={}{0:N0}}" Width="100"/>
 
-                    <DataGridTextColumn Header="Thành tiền" 
-                                        Binding="{Binding TotalPrice, StringFormat={}{0:N0}}" 
-                                        FontWeight="Bold"
-                                        Width="120"/>
+                    <DataGridTemplateColumn Header="Thành tiền" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ui:TextBlock Text="{Binding UnitPrice, StringFormat={}{0:N0}}" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
                     <DataGridTemplateColumn Width="50">
                         <DataGridTemplateColumn.CellTemplate>
@@ -119,6 +171,7 @@
                                 <ui:Button Icon="Delete24" 
                                            Appearance="Transparent"
                                            Foreground="#D13438"
+                                           ToolTip="Xóa dòng này"
                                            Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                            CommandParameter="{Binding}"/>
                             </DataTemplate>
@@ -131,7 +184,9 @@
                     Margin="0,12,0,0" 
                     Padding="16" 
                     Background="{ui:ThemeResource ControlFillColorSecondaryBrush}" 
-                    CornerRadius="8">
+                    CornerRadius="8"
+                    BorderThickness="1"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -139,18 +194,18 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <ui:SymbolIcon Symbol="Calculator24" Margin="0,0,8,0"/>
+                        <ui:SymbolIcon Symbol="Calculator24" Margin="0,0,8,0" Foreground="Gray"/>
                         <TextBlock Text="{Binding ImportDetails.Count, StringFormat='Tổng số mặt hàng: {0}'}" 
-                                   FontStyle="Italic" VerticalAlignment="Center"/>
+                                   FontStyle="Italic" VerticalAlignment="Center" Foreground="Gray"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <TextBlock Text="TỔNG CỘNG:" 
+                        <ui:TextBlock Text="TỔNG CỘNG:" 
                                    FontSize="16" 
-                                   FontWeight="Bold" 
-                                   VerticalAlignment="Center" 
-                                   Margin="0,0,12,0"/>
-                        <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:N0} VNĐ}" 
+                                   FontWeight="SemiBold" 
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,15,0"/>
+                        <ui:TextBlock Text="{Binding TotalAmount, StringFormat={}{0:N0} VNĐ}" 
                                    FontSize="24" 
                                    FontWeight="Bold" 
                                    />

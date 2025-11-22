@@ -35,5 +35,7 @@ namespace UiDesktopApp1.Views.Pages
             InitializeComponent();
         }
         public object? GetHeader() => _header;
+
+
     }
 }

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:UiDesktopApp1.Views.UserControls"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime" xmlns:pages="clr-namespace:UiDesktopApp1.ViewModels.Pages" d:DataContext="{d:DesignInstance Type=pages:NhapKhoViewModel}"
              mc:Ignorable="d" 
              ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
              ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
@@ -13,8 +13,8 @@
     <Border BorderBrush="LightGray" BorderThickness="0,0,0,0.5" Height="52">
         <Grid Margin="0,2,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <ui:TextBlock Text="Nhập kho"
                           Grid.Column="0"
@@ -23,10 +23,12 @@
                           FontWeight="SemiBold"
                           Margin="20,10,0,10"/>
 
-            <ui:Button Content="Lưu" 
+            <ui:Button Content="Lưu phiếu nhập" 
                        Grid.Column="1"
+                       Command="{Binding SaveImportCommand}"
                        Appearance="Primary"
-                       Margin="20,10,15,10">
+                       Margin="20,10,15,10"
+                       MouseOverBackground="LightBlue">
                 <ui:Button.Icon>
                     <ui:SymbolIcon FontSize="17" Symbol="Save24"/>
                 </ui:Button.Icon>
