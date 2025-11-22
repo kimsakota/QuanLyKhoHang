@@ -67,14 +67,6 @@
 
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="#FFD63838" FontSize="12" TextWrapping="Wrap" Margin="0,10,0,0"
                            Visibility="{Binding ErrorMessage, Converter={x:Static beh:StringNullOrEmptyToVisibilityConverter.Instance}}"/>
-
-                <Rectangle Height="20"/>
-
-                <ui:Button Content="LƯU &amp; CÂN BẰNG KHO" 
-                           Command="{Binding SaveCheckCommand}"
-                           Appearance="Primary" Icon="Save24"
-                           FontSize="14" FontWeight="Bold"
-                           HorizontalAlignment="Stretch" Height="45"/>
             </StackPanel>
         </Border>
 

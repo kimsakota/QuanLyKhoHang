@@ -91,10 +91,6 @@ namespace UiDesktopApp1.ViewModels.Windows
 
         [RelayCommand]
         private void Exit() {
-            InputBinding.Equals(new KeyGesture(Key.Escape), new RelayCommand(() =>
-            {
-                CloseAction?.Invoke();
-            }));
             CloseAction?.Invoke();
         }
     }

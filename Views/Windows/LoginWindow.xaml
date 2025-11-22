@@ -27,6 +27,11 @@
         </ResourceDictionary>
     </Window.Resources>
 
+    <Window.InputBindings>
+        <KeyBinding Key="Esc" Command="{Binding ExitCommand}"/>
+        <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
+    </Window.InputBindings>
+    
     <Border CornerRadius="12" BorderBrush="AliceBlue" BorderThickness="1">
         <Border.Background>
             <ImageBrush ImageSource="/Assets/Images/Backgrounds/back-image.png" 

@@ -88,26 +88,11 @@ namespace UiDesktopApp1
                     services.AddSingleton<TonKhoViewModel>();
                     services.AddSingleton<Views.Pages.BaoCao.KhachHangPage>();
                     services.AddSingleton<ViewModels.Pages.BaoCao.KhachHangViewModel>();
+
                     services.AddSingleton<SanPhamPage>();
-                    services.AddTransient<SanPhamViewModel>();
-                    services.AddSingleton<NhapKhoPage>();
-                    services.AddSingleton<NhapKhoViewModel>();
-                    services.AddSingleton<XuatKhoPage>();
-                    services.AddSingleton<XuatKhoViewModel>();
-                    services.AddSingleton<KiemKeKhoPage>();
-                    services.AddSingleton<KiemKeKhoViewModel>();
-                    services.AddSingleton<LichSuPage>();
-                    services.AddSingleton<LichSuViewModel>();
-                    services.AddSingleton<ChiPhiPage>();
-                    services.AddSingleton<ChiPhiViewModel>();
-
-
-                    services.AddTransient<ThemSanPhamPage>();
-                    services.AddSingleton<ThemSanPhamViewModel>();
-
                     services.AddSingleton<SanPhamPageHeader>();
-                    services.AddSingleton<NhapKhoPageHeader>();
                     services.AddTransient<ThemSanPhamPageHeader>();
+                    services.AddTransient<SanPhamViewModel>();
                     services.AddSingleton<ThemDanhMucPage>();
                     services.AddSingleton<ThemDanhMucViewModel>();
                     services.AddSingleton<QuanLySanPhamPage>();
@@ -117,6 +102,29 @@ namespace UiDesktopApp1
                     services.AddSingleton<SuaSanPhamViewModel>();
                     services.AddSingleton<SuaSanPhamPageHeader>();
 
+                    services.AddSingleton<NhapKhoPage>();
+                    services.AddSingleton<NhapKhoPageHeader>();
+                    services.AddSingleton<NhapKhoViewModel>();
+
+                    services.AddSingleton<XuatKhoPage>();
+                    services.AddSingleton<XuatKhoPageHeader>();
+                    services.AddSingleton<XuatKhoViewModel>();
+
+                    services.AddSingleton<KiemKeKhoPage>();
+                    services.AddSingleton<KiemKeKhoPageHeader>();
+                    services.AddSingleton<KiemKeKhoViewModel>();
+
+                    services.AddSingleton<LichSuPage>();
+                    services.AddSingleton<LichSuViewModel>();
+
+                    services.AddSingleton<ChiPhiPage>();
+                    services.AddSingleton<ChiPhiViewModel>();
+
+
+                    services.AddTransient<ThemSanPhamPage>();
+                    services.AddSingleton<ThemSanPhamViewModel>();
+
+                    
 
                     //Liên hệ
                     services.AddSingleton<Views.Pages.LienHe.KhachHangPage>();

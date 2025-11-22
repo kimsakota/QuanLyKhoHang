@@ -12,26 +12,21 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using UiDesktopApp1.Contracts;
 using UiDesktopApp1.ViewModels.Pages;
-using UiDesktopApp1.Views.UserControls;
 
-namespace UiDesktopApp1.Views.Pages
+namespace UiDesktopApp1.Views.UserControls
 {
     /// <summary>
-    /// Interaction logic for XuatKhoPage.xaml
+    /// Interaction logic for XuatKhoPageHeader.xaml
     /// </summary>
-    public partial class XuatKhoPage : Page, IHasHeader
+    public partial class XuatKhoPageHeader : UserControl
     {
         public XuatKhoViewModel ViewModel { get; }
-        private readonly XuatKhoPageHeader _header;
-        public XuatKhoPage(XuatKhoViewModel viewModel, XuatKhoPageHeader header)
+        public XuatKhoPageHeader(XuatKhoViewModel viewModel)
         {
-            ViewModel = viewModel;
-            DataContext = viewModel;
-            _header = header;
             InitializeComponent();
+            DataContext = viewModel;
+            ViewModel = viewModel;
         }
-        public Object? GetHeader() => _header;
     }
 }
