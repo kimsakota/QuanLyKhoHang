@@ -12,8 +12,8 @@ using UiDesktopApp1.Models;
 namespace UiDesktopApp1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251116181732_AddUserContactFields")]
-    partial class AddUserContactFields
+    [Migration("20251123151921_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -111,7 +111,7 @@ namespace UiDesktopApp1.Migrations
                     b.Property<DateTime>("ExportDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ExportName")
+                    b.Property<string>("ExportedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -172,6 +172,57 @@ namespace UiDesktopApp1.Migrations
                     b.HasIndex("SupplierId");
 
                     b.ToTable("Imports");
+                });
+
+            modelBuilder.Entity("UiDesktopApp1.Models.InventoryCheckDetailModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActualQty")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InventoryCheckId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SystemQty")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryCheckId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("InventoryCheckDetails");
+                });
+
+            modelBuilder.Entity("UiDesktopApp1.Models.InventoryCheckModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CheckDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CheckedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InventoryChecks");
                 });
 
             modelBuilder.Entity("UiDesktopApp1.Models.ProductModel", b =>
@@ -365,6 +416,25 @@ namespace UiDesktopApp1.Migrations
                     b.Navigation("Supplier");
                 });
 
+            modelBuilder.Entity("UiDesktopApp1.Models.InventoryCheckDetailModel", b =>
+                {
+                    b.HasOne("UiDesktopApp1.Models.InventoryCheckModel", "InventoryCheck")
+                        .WithMany("Details")
+                        .HasForeignKey("InventoryCheckId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UiDesktopApp1.Models.ProductModel", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InventoryCheck");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("UiDesktopApp1.Models.ProductModel", b =>
                 {
                     b.HasOne("UiDesktopApp1.Models.CategoryModel", "Category")
@@ -393,6 +463,11 @@ namespace UiDesktopApp1.Migrations
             modelBuilder.Entity("UiDesktopApp1.Models.ImportModel", b =>
                 {
                     b.Navigation("ImportDetails");
+                });
+
+            modelBuilder.Entity("UiDesktopApp1.Models.InventoryCheckModel", b =>
+                {
+                    b.Navigation("Details");
                 });
 
             modelBuilder.Entity("UiDesktopApp1.Models.ProductModel", b =>

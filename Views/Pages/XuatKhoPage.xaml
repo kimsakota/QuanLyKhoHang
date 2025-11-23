@@ -55,6 +55,7 @@
                         </ui:AutoSuggestBox.Icon>
                     </ui:AutoSuggestBox>
                     <ui:Button Grid.Column="1"
+                               Command="{Binding QuickAddCustomerCommand}"
                                Icon="{ui:SymbolIcon Symbol=AddCircle24,FontSize = 19}"
                                VerticalAlignment="Top"
                                Height="35.62"

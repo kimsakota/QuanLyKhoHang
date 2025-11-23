@@ -54,6 +54,7 @@
                         </ui:AutoSuggestBox.Icon>
                     </ui:AutoSuggestBox>
                     <ui:Button Grid.Column="1"
+                               Command="{Binding QuickAddSupplierCommand}"
                                Icon="{ui:SymbolIcon Symbol=AddCircle24,FontSize = 19}"
                                VerticalAlignment="Top"
                                Height="35.62"
@@ -63,13 +64,13 @@
 
                 <ui:TextBlock Text="Sản phẩm" FontWeight="Medium" Margin="0,0,0,6"/>
                 <ui:AutoSuggestBox PlaceholderText="Tìm tên hoặc mã sản phẩm..."
-                   Grid.Column="0"
-                   Text="{Binding ProductSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                   OriginalItemsSource="{Binding Products}"
-                   DisplayMemberPath="ProductName"
-                   UpdateTextOnSelect="True"
-                   Margin="0,0,0,12"
-                   HorizontalAlignment="Stretch">
+                                   Grid.Column="0"
+                                   Text="{Binding ProductSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   OriginalItemsSource="{Binding Products}"
+                                   DisplayMemberPath="ProductName"
+                                   UpdateTextOnSelect="True"
+                                   Margin="0,0,0,12"
+                                   HorizontalAlignment="Stretch">   
                     <ui:AutoSuggestBox.Icon>
                         <ui:SymbolIcon Symbol="BoxSearch24"/>
                     </ui:AutoSuggestBox.Icon>
@@ -78,9 +79,9 @@
                 <StackPanel Margin="0,0,0,12">
                     <ui:TextBlock Text="Mã sản phẩm" Foreground="Gray" FontSize="12" Margin="0,0,0,4"/>
                     <ui:TextBox Text="{Binding SelectedProduct.ProductCode, Mode=OneWay, TargetNullValue='--'}" 
-                             IsReadOnly="True" 
-                             Background="{ui:ThemeResource ControlFillColorSecondaryBrush}"
-                             BorderThickness="0"/>
+                                IsReadOnly="True" 
+                                Background="{ui:ThemeResource ControlFillColorSecondaryBrush}"
+                                BorderThickness="0"/>
                 </StackPanel>
 
                 <Grid Margin="0,0,0,12">
@@ -91,7 +92,9 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <ui:TextBlock Text="Đơn giá" FontWeight="Medium" Margin="0,0,0,6"/>
+                        <ui:TextBlock Text="Đơn giá" 
+                                      FontWeight="Medium" 
+                                      Margin="0,0,0,6"/>
                         <ui:TextBox PlaceholderText="0"
                                     Text="{Binding InputPrice, Mode=TwoWay, Converter={StaticResource NumberVnConverter}, UpdateSourceTrigger=PropertyChanged}"
                                     beh:TextBoxBehaviors.SelectAllOnFocus="True"/>

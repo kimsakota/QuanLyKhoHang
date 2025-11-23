@@ -20,7 +20,7 @@ namespace UiDesktopApp1.Models
         public int SystemQty { get; set; } // Tồn kho trên phần mềm lúc kiểm
 
         [ObservableProperty]
-        private int _actualQty;
+        private int actualQty;
 
         [ForeignKey(nameof(ProductId))]
         public ProductModel? Product { get; set; }

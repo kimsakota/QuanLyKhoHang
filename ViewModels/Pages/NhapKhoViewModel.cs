@@ -145,6 +145,10 @@ namespace UiDesktopApp1.ViewModels.Pages
             }
         }
 
+        partial void OnSuppliersChanged(ObservableCollection<SupplierModel>? oldValue, ObservableCollection<SupplierModel> newValue)
+        {
+            throw new NotImplementedException();
+        }
         [RelayCommand]
         private void AddToImportList()
         {
@@ -213,7 +217,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                         if (SelectedSupplier == null)
                             return;
                     }
-                    else return;
+                    return;
                 }
                 else
                 {
@@ -318,6 +322,7 @@ namespace UiDesktopApp1.ViewModels.Pages
             {
                 if(!Suppliers.Any(s => s.Id == newSupplier.Id))
                     Suppliers.Add(newSupplier);
+
                 SelectedSupplier = newSupplier;
                 SupplierSearchText = newSupplier.Name ?? string.Empty;
             }

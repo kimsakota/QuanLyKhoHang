@@ -228,7 +228,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         public async Task<SupplierModel?> AddFromExternalAsync()
         {
             await ShowSupplierDialogAsync(null);
-            return SelectedSupplier;
+            return Supplier;
         }
     }
 }

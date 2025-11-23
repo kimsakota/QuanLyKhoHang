@@ -74,9 +74,12 @@ namespace UiDesktopApp1.Services
                         {
                             var adminUser = new UserModel
                             {
+                                FullName = "Kim Linh",  
                                 Username = "test",
                                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("123"), // Mật khẩu là 123
-                                Role = "Test"
+                                Role = "Test",
+                                Email = "linh.nk233495@sis.hust.edu.vn",
+                                PhoneNumber = "0384022083"
                             };
                             dbContext.Users.Add(adminUser);
                             await dbContext.SaveChangesAsync(cancellationToken);

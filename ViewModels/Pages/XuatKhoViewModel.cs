@@ -217,10 +217,8 @@ namespace UiDesktopApp1.ViewModels.Pages
                     if (ask == MessageBoxResult.Yes)
                     {
                         await QuickAddCustomer();
-                        if (SelectedCustomer == null)
-                            return;
                     }
-                    else return;
+                    return;
                 }
                 else
                 {

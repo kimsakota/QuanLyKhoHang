@@ -128,9 +128,5 @@
                 </ui:DataGrid.Columns>
             </ui:DataGrid>
         </Border>
-
-        <Grid Grid.RowSpan="2" Background="#80000000" Visibility="{Binding IsBusy, Converter={x:Static beh:BooleanToVisibilityConverter.Instance}}">
-            <ui:ProgressRing IsIndeterminate="True" Width="50" Height="50"/>
-        </Grid>
     </Grid>
 </Page>
