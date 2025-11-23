@@ -78,9 +78,15 @@ namespace UiDesktopApp1
                     services.AddTransient<LoginWindow>();
                     services.AddTransient<LoginViewModel>();
 
+                    //Sử dụng sqlsever
                     var connStr = context.Configuration.GetConnectionString("DefaultConnection")
                                   ?? "Server=localhost\\SQLEXPRESS;Database=QuanLyKhoHang;Trusted_Connection=True;TrustServerCertificate=True;";
                     services.AddDbContextFactory<AppDbContext>(opt => opt.UseSqlServer(connStr));
+
+                    // Sử dụng sqllite (SQLite)
+                    /*var connStr = context.Configuration.GetConnectionString("DefaultConnection")
+                                  ?? "Data Source=QuanLyKhoHang.db";
+                    services.AddDbContextFactory<AppDbContext>(opt => opt.UseSqlite(connStr));*/
 
                     services.AddSingleton<TaiChinhPage>();
                     services.AddSingleton<TaiChinhViewModel>();
@@ -123,8 +129,6 @@ namespace UiDesktopApp1
 
                     services.AddTransient<ThemSanPhamPage>();
                     services.AddSingleton<ThemSanPhamViewModel>();
-
-                    
 
                     //Liên hệ
                     services.AddSingleton<Views.Pages.LienHe.KhachHangPage>();

@@ -10,6 +10,7 @@
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance pages:LichSuViewModel, IsDesignTimeCreatable=False}"
       d:DesignHeight="650" d:DesignWidth="1000"
+      ScrollViewer.CanContentScroll="False"
       ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
       Title="Lịch sử giao dịch">

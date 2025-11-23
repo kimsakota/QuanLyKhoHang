@@ -23,93 +23,99 @@ namespace UiDesktopApp1.Models
         public DbSet<InventoryCheckModel> InventoryChecks => Set<InventoryCheckModel>();
         public DbSet<InventoryCheckDetailModel> InventoryCheckDetails => Set<InventoryCheckDetailModel>();
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Cấu hình Product
+            // 1. BỎ QUA CÁC THUỘC TÍNH TÍNH TOÁN (QUAN TRỌNG ĐỂ SỬA LỖI "No backing field")
+            modelBuilder.Entity<ExportDetailModel>().Ignore(e => e.TotalPrice);
+            modelBuilder.Entity<ImportDetailModel>().Ignore(i => i.TotalPrice);
+            modelBuilder.Entity<InventoryCheckDetailModel>().Ignore(c => c.Diff);
+
+            // 2. Cấu hình các Index và Relationship
             modelBuilder.Entity<ProductModel>()
                 .HasIndex(p => p.ProductCode)
-                .IsUnique(false); // Cho phép ProductCode không unique (như trong migration)
+                .IsUnique(false);
 
-            modelBuilder.Entity<ProductModel>()
-                .Property(p => p.SalePrice)
-                .HasColumnType("decimal(18,2)");
-
-            // Cấu hình Category <-> Product (1-Nhiều)
             modelBuilder.Entity<CategoryModel>()
                 .HasMany(c => c.Products)
                 .WithOne(p => p.Category)
                 .HasForeignKey(p => p.CategoryId)
-                .OnDelete(DeleteBehavior.SetNull); // Nếu xóa Category, Product.CategoryId -> null
+                .OnDelete(DeleteBehavior.SetNull);
 
-            // Cấu hình User
             modelBuilder.Entity<UserModel>()
                 .HasIndex(u => u.Username)
                 .IsUnique(true);
 
-            // Cấu hình Supplier
             modelBuilder.Entity<SupplierModel>()
                 .HasIndex(s => s.TaxCode)
                 .IsUnique();
 
-            // Cấu hình Supplier <-> Import (1-Nhiều)
             modelBuilder.Entity<SupplierModel>()
                 .HasMany(s => s.Imports)
                 .WithOne(i => i.Supplier)
                 .HasForeignKey(i => i.SupplierId)
-                .OnDelete(DeleteBehavior.SetNull); // Nếu xóa Supplier, Import.SupplierId -> null
+                .OnDelete(DeleteBehavior.SetNull);
 
-            // Cấu hình Customer <-> Export (1-Nhiều)
             modelBuilder.Entity<CustomerModel>()
                 .HasMany(c => c.Exports)
                 .WithOne(e => e.Customer)
                 .HasForeignKey(e => e.CustomerId)
-                .OnDelete(DeleteBehavior.SetNull); // Nếu xóa Customer, Export.CustomerId -> null
+                .OnDelete(DeleteBehavior.SetNull);
 
-            // Cấu hình Import <-> ImportDetail (1-Nhiều)
             modelBuilder.Entity<ImportModel>()
                 .HasMany(i => i.ImportDetails)
                 .WithOne(d => d.Import)
                 .HasForeignKey(d => d.ImportId)
-                .OnDelete(DeleteBehavior.Cascade); // Nếu xóa Import, xóa luôn ImportDetail
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Cấu hình Export <-> ExportDetail (1-Nhiều)
             modelBuilder.Entity<ExportModel>()
                 .HasMany(e => e.ExportDetails)
                 .WithOne(d => d.Export)
                 .HasForeignKey(d => d.ExportId)
-                .OnDelete(DeleteBehavior.Cascade); // Nếu xóa Export, xóa luôn ExportDetail
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Cấu hình Product <-> ImportDetail (1-Nhiều)
             modelBuilder.Entity<ProductModel>()
                 .HasMany(p => p.ImportDetails)
                 .WithOne(d => d.Product)
                 .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.Restrict); // Không cho xóa Product nếu có ImportDetail
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Cấu hình Product <-> ExportDetail (1-Nhiều)
             modelBuilder.Entity<ProductModel>()
                 .HasMany(p => p.ExportDetails)
                 .WithOne(d => d.Product)
                 .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.Restrict); // Không cho xóa Product nếu có ExportDetail
-
-            // Cấu hình giá tiền cho ImportDetail và ExportDetail
-            modelBuilder.Entity<ImportDetailModel>()
-                .Property(d => d.UnitPrice)
-                .HasColumnType("decimal(18,2)");
-
-            modelBuilder.Entity<ExportDetailModel>()
-                .Property(d => d.UnitPrice)
-                .HasColumnType("decimal(18,2)");
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<InventoryCheckModel>()
                 .HasMany(c => c.Details)
                 .WithOne(d => d.InventoryCheck)
                 .HasForeignKey(d => d.InventoryCheckId)
-                .OnDelete(DeleteBehavior.Cascade); // Xóa phiếu kiểm kê sẽ xóa luôn chi tiết
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // 3. XỬ LÝ KIỂU DECIMAL CHO SQLITE (Nếu dùng SQLite thì convert sang double)
+            if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+            {
+                foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+                {
+                    var properties = entityType.ClrType.GetProperties()
+                        .Where(p => p.PropertyType == typeof(decimal));
+
+                    foreach (var property in properties)
+                    {
+                        modelBuilder.Entity(entityType.Name)
+                            .Property(property.Name)
+                            .HasConversion<double>();
+                    }
+                }
+            }
+            // Nếu dùng SQL Server thì giữ nguyên cấu hình cũ (nếu muốn dùng song song)
+            else
+            {
+                modelBuilder.Entity<ProductModel>().Property(p => p.SalePrice).HasColumnType("decimal(18,2)");
+                modelBuilder.Entity<ImportDetailModel>().Property(d => d.UnitPrice).HasColumnType("decimal(18,2)");
+                modelBuilder.Entity<ExportDetailModel>().Property(d => d.UnitPrice).HasColumnType("decimal(18,2)");
+            }
         }
     }
 }

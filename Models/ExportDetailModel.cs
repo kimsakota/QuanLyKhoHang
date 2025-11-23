@@ -19,6 +19,7 @@ namespace UiDesktopApp1.Models
         [Required]
         public int ExportId { get; set; }
 
+        [NotMapped]
         [ObservableProperty]
         private int quantity;
 
@@ -33,6 +34,7 @@ namespace UiDesktopApp1.Models
 
         [NotMapped]
         public decimal TotalPrice => Quantity * UnitPrice;
+
         partial void OnQuantityChanged(int value) => OnPropertyChanged(nameof(TotalPrice));
         partial void OnUnitPriceChanged(decimal value) => OnPropertyChanged(nameof(TotalPrice));
 

@@ -59,37 +59,19 @@
 
             <Grid Grid.Row="1">
                 <ui:DataGrid ItemsSource="{Binding ProductsView}"
-                                 AutoGenerateColumns="False"
-                                 CanUserAddRows="False"
-                                 CanUserDeleteRows="False"    
-                                 CanUserResizeColumns="False"
-                                 CanUserResizeRows="False"
-                                 CanUserReorderColumns="False"
-                                 IsReadOnly="True"
-                                 SelectionMode="Single"
-                                 HeadersVisibility="All"
-                                 RowHeight="56"
-                                 Background="{ui:ThemeResource SubtleFillColorSecondaryBrush}"
-                                 BorderThickness="1"
-                                 BorderBrush="#DDD">
-
-                    <!-- Style mặc định -->
-                    <ui:DataGrid.TextColumnElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                            <Setter Property="FontSize" Value="13"/>
-                            <Setter Property="Padding" Value="8,0"/>
-                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                        </Style>
-                    </ui:DataGrid.TextColumnElementStyle>
-
-                    <ui:DataGrid.CellStyle>
-                        <Style TargetType="DataGridCell">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="BorderThickness" Value="0"/>
-                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
-                        </Style>
-                    </ui:DataGrid.CellStyle>
+                             AutoGenerateColumns="False"
+                             CanUserAddRows="False"
+                             CanUserDeleteRows="False"    
+                             CanUserResizeColumns="False"
+                             CanUserResizeRows="False"
+                             CanUserReorderColumns="False"
+                             IsReadOnly="True"
+                             SelectionMode="Single"
+                             HeadersVisibility="All"
+                             RowHeight="56"
+                             Background="{ui:ThemeResource SubtleFillColorSecondaryBrush}"
+                             BorderThickness="1"
+                             BorderBrush="#DDD">
 
                     <ui:DataGrid.Columns>
                         <DataGridTemplateColumn Header="Hình ảnh" Width="90">

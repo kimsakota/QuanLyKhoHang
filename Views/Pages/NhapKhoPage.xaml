@@ -11,6 +11,7 @@
       d:DataContext="{d:DesignInstance pages:NhapKhoViewModel, IsDesignTimeCreatable=False}"
       d:DesignHeight="650" d:DesignWidth="1000"
       Title="NhapKhoPage"
+      ScrollViewer.CanContentScroll="False"
       ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
 
@@ -139,6 +140,8 @@
                          SelectionMode="Single"
                          HeadersVisibility="Column"
                          BorderThickness="1"
+                         CanUserResizeColumns="False"
+                         
                          BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
                          RowHeight="45">
                 <ui:DataGrid.Columns>
@@ -158,7 +161,11 @@
                     <DataGridTemplateColumn Width="50">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <ui:Button Icon="Delete24" 
+                                <ui:Button Icon="{ui:SymbolIcon Symbol=Delete24, Filled=True}" 
+                                           MouseOverBackground="LightBlue"
+                                           BorderThickness="0.5"
+                                           CornerRadius="10"
+                                           BorderBrush="LightGray"
                                            Appearance="Transparent"
                                            Foreground="#D13438"
                                            ToolTip="Xóa dòng này"

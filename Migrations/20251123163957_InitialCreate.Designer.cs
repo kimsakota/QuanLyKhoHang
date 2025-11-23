@@ -12,7 +12,7 @@ using UiDesktopApp1.Models;
 namespace UiDesktopApp1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251123151921_InitialCreate")]
+    [Migration("20251123163957_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

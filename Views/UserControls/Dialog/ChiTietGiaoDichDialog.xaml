@@ -6,6 +6,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors" 
              mc:Ignorable="d"
+             ScrollViewer.CanContentScroll="False"
+             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
              d:DesignWidth="700" d:DesignHeight="400">
 
     <Grid Margin="0">
@@ -35,6 +37,9 @@
 
         <ui:DataGrid Grid.Row="1" Margin="0,16"
                      ItemsSource="{Binding Details}"
+                     CanUserResizeColumns="False"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                     
                      Visibility="{Binding Details.Count, Converter={x:Static beh:ZeroToCollapsedConverter.Instance}}"
                      AutoGenerateColumns="False" HeadersVisibility="Column" IsReadOnly="True">
             <ui:DataGrid.Columns>

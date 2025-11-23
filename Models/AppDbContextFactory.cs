@@ -22,11 +22,12 @@ namespace UiDesktopApp1.Models
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
-            var connectionString = configuration.GetConnectionString("DefaultConnection")
-                                  ?? "Server=localhost\\SQLEXPRESS;Database=QuanLyKhoHang;Trusted_Connection=True;TrustServerCertificate=True";
-
+            var connectionString = configuration.GetConnectionString("DefaultConnection") ?? "Server=localhost\\SQLEXPRESS;Database=QuanLyKhoHang;Trusted_Connection=True;TrustServerCertificate=True";
+            //var connectionString = configuration.GetConnectionString("DefaultConnection") ?? "Data Source=QuanLyKhoHang.db"; // Sửa fallback string
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+
             optionsBuilder.UseSqlServer(connectionString);
+            //optionsBuilder.UseSqlite(connectionString);
 
             return new AppDbContext(optionsBuilder.Options);
         }

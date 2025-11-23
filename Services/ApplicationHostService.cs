@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using UiDesktopApp1.Views.Windows;
 using System.Diagnostics;
+using System.Globalization;
+using System.Text;
 using UiDesktopApp1.Models;
 using UiDesktopApp1.Views.Pages;
-using Wpf.Ui;
 using UiDesktopApp1.Views.Pages.LienHe;
+using UiDesktopApp1.Views.Windows;
+using Wpf.Ui;
 
 namespace UiDesktopApp1.Services
 {
@@ -84,12 +86,14 @@ namespace UiDesktopApp1.Services
                             dbContext.Users.Add(adminUser);
                             await dbContext.SaveChangesAsync(cancellationToken);
                             Debug.WriteLine("Test user created.");
+
+                            // Gọi hàm SeedUsersAsync để thêm các user khác
+                            await SeedUsersAsync(dbContext, cancellationToken);
                         }
                         else
                         {
                             Debug.WriteLine("Test user already exists.");
                         }
-
                     }
                     else // Bảng đã có dữ liệu, kiểm tra cụ thể user admin
                     {
@@ -217,6 +221,118 @@ namespace UiDesktopApp1.Services
                         Application.Current.Shutdown();
                     }
                 });
+        }
+
+        // === Hàm thêm user ===
+        private async Task SeedUsersAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+        {
+            bool hasChanges = false;
+
+            // Danh sách họ
+            var ho = new List<string> { "Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Phan", "Vũ", "Đặng", "Bùi", "Đỗ" };
+
+            // Danh sách tên đệm nam
+            var demNam = new List<string> { "Văn", "Đức", "Công", "Minh", "Quang", "Hoàng", "Tiến", "Trọng", "Bá", "Đình" };
+
+            // Danh sách tên đệm nữ
+            var demNu = new List<string> { "Thị", "Thu", "Thanh", "Phương", "Minh", "Ngọc", "Hồng", "Kim", "Bảo", "Diễm" };
+
+            // Danh sách tên chính
+            var ten = new List<string> { "An", "Bình", "Chi", "Duy", "Giang", "Hải", "Hằng", "Khanh", "Long", "Linh", "Mai", "Nga", "Phong", "Quân", "Sơn" };
+
+            var random = new Random();
+
+            // Thêm 20 nhân viên
+            for (int i = 1; i <= 20; i++)
+            {
+                var username = $"nhanvien{i}";
+                if (!await dbContext.Users.AnyAsync(u => u.Username == username, cancellationToken))
+                {
+                    var hoNV = ho[random.Next(ho.Count)];
+                    var gioiTinh = random.Next(2); // 0: Nam, 1: Nữ
+                    var demNV = gioiTinh == 0 ? demNam[random.Next(demNam.Count)] : demNu[random.Next(demNu.Count)];
+                    var tenNV = ten[random.Next(ten.Count)];
+
+                    var fullName = $"{hoNV} {demNV} {tenNV}";
+
+                    // Tạo email không dấu
+                    var emailKhongDau = RemoveVietnameseSigns(fullName).Replace(" ", "") + $"{i}@company.com";
+
+                    var nhanVien = new UserModel
+                    {
+                        FullName = fullName,
+                        Username = username,
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword("123"),
+                        Role = "Employee",
+                        Email = emailKhongDau.ToLower(),
+                        PhoneNumber = $"09{10000000 + i:00000000}"
+                    };
+                    dbContext.Users.Add(nhanVien);
+                    hasChanges = true;
+                    Debug.WriteLine($"Đã thêm nhân viên {username}");
+                }
+            }
+
+            // Thêm 5 quản lý
+            for (int i = 1; i <= 5; i++)
+            {
+                var username = $"quanly{i}";
+                if (!await dbContext.Users.AnyAsync(u => u.Username == username, cancellationToken))
+                {
+                    var hoQL = ho[random.Next(ho.Count)];
+                    var gioiTinh = random.Next(2);
+                    var demQL = gioiTinh == 0 ? demNam[random.Next(demNam.Count)] : demNu[random.Next(demNu.Count)];
+                    var tenQL = ten[random.Next(ten.Count)];
+
+                    var fullName = $"{hoQL} {demQL} {tenQL}";
+
+                    // Tạo email không dấu
+                    var emailKhongDau = RemoveVietnameseSigns(fullName).Replace(" ", "") + $"{i}@company.com";
+
+                    var quanLy = new UserModel
+                    {
+                        FullName = fullName,
+                        Username = username,
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword("123"),
+                        Role = "Manager",
+                        Email = emailKhongDau.ToLower(),
+                        PhoneNumber = $"08{20000000 + i:00000000}"
+                    };
+                    dbContext.Users.Add(quanLy);
+                    hasChanges = true;
+                    Debug.WriteLine($"Đã thêm quản lý {username}");
+                }
+            }
+
+            if (hasChanges)
+            {
+                await dbContext.SaveChangesAsync(cancellationToken);
+                Debug.WriteLine("Đã cập nhật người dùng thành công!");
+            }
+            else
+            {
+                Debug.WriteLine("Tất cả người dùng đã tồn tại.");
+            }
+        }
+
+        // === Hàm loại bỏ dấu tiếng Việt ===
+        private static string RemoveVietnameseSigns(string str)
+        {
+            if (string.IsNullOrEmpty(str)) return str;
+
+            str = str.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (char c in str)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
     }
 }
