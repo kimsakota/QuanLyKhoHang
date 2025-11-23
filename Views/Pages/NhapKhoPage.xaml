@@ -137,11 +137,14 @@
                          ItemsSource="{Binding ImportDetails}"
                          AutoGenerateColumns="False"
                          CanUserAddRows="False"
-                         SelectionMode="Single"
+                         CanUserDeleteRows="False"    
+                         CanUserResizeColumns="False"
+                         CanUserResizeRows="False"
+                         CanUserReorderColumns="False"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         IsReadOnly="True"
                          HeadersVisibility="Column"
                          BorderThickness="1"
-                         CanUserResizeColumns="False"
-                         
                          BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
                          RowHeight="45">
                 <ui:DataGrid.Columns>

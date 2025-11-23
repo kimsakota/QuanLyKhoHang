@@ -75,10 +75,15 @@
             <ui:DataGrid ItemsSource="{Binding CheckDetails}"
                          AutoGenerateColumns="False"
                          CanUserAddRows="False"
+                         CanUserDeleteRows="False"    
+                         CanUserResizeColumns="False"
+                         CanUserResizeRows="False"
+                         CanUserReorderColumns="False"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         IsReadOnly="True"
                          SelectionMode="Single"
                          HeadersVisibility="Column"
                          BorderThickness="1"
-                         CanUserResizeColumns="False"
                          BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
                          RowHeight="45">
                 <ui:DataGrid.Columns>
