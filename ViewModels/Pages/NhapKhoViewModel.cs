@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using UiDesktopApp1.Models;
 using UiDesktopApp1.Services;
+using UiDesktopApp1.ViewModels.Pages.LienHe;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 
@@ -17,8 +18,8 @@ namespace UiDesktopApp1.ViewModels.Pages
     public partial class NhapKhoViewModel : ObservableObject, INavigationAware
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
-        private readonly CurrentUserService _currentUserService; // Inject service
-        private readonly IContentDialogService _contentDialogService;
+        private readonly CurrentUserService _currentUserService;
+        private readonly NhaCungCapViewModel _nhaCungCapViewModel;
 
         [ObservableProperty] private ObservableCollection<SupplierModel> _suppliers = new();
         [ObservableProperty] private ObservableCollection<ProductModel> _products = new();
@@ -29,7 +30,6 @@ namespace UiDesktopApp1.ViewModels.Pages
         [ObservableProperty] private SupplierModel? _selectedSupplier;
         [ObservableProperty] private ProductModel? _selectedProduct;
 
-        [ObservableProperty] private DateTime _importDate = DateTime.Now;
         [ObservableProperty] private int _inputQuantity = 1;
         [ObservableProperty] private decimal _inputPrice = 0;
         [ObservableProperty] private string _errorMessage = string.Empty;
@@ -37,19 +37,18 @@ namespace UiDesktopApp1.ViewModels.Pages
         [ObservableProperty] private ObservableCollection<ImportDetailModel> _importDetails = new();
         [ObservableProperty] private decimal _totalAmount;
 
-        // Cập nhật Constructor để nhận CurrentUserService
         public NhapKhoViewModel(IDbContextFactory<AppDbContext> dbContextFactory, 
             CurrentUserService currentUserService,
-            IContentDialogService contentDialogService)
+            NhaCungCapViewModel nhaCungCapViewModel)
         {
             _dbContextFactory = dbContextFactory;
             _currentUserService = currentUserService;
-            _contentDialogService = contentDialogService;
+            _nhaCungCapViewModel = nhaCungCapViewModel; 
         }
 
         public async Task OnNavigatedToAsync()
         {
-            ImportDate = DateTime.Now; // Cập nhật giờ mới nhất khi vào trang
+            RefreshForm(); // Reset toàn bộ form khi vào trang
             await LoadDataAsync();
         }
 
@@ -62,24 +61,17 @@ namespace UiDesktopApp1.ViewModels.Pages
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
 
                 Suppliers.Clear();
-                // AsNoTracking giúp tải nhanh hơn cho danh sách chỉ đọc
                 var suppliers = await db.Suppliers.AsNoTracking().OrderBy(s => s.Name).ToListAsync();
                 foreach (var s in suppliers) Suppliers.Add(s);
 
                 Products.Clear();
                 var products = await db.Products.AsNoTracking().OrderBy(p => p.ProductName).ToListAsync();
                 foreach (var p in products) Products.Add(p);
-                
-                // Reset các trường tìm kiếmd
-                SupplierSearchText = string.Empty;
-                ProductSearchText = string.Empty;
             }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Lỗi tải dữ liệu: {ex.Message}";
-            }
+            catch (Exception ex) { ErrorMessage = $"Lỗi tải dữ liệu: {ex.Message}"; }
         }
 
+        // Logic tìm kiếm Nhà cung cấp
         partial void OnSupplierSearchTextChanged(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -87,12 +79,13 @@ namespace UiDesktopApp1.ViewModels.Pages
                 SelectedSupplier = null;
                 return;
             }
-
-            var match = Suppliers.FirstOrDefault(s => s.Name != null && s.Name.Equals(value, StringComparison.OrdinalIgnoreCase));
+            // Tìm kiếm chính xác hơn
+            var match = Suppliers.FirstOrDefault(s => s.Name != null && s.Name.Equals(value.Trim(), StringComparison.OrdinalIgnoreCase));
             if (match != null) SelectedSupplier = match;
             else SelectedSupplier = null;
         }
 
+        // Logic tìm kiếm Sản phẩm
         partial void OnProductSearchTextChanged(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -102,9 +95,10 @@ namespace UiDesktopApp1.ViewModels.Pages
                 return;
             }
 
+            var keyword = value.Trim();
             var match = Products.FirstOrDefault(p =>
-                (p.ProductName != null && p.ProductName.Equals(value, StringComparison.OrdinalIgnoreCase)) ||
-                (p.ProductCode != null && p.ProductCode.Equals(value, StringComparison.OrdinalIgnoreCase)));
+                (p.ProductName != null && p.ProductName.Equals(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                (p.ProductCode != null && p.ProductCode.Equals(keyword, StringComparison.OrdinalIgnoreCase)));
 
             if (match != null) SelectedProduct = match;
             else
@@ -121,7 +115,7 @@ namespace UiDesktopApp1.ViewModels.Pages
             if (!string.Equals(ProductSearchText, value.ProductName, StringComparison.OrdinalIgnoreCase))
                 ProductSearchText = value.ProductName ?? string.Empty;
 
-            // Lấy giá nhập cũ nhất trong nền
+            // Lấy giá nhập gần nhất
             Task.Run(async () =>
             {
                 try
@@ -135,12 +129,20 @@ namespace UiDesktopApp1.ViewModels.Pages
 
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        // Nếu có giá cũ thì lấy, không thì lấy 70% giá bán
                         InputPrice = lastImport != null ? lastImport.UnitPrice : (value.SalePrice * 0.7m);
                     });
                 }
                 catch { }
             });
+        }
+
+        // Đồng bộ lại tên hiển thị khi chọn NCC
+        partial void OnSelectedSupplierChanged(SupplierModel? value)
+        {
+            if (value != null && !string.Equals(SupplierSearchText, value.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                SupplierSearchText = value.Name ?? string.Empty;
+            }
         }
 
         [RelayCommand]
@@ -150,7 +152,7 @@ namespace UiDesktopApp1.ViewModels.Pages
 
             if (SelectedProduct == null)
             {
-                ErrorMessage = "Vui lòng chọn sản phẩm cần nhập.";
+                ErrorMessage = "Vui lòng chọn sản phẩm.";
                 return;
             }
             if (InputQuantity <= 0)
@@ -164,35 +166,25 @@ namespace UiDesktopApp1.ViewModels.Pages
             if (existingItem != null)
             {
                 existingItem.Quantity += InputQuantity;
-                existingItem.UnitPrice = InputPrice; // Cập nhật giá mới nhất
+                existingItem.UnitPrice = InputPrice;
 
-                // Refresh UI dòng đó
                 int index = ImportDetails.IndexOf(existingItem);
                 ImportDetails.RemoveAt(index);
                 ImportDetails.Insert(index, existingItem);
             }
             else
             {
-                var newItem = new ImportDetailModel
+                ImportDetails.Add(new ImportDetailModel
                 {
                     ProductId = SelectedProduct.Id,
                     Product = SelectedProduct,
                     Quantity = InputQuantity,
                     UnitPrice = InputPrice
-                };
-                ImportDetails.Add(newItem);
+                });
             }
 
-            ResetInputFields();
+            ResetInputFields(); // Xóa trắng ô nhập liệu để nhập tiếp
             CalculateTotal();
-        }
-
-        private void ResetInputFields()
-        {
-            InputQuantity = 1;
-            InputPrice = 0;
-            SelectedProduct = null;
-            ProductSearchText = string.Empty;
         }
 
         [RelayCommand]
@@ -210,57 +202,38 @@ namespace UiDesktopApp1.ViewModels.Pages
         [RelayCommand]
         private async Task SaveImportAsync()
         {
-            
             if (SelectedSupplier == null)
             {
-                if (!string.IsNullOrWhiteSpace(SupplierSearchText))
+                if(!string.IsNullOrWhiteSpace(SupplierSearchText))
                 {
-                    var ask = MessageBox.Show($"Nhà cung cấp \"{SupplierSearchText}\" chưa có trong hệ thống. Bạn có muốn tạo mới?",
-                                              "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if(ask == MessageBoxResult.Yes)
+                    var ask = MessageBox.Show($"Nhà cung cấp '{SupplierSearchText}' chưa có. Tạo mới?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (ask == MessageBoxResult.Yes)
                     {
-                        try
-                        {
-                            await using var db = await _dbContextFactory.CreateDbContextAsync();
-                            var newSupplier = new SupplierModel
-                            {
-                                Name = SupplierSearchText
-                            };
-                            db.Suppliers.Add(newSupplier);
-                            await db.SaveChangesAsync();
-                            Suppliers.Add(newSupplier);
-                            SelectedSupplier = newSupplier;
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Lỗi khi tạo nhà cung cấp mới: {ex.Message}",
-                                            "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                        await QuickAddSupplier();
+                        if (SelectedSupplier == null)
                             return;
-                        }
                     }
-                    else
-                    {
-                        return; // Người dùng không muốn tạo mới, dừng lưu
-                    }
+                    else return;
                 }
                 else
                 {
-                    MessageBox.Show("Bạn chưa chọn Nhà cung cấp. Vui lòng chọn để tiếp tục.",
-                                "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Vui lòng chọn Nhà cung cấp.", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
             }
+
             if (ImportDetails.Count == 0)
             {
-                MessageBox.Show("Danh sách nhập kho đang trống. Vui lòng thêm ít nhất một sản phẩm.",
-                                "Chưa có hàng hóa", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Danh sách nhập kho đang trống. Vui lòng thêm sản phẩm.", "Chưa có hàng hóa", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
+            // Confirmation
             var confirm = MessageBox.Show($"Xác nhận nhập kho {ImportDetails.Count} mặt hàng?\nTổng tiền: {TotalAmount:N0} đ",
-                                          "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                                          "Xác nhận nhập kho", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (confirm != MessageBoxResult.Yes) return;
 
+            // Processing
             try
             {
                 await using var db = await _dbContextFactory.CreateDbContextAsync();
@@ -271,8 +244,8 @@ namespace UiDesktopApp1.ViewModels.Pages
                     var newImport = new ImportModel
                     {
                         SupplierId = SelectedSupplier.Id,
-                        ImportDate = ImportDate,
-                        ImportedBy = _currentUserService.CurrentUser?.Username ?? "Unknown",
+                        ImportDate = DateTime.Now,
+                        ImportedBy = _currentUserService.CurrentUser?.Username ?? "Unknown", // Lưu Username
                         ImportDetails = new List<ImportDetailModel>()
                     };
 
@@ -285,9 +258,12 @@ namespace UiDesktopApp1.ViewModels.Pages
                             UnitPrice = item.UnitPrice
                         });
 
+                        // Cập nhật tồn kho: Cộng thêm
                         var productInDb = await db.Products.FindAsync(item.ProductId);
                         if (productInDb != null)
+                        {
                             productInDb.InitialQty += item.Quantity;
+                        }
                     }
 
                     db.Imports.Add(newImport);
@@ -295,29 +271,56 @@ namespace UiDesktopApp1.ViewModels.Pages
                     await transaction.CommitAsync();
 
                     MessageBox.Show("Lưu phiếu nhập thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                    RefreshPage();
+                    RefreshForm(); // Làm mới trang sau khi lưu thành công
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    MessageBox.Show($"Lỗi lưu dữ liệu: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Lỗi khi lưu: {ex.Message}", "Lỗi Database", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi kết nối: {ex.Message}", "Lỗi hệ thống", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Lỗi hệ thống: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void RefreshPage()
+        // Helper: Xóa trắng toàn bộ form (dùng khi mới vào trang hoặc sau khi Lưu)
+        private void RefreshForm()
         {
             ImportDetails.Clear();
+            TotalAmount = 0;
+
+            // Thông tin Header
             SelectedSupplier = null;
             SupplierSearchText = string.Empty;
-            ResetInputFields();
-            TotalAmount = 0;
             ErrorMessage = string.Empty;
-            ImportDate = DateTime.Now;
+
+            // Thông tin Input
+            ResetInputFields();
+        }
+
+        // Helper: Chỉ xóa các ô nhập liệu sản phẩm (dùng sau khi Thêm vào danh sách)
+        private void ResetInputFields()
+        {
+            SelectedProduct = null;
+            ProductSearchText = string.Empty;
+            InputQuantity = 1;
+            InputPrice = 0;
+        }
+
+        [RelayCommand]
+        private async Task QuickAddSupplier()
+        {
+            var newSupplier = await _nhaCungCapViewModel.AddFromExternalAsync();
+
+            if(newSupplier != null)
+            {
+                if(!Suppliers.Any(s => s.Id == newSupplier.Id))
+                    Suppliers.Add(newSupplier);
+                SelectedSupplier = newSupplier;
+                SupplierSearchText = newSupplier.Name ?? string.Empty;
+            }
         }
     }
 }

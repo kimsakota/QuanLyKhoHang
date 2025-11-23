@@ -222,5 +222,11 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             }
             return false;
         }
+
+        public async Task<CustomerModel?> AddFromExternalAsync()
+        {
+            await ShowCustomerDialogAsync(null);
+            return SelectedCustomer;
+        }
     }
 }
