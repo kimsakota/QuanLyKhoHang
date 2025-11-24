@@ -18,5 +18,7 @@ namespace UiDesktopApp1.Models
         private string? name;
 
         public ICollection<ProductModel> Products { get; set; } = new List<ProductModel>();
+
+        public void ValidateAll() => base.ValidateAllProperties();
     }
 }

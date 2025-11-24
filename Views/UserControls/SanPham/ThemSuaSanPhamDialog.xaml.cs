@@ -12,22 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using UiDesktopApp1.ViewModels.Pages;
-using UiDesktopApp1.ViewModels.Pages.SanPham;
 
 namespace UiDesktopApp1.Views.UserControls.SanPham
 {
     /// <summary>
-    /// Interaction logic for ThemSanPhamPageHeader.xaml
+    /// Interaction logic for ThemSuaSanPhamDialog.xaml
     /// </summary>
-    public partial class ThemSanPhamPageHeader : UserControl
+    public partial class ThemSuaSanPhamDialog : UserControl
     {
-        public ThemSanPhamViewModel ViewModel { get; set; }
-        public ThemSanPhamPageHeader(ThemSanPhamViewModel viewModel)
+        public ThemSuaSanPhamDialog()
         {
             InitializeComponent();
-            ViewModel = viewModel;
-            DataContext = viewModel;
         }
     }
 }

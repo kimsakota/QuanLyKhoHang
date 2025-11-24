@@ -1,5 +1,4 @@
-﻿using UiDesktopApp1.ViewModels.Pages.SanPham;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,16 +16,13 @@ using System.Windows.Shapes;
 namespace UiDesktopApp1.Views.UserControls.SanPham
 {
     /// <summary>
-    /// Interaction logic for SuaSanPhamPageHeader.xaml
+    /// Interaction logic for ThemDanhMucDialog.xaml
     /// </summary>
-    public partial class SuaSanPhamPageHeader : UserControl
+    public partial class ThemDanhMucDialog : UserControl
     {
-        public SuaSanPhamViewModel ViewModel { get; set; }
-        public SuaSanPhamPageHeader(SuaSanPhamViewModel viewModel)
+        public ThemDanhMucDialog()
         {
             InitializeComponent();
-            DataContext = viewModel;
-            ViewModel = viewModel;
         }
     }
 }

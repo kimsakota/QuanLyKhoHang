@@ -97,16 +97,14 @@ namespace UiDesktopApp1
 
                     services.AddSingleton<SanPhamPage>();
                     services.AddSingleton<SanPhamPageHeader>();
-                    services.AddTransient<ThemSanPhamPageHeader>();
                     services.AddTransient<SanPhamViewModel>();
                     services.AddSingleton<ThemDanhMucPage>();
                     services.AddSingleton<ThemDanhMucViewModel>();
                     services.AddSingleton<QuanLySanPhamPage>();
                     services.AddSingleton<QuanLySanPhamViewModel>();
                     services.AddSingleton<QuanLySanPhamPageHeader>();
-                    services.AddSingleton<SuaSanPhamPage>();
-                    services.AddSingleton<SuaSanPhamViewModel>();
-                    services.AddSingleton<SuaSanPhamPageHeader>();
+                    services.AddSingleton<ThemSuaSanPhamDialog>();
+                    services.AddSingleton<ThemDanhMucDialog>();
 
                     services.AddSingleton<NhapKhoPage>();
                     services.AddSingleton<NhapKhoPageHeader>();
@@ -125,10 +123,6 @@ namespace UiDesktopApp1
 
                     services.AddSingleton<ChiPhiPage>();
                     services.AddSingleton<ChiPhiViewModel>();
-
-
-                    services.AddTransient<ThemSanPhamPage>();
-                    services.AddSingleton<ThemSanPhamViewModel>();
 
                     //Liên hệ
                     services.AddSingleton<Views.Pages.LienHe.KhachHangPage>();

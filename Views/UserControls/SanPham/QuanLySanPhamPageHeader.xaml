@@ -4,26 +4,41 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-             xmlns:local="clr-namespace:UiDesktopApp1.Views.UserControls.SanPham"
+             xmlns:local="clr-namespace:UiDesktopApp1.Views.UserControls.SanPham" xmlns:sanpham="clr-namespace:UiDesktopApp1.ViewModels.Pages.SanPham" d:DataContext="{d:DesignInstance Type=sanpham:QuanLySanPhamViewModel}"
              mc:Ignorable="d" >
     <Border BorderBrush="LightGray" BorderThickness="0,0,0,0.5" Height="52">
-        <StackPanel Orientation="Horizontal" >
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
             <ui:Button Command="{Binding GoBackCommand}"
-                   Background="Transparent"
-                   Padding="5"
-                   Width="Auto"
-                   BorderThickness="0"
-                   MouseOverBackground="LightGray"
-                   Margin="5"
-                   CornerRadius="10">
+                       Background="Transparent"
+                       Padding="5"
+                       Grid.Column="0"
+                       Width="Auto"
+                       BorderThickness="0"
+                       MouseOverBackground="LightGray"
+                       Margin="5"
+                       CornerRadius="10">
                 <ui:Button.Icon>
                     <ui:SymbolIcon Symbol="ChevronLeft12" FontSize="28" FontWeight="Bold"/>
                 </ui:Button.Icon>
             </ui:Button>
             <TextBlock Text="Quản Lý Sản Phẩm"
+                       Grid.Column="1"
                        VerticalAlignment="Center"
                        FontSize="24"
                        FontWeight="SemiBold"/>
-        </StackPanel>
+            <ui:Button Content="Sản phẩm"
+                       Grid.Column="2"
+                       HorizontalAlignment="Right"
+                       Command="{Binding AddProductCommand}"
+                       Appearance="Primary"
+                       Icon="{ui:SymbolIcon Symbol=AddCircle24}"
+                       MouseOverBackground="LightBlue"
+                       Margin="10,0,20,0"/>
+        </Grid>
     </Border>
 </UserControl>

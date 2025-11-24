@@ -146,9 +146,7 @@ namespace UiDesktopApp1.ViewModels.Pages
 
             // 1. Lọc theo Danh mục
             if (SelectedCategory != null && SelectedCategory.Id != 0)
-            {
                 if (p.CategoryId != SelectedCategory.Id) return false;
-            }
 
             // 2. Lọc theo Text (chỉ chạy khi nhấn tìm kiếm)
             if (string.IsNullOrWhiteSpace(SearchText)) return true;
@@ -158,9 +156,6 @@ namespace UiDesktopApp1.ViewModels.Pages
         }
 
         // --- NAVIGATION COMMANDS ---
-
-        [RelayCommand]
-        private void AddProduct() => _navigationService.Navigate(typeof(ThemSanPhamPage));
 
         [RelayCommand]
         private void Manage() => _navigationService.Navigate(typeof(QuanLySanPhamPage));

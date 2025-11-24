@@ -41,6 +41,7 @@
                                Icon="{ui:SymbolIcon Search24}"
                                ToolTip="Tìm kiếm"
                                Appearance="Primary"
+                               MouseOverBackground="LightBlue"
                                Command="{Binding SearchCommand}"
                                Height="36" Width="36"/>
                 </Grid>

@@ -24,35 +24,23 @@
                         Orientation="Horizontal"
                         HorizontalAlignment="Right" 
                         Grid.ColumnSpan="3" 
-                        Margin="128,0,0,0">
+                        Margin="128,0,10,0">
                 <ui:Button Content="Quản lý sản phẩm"
                            Command="{Binding ManageCommand}"
+                           MouseOverBackground="LightBlue"
+                           Icon="{ui:SymbolIcon Symbol=Pen24, FontSize=17}"
                            Visibility="{Binding IsUserNotEmployee, Converter={x:Static beh:BooleanToVisibilityConverter.Instance}}"
                            Margin="5,10,5,10">
-                    <ui:Button.Icon>
-                        <ui:SymbolIcon FontSize="17" Symbol="Pen24"/>
-                    </ui:Button.Icon>
                 </ui:Button>
                 <ui:Button Content="Nhập sản phẩm"
+                           MouseOverBackground="LightBlue"
+                           Icon="{ui:SymbolIcon Symbol=ArrowSquareDown24, FontSize=17}"
                            Margin="5,10,5,10">
-                    <ui:Button.Icon>
-                        <ui:SymbolIcon FontSize="17" Symbol="ArrowSquareDown24"/>
-                    </ui:Button.Icon>
                 </ui:Button>
                 <ui:Button Content="Tải xuống Excel"
+                           MouseOverBackground="LightBlue"
+                           Icon="{ui:SymbolIcon Symbol=DocumentHeaderArrowDown24, FontSize=17}"
                            Margin="5,10,5,10">
-                    <ui:Button.Icon>
-                        <ui:SymbolIcon FontSize="17" Symbol="DocumentHeaderArrowDown24"/>
-                    </ui:Button.Icon>
-                </ui:Button>
-                <ui:Button Content="Sản phẩm" 
-                           Command="{Binding AddProductCommand}"
-                           Appearance="Primary"
-                           Visibility="{Binding IsUserNotEmployee, Converter={x:Static beh:BooleanToVisibilityConverter.Instance}}"
-                           Margin="5,10,15,10">
-                    <ui:Button.Icon>
-                        <ui:SymbolIcon FontSize="17" Symbol="AddCircle12"/>
-                    </ui:Button.Icon>
                 </ui:Button>
             </StackPanel>
         </Grid>
