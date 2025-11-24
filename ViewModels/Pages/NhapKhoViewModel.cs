@@ -209,21 +209,10 @@ namespace UiDesktopApp1.ViewModels.Pages
             if (SelectedSupplier == null)
             {
                 if(!string.IsNullOrWhiteSpace(SupplierSearchText))
-                {
-                    var ask = MessageBox.Show($"Nhà cung cấp '{SupplierSearchText}' chưa có. Tạo mới?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if (ask == MessageBoxResult.Yes)
-                    {
-                        await QuickAddSupplier();
-                        if (SelectedSupplier == null)
-                            return;
-                    }
-                    return;
-                }
+                    MessageBox.Show($"Nhà cung cấp '{SupplierSearchText}' chưa có.", "Xác nhận", MessageBoxButton.OK, MessageBoxImage.Warning);
                 else
-                {
                     MessageBox.Show("Vui lòng chọn Nhà cung cấp.", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+                return;
             }
 
             if (ImportDetails.Count == 0)

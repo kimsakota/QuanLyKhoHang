@@ -100,7 +100,14 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Row="0" Orientation="Vertical">
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <ui:SymbolIcon Grid.Column="0"
+                                               Symbol="PersonStanding16"
+                                               Width="40"
+                                               FontSize="25"
+                                               Margin="0,0,8,0"
+                                               VerticalAlignment="Center"
+                                               Foreground="DeepSkyBlue"/>
                                 <ui:TextBlock Text="{Binding SelectedCustomer.Name}" 
                                               FontSize="30"
                                               TextWrapping="Wrap"

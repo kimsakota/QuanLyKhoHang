@@ -212,19 +212,10 @@ namespace UiDesktopApp1.ViewModels.Pages
             if (SelectedCustomer == null)
             {
                 if (!string.IsNullOrWhiteSpace(CustomerSearchText))
-                {
-                    var ask = MessageBox.Show($"Khách hàng '{CustomerSearchText}' chưa có. Tạo mới?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if (ask == MessageBoxResult.Yes)
-                    {
-                        await QuickAddCustomer();
-                    }
-                    return;
-                }
+                    MessageBox.Show($"Khách hàng '{CustomerSearchText}' chưa có.", "Xác nhận", MessageBoxButton.OK, MessageBoxImage.Warning);
                 else
-                {
                     MessageBox.Show("Vui lòng chọn Khách hàng.", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+                return;
             }
 
             if (ExportDetails.Count == 0)

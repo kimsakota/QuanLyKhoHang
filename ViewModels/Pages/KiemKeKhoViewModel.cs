@@ -15,14 +15,14 @@ namespace UiDesktopApp1.ViewModels.Pages
     public partial class KiemKeKhoViewModel : ObservableObject, INavigationAware
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
-        private readonly CurrentUserService _currentUserService; // Inject service
+        private readonly CurrentUserService _currentUserService; 
 
         [ObservableProperty] private ObservableCollection<ProductModel> _products = new();
         [ObservableProperty] private ObservableCollection<ProductModel> _suggestedProducts = new();
         [ObservableProperty] private string _productSearchText = string.Empty;
         [ObservableProperty] private ProductModel? _selectedProduct;
 
-        [ObservableProperty] private DateTime _checkDate = DateTime.Now;
+        [ObservableProperty] private DateTime _checkDate;
         [ObservableProperty] private int _systemQty = 0;
         [ObservableProperty] private int _actualQty = 0;
         [ObservableProperty] private string _errorMessage = string.Empty;
@@ -38,7 +38,6 @@ namespace UiDesktopApp1.ViewModels.Pages
 
         public async Task OnNavigatedToAsync()
         {
-            CheckDate = DateTime.Now; // Cập nhật thời gian hiển thị
             RefreshForm();
             await LoadDataAsync();
         }
@@ -172,7 +171,11 @@ namespace UiDesktopApp1.ViewModels.Pages
         [RelayCommand]
         private async Task SaveCheckAsync()
         {
-            if (CheckDetails.Count == 0) return;
+            if (CheckDetails.Count == 0)
+            {
+                MessageBox.Show("Danh sách đang trống. Vui lòng thêm sản phẩm.", "Chưa có hàng hóa", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             var message = $"Hành động này sẽ CẬP NHẬT LẠI TỒN KHO của {CheckDetails.Count} sản phẩm theo số liệu thực tế bạn đã nhập.\n\n" +
                   "Dữ liệu tồn kho cũ sẽ bị thay thế. Bạn có chắc chắn muốn tiếp tục?";
