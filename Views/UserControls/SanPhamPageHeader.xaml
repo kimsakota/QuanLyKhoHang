@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:UiDesktopApp1.Views.UserControls"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" xmlns:pages="clr-namespace:UiDesktopApp1.ViewModels.Pages" d:DataContext="{d:DesignInstance Type=pages:SanPhamViewModel}"
              mc:Ignorable="d">
     <Border BorderBrush="LightGray" BorderThickness="0,0,0,0.5">
         <Grid Margin="0,2,0,0">
@@ -19,33 +20,36 @@
                    FontSize="24"
                    FontWeight="SemiBold"
                    Margin="20,0,0,0"/>
-            <StackPanel
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right" Grid.ColumnSpan="3" Margin="128,0,0,0">
+            <StackPanel VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right" 
+                        Grid.ColumnSpan="3" 
+                        Margin="128,0,0,0">
                 <ui:Button Content="Quản lý sản phẩm"
-                       Command="{Binding ManageCommand}"
-                       Margin="5,10,5,10">
+                           Command="{Binding ManageCommand}"
+                           Visibility="{Binding IsUserNotEmployee, Converter={x:Static beh:BooleanToVisibilityConverter.Instance}}"
+                           Margin="5,10,5,10">
                     <ui:Button.Icon>
                         <ui:SymbolIcon FontSize="17" Symbol="Pen24"/>
                     </ui:Button.Icon>
                 </ui:Button>
                 <ui:Button Content="Nhập sản phẩm"
-                       Margin="5,10,5,10">
+                           Margin="5,10,5,10">
                     <ui:Button.Icon>
                         <ui:SymbolIcon FontSize="17" Symbol="ArrowSquareDown24"/>
                     </ui:Button.Icon>
                 </ui:Button>
                 <ui:Button Content="Tải xuống Excel"
-                       Margin="5,10,5,10">
+                           Margin="5,10,5,10">
                     <ui:Button.Icon>
                         <ui:SymbolIcon FontSize="17" Symbol="DocumentHeaderArrowDown24"/>
                     </ui:Button.Icon>
                 </ui:Button>
                 <ui:Button Content="Sản phẩm" 
-                       Command="{Binding AddProductCommand}"
-                       Appearance="Primary"
-                       Margin="5,10,15,10">
+                           Command="{Binding AddProductCommand}"
+                           Appearance="Primary"
+                           Visibility="{Binding IsUserNotEmployee, Converter={x:Static beh:BooleanToVisibilityConverter.Instance}}"
+                           Margin="5,10,15,10">
                     <ui:Button.Icon>
                         <ui:SymbolIcon FontSize="17" Symbol="AddCircle12"/>
                     </ui:Button.Icon>

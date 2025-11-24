@@ -5,53 +5,70 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages.SanPham"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
+      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors" 
+      xmlns:sanpham="clr-namespace:UiDesktopApp1.ViewModels.Pages.SanPham" d:DataContext="{d:DesignInstance Type=sanpham:QuanLySanPhamViewModel}"
       mc:Ignorable="d" 
       ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
       d:DesignHeight="450" d:DesignWidth="800"
       ScrollViewer.CanContentScroll="False"
       Title="QuanLySanPhamPage">
-    <Page.Resources>
-        <beh:ZeroToCollapsedConverter x:Key="ZeroToCollapsedConverter"/>
-    </Page.Resources>
 
+    <Page.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+    </Page.InputBindings>
+    
     <Border>
         <Grid Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
+            <StackPanel Grid.Row="0">
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                     <ui:TextBox Width="200" Height="36" Margin="0,0,10,0"
                          PlaceholderText="Tìm kiếm"
                          Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <ui:Button Command="{Binding SearchCommand}"
+                               Margin="0,0,10,0"
+                               Height="35"
+                               ToolTip="Tìm kiếm"
+                               MouseOverBackground="LightBlue"
+                               Icon="{ui:SymbolIcon Symbol=Search24}"
+                               Appearance="Primary"/>
                     <ComboBox Width="200" Height="36" ItemsSource="{Binding Categories}"
                   SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
                   DisplayMemberPath="Name" Margin="0,0,10,0" />
-                    <Button Content="Làm mới" Command="{Binding LoadDataCommand}" Width="100" Height="36"/>
+                    <ui:Button Command="{Binding LoadDataCommand}"  
+                               Width="36" Height="36"
+                               Icon="{ui:SymbolIcon ArrowClockwise20}"
+                               ToolTip="Làm mới dữ liệu"
+                               MouseOverBackground="LightBlue"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal"  Margin="0,0,0,10" 
-                        Visibility="{Binding SelectedCount, Converter={StaticResource ZeroToCollapsedConverter}}">
-                    <ui:TextBlock Text="{Binding SelectedCount, StringFormat='Đã chọn {0} sản phẩm'}" FontWeight="Bold" VerticalAlignment="Center" />
+                            Visibility="{Binding SelectedCount, Converter={x:Static beh:ZeroToCollapsedConverter.Instance}}">
+                    <ui:TextBlock Text="{Binding SelectedCount, StringFormat='Đã chọn {0} sản phẩm'}" 
+                                  FontWeight="Bold"         
+                                  VerticalAlignment="Center" />
                     <ui:Button Content="Hủy chọn" 
-                           Command="{Binding SelectAllCommand}" Margin="10,0" />
+                               MouseOverBackground="LightBlue"
+                               Command="{Binding SelectAllCommand}" Margin="10,0" />
                     <ui:Button Content="Xóa đã chọn" 
-                           Command="{Binding DeleteSelectedCommand}" 
-                           Margin="10,0"
-                           Appearance="Danger"
-                           />
+                               MouseOverBackground="LightBlue"
+                               Command="{Binding DeleteSelectedCommand}" 
+                               Margin="10,0"
+                               Appearance="Danger"
+                               />
                 </StackPanel>
-            </Grid>
+            </StackPanel>
 
             <Border Grid.Row="1">
                 <ui:DataGrid ItemsSource="{Binding ProductsView}"
                              AutoGenerateColumns="False"
                              CanUserAddRows="False"
                              CanUserDeleteRows="False"    
-                             CanUserResizeColumns="False"
+                             CanUserResizeColumns="True"
                              CanUserResizeRows="False"
                              CanUserReorderColumns="False"
                              IsReadOnly="True"
@@ -59,18 +76,10 @@
                              SelectionUnit="FullRow"
                              HeadersVisibility="All"
                              RowHeight="56"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              Background="{ui:ThemeResource SubtleFillColorSecondaryBrush}"
                              BorderThickness="1"
                              BorderBrush="#DDD">
-
-                    <ui:DataGrid.TextColumnElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                            <Setter Property="FontSize" Value="13"/>
-                            <Setter Property="Padding" Value="8,0"/>
-                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                        </Style>
-                    </ui:DataGrid.TextColumnElementStyle>
 
                     <ui:DataGrid.CellStyle>
                         <Style TargetType="DataGridCell">
@@ -95,7 +104,7 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <DataGridTemplateColumn Header="Hình ảnh" Width="90">
+                        <DataGridTemplateColumn Header="Hình ảnh" Width="Auto">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Border Padding="4">
@@ -114,11 +123,11 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <DataGridTextColumn Header="Tên sản phẩm" Binding="{Binding ProductName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="*" />
-                        <DataGridTextColumn Header="Mã số" Binding="{Binding ProductCode, Mode=TwoWay}" Width="100" />
-                        <DataGridTextColumn Header="Giá bán" Binding="{Binding SalePrice, Mode=TwoWay, StringFormat={}{0:N0} ₫}" Width="Auto" />
-                        <DataGridTextColumn Header="Danh mục" Binding="{Binding Category.Name, Mode=TwoWay}" Width="Auto" />
-                        <DataGridTextColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate, StringFormat={}{0:dd/MM/yyyy}}" Width="Auto" />
+                        <DataGridTextColumn Header="Mã số" Binding="{Binding ProductCode}" Width="100" />
+                        <DataGridTextColumn Header="Tên sản phẩm" Binding="{Binding ProductName}" Width="*" />
+                        <DataGridTextColumn Header="Giá bán" Binding="{Binding SalePrice, StringFormat={}{0:N0}}" Width="Auto" />
+                        <DataGridTextColumn Header="Danh mục" Binding="{Binding Category.Name}" Width="120" />
+                        <DataGridTextColumn Header="Hết hạn" Binding="{Binding ExpiryDate, StringFormat={}{0:dd/MM/yyyy}, TargetNullValue='--'}" Width="Auto" />
 
                         <DataGridTemplateColumn Header="Sửa" Width="60">
                             <DataGridTemplateColumn.CellTemplate>
@@ -126,6 +135,7 @@
                                     <ui:Button Content="Sửa"
                                                Icon="Pen24"
                                                Appearance="Transparent"
+                                               MouseOverBackground="LightBlue"
                                                Command="{Binding DataContext.EditProductCommand, 
                                                                  RelativeSource={RelativeSource AncestorType={x:Type local:QuanLySanPhamPage}}}"
                                                CommandParameter="{Binding}"/>
@@ -135,6 +145,11 @@
                     </ui:DataGrid.Columns>
                 </ui:DataGrid>
             </Border>
+            <ui:ProgressRing IsIndeterminate="True" 
+                             Grid.Row="1"
+                             Visibility="{Binding IsBusy, Converter={x:Static beh:BooleanToVisibilityConverter.Instance}}"
+                             Width="50" Height="50" 
+                             VerticalAlignment="Center" HorizontalAlignment="Center"/>
         </Grid>
     </Border>
 </Page>

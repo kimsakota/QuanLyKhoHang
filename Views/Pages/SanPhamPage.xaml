@@ -4,17 +4,17 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages"
-      mc:Ignorable="d" 
-      d:DataContext="{d:DesignInstance local:SanPhamPage,
-                                 IsDesignTimeCreatable=False}"
+      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
+      xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages" xmlns:pages="clr-namespace:UiDesktopApp1.ViewModels.Pages"
+      mc:Ignorable="d"
+      d:DataContext="{d:DesignInstance pages:SanPhamViewModel, IsDesignTimeCreatable=False}"
       d:DesignHeight="450" d:DesignWidth="800"
       ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
       ScrollViewer.CanContentScroll="False"
       Title="SanPhamPage">
 
-    <Border Padding="16" BorderBrush="#DDD" BorderThickness="0,0,0,0">
+    <Border Padding="16" BorderBrush="#DDD" BorderThickness="0">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -22,45 +22,40 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
-                <ui:AutoSuggestBox Icon="{ui:SymbolIcon Search24}"
-                                       PlaceholderText="Tìm kiếm"
-                                       Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       Width="200" Height="35"
-                                       OriginalItemsSource="{Binding AllProducts, Mode=OneWay}" 
-                                       UpdateTextOnSelect="True">
-                    <ui:AutoSuggestBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Margin="8,6">
-                                <Image Source="{Binding }" Width="32" Height="35" Margin="0,0,8,0"/>
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding Code}" Opacity=".6" FontSize="12"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ui:AutoSuggestBox.ItemTemplate>
-                </ui:AutoSuggestBox>
-                <ui:Button Content="Tìm kiếm"
-                           Margin="10,0,0,0"
-                           Height="35"
-                           MouseOverBackground="LightBlue"
-                           Icon="{ui:SymbolIcon Symbol=Search24}"
-                           Appearance="Primary"/>
-                <ComboBox ItemsSource="{Binding Categories}"
-                              DisplayMemberPath="Name"
-                              SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
-                              Height="Auto" Width="Auto" 
-                              Margin="10,0,0,0">
 
-                </ComboBox>
-                <ui:Button Content="Làm mới" 
-                               MouseOverBackground="LightBlue"
-                               Command="{Binding LoadDataCommand}"
-                               Height="36" Margin="10,0,0,0">
-                    <ui:Button.Icon>
-                        <ui:SymbolIcon Symbol="ArrowClockwise20"/>
-                    </ui:Button.Icon>
-                </ui:Button>
+                <Grid Margin="0,0,10,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ui:TextBox Width="250" Height="36"
+                                PlaceholderText="Tìm tên hoặc mã sản phẩm..."
+                                Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ui:TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                        </ui:TextBox.InputBindings>
+                    </ui:TextBox>
+
+                    <ui:Button Grid.Column="1" Margin="10,0,0,0"
+                               Icon="{ui:SymbolIcon Search24}"
+                               ToolTip="Tìm kiếm"
+                               Appearance="Primary"
+                               Command="{Binding SearchCommand}"
+                               Height="36" Width="36"/>
+                </Grid>
+
+                <ComboBox ItemsSource="{Binding Categories}"
+                          DisplayMemberPath="Name"
+                          SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                          Height="36" MinWidth="150"
+                          Margin="0,0,10,0"/>
+
+                <ui:Button ToolTip="Làm mới dữ liệu"
+                           MouseOverBackground="LightBlue"
+                           Command="{Binding LoadDataCommand}"
+                           Height="36" Width="36"
+                           Icon="{ui:SymbolIcon Symbol=ArrowClockwise20}"/>
             </StackPanel>
 
             <Grid Grid.Row="1">
@@ -68,46 +63,56 @@
                              AutoGenerateColumns="False"
                              CanUserAddRows="False"
                              CanUserDeleteRows="False"    
-                             CanUserResizeColumns="False"
+                             CanUserResizeColumns="True"
                              CanUserResizeRows="False"
                              CanUserReorderColumns="False"
                              IsReadOnly="True"
                              SelectionMode="Single"
                              HeadersVisibility="All"
-                             RowHeight="56"
+                             RowHeight="60"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              Background="{ui:ThemeResource SubtleFillColorSecondaryBrush}"
                              BorderThickness="1"
                              BorderBrush="#DDD">
-
+                    
+                    <ui:DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorPrimaryBrush}"/>
+                        </Style>
+                    </ui:DataGrid.CellStyle>
                     <ui:DataGrid.Columns>
                         <DataGridTemplateColumn Header="Hình ảnh" Width="90">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Border Padding="4">
                                         <ui:Image Source="{Binding Image}"
-                                                      Width="48"
-                                                      Height="48"
-                                                      CornerRadius="10" BorderBrush="#33000000"
-                                                      Stretch="UniformToFill"
-                                                      VerticalAlignment="Center"
-                                                      HorizontalAlignment="Center"
-                                                      ClipToBounds="True"
-                                                      SnapsToDevicePixels="True"
-                                                      RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                  Width="48" Height="48"
+                                                  CornerRadius="8" BorderBrush="#20000000" BorderThickness="1"
+                                                  Stretch="UniformToFill"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"
+                                                  RenderOptions.BitmapScalingMode="HighQuality"/>
                                     </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <DataGridTextColumn Header="Tên" Binding="{Binding ProductName}" Width="*" />
-                        <DataGridTextColumn Header="Tồn kho" Binding="{Binding InitialQty}" Width="Auto" />
-                        <DataGridTextColumn Header="Giá bán" Binding="{Binding SalePrice, StringFormat={}{0:N0} ₫}" Width="Auto" />
-                        <DataGridTextColumn Header="Mã số" Binding="{Binding ProductCode}" Width="Auto" />
-                        <DataGridTextColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate, StringFormat={}{0:dd/MM/yyyy}}" Width="Auto" />
+                        <DataGridTextColumn Header="Mã số" Binding="{Binding ProductCode}" Width="110" FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="Tên sản phẩm" Binding="{Binding ProductName}" Width="*" />
+                        <DataGridTextColumn Header="Danh mục" Binding="{Binding Category.Name}" Width="150" />
+                        <DataGridTextColumn Header="Tồn kho" Binding="{Binding InitialQty}" Width="100" />
+                        <DataGridTextColumn Header="Giá bán" Binding="{Binding SalePrice, StringFormat={}{0:N0} ₫}" Width="120" FontWeight="Bold" Foreground="ForestGreen"/>
+                        <DataGridTextColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate, StringFormat={}{0:dd/MM/yyyy}, TargetNullValue='--'}" Width="120" />
                     </ui:DataGrid.Columns>
                 </ui:DataGrid>
+
+                <ui:ProgressRing IsIndeterminate="True" 
+                                 Visibility="{Binding IsBusy, Converter={x:Static beh:BooleanToVisibilityConverter.Instance}}"
+                                 Width="50" Height="50" 
+                                 VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </Grid>
         </Grid>
-
     </Border>
 </Page>

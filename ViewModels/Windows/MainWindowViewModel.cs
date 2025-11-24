@@ -153,6 +153,12 @@ namespace UiDesktopApp1.ViewModels.Windows
                     menu.Add(CreateBaoCaoMenuItem());
                     menu.Add(new NavigationViewItem()
                     {
+                        Content = "Sản phẩm",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.Box16 },
+                        TargetPageType = typeof(Views.Pages.SanPhamPage)
+                    });
+                    menu.Add(new NavigationViewItem()
+                    {
                         Content = "Nhập kho",
                         Icon = new SymbolIcon { Symbol = SymbolRegular.BoxArrowLeft24 },
                         TargetPageType = typeof(Views.Pages.NhapKhoPage)
