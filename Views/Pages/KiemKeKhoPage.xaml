@@ -22,7 +22,15 @@
 
         <Border Grid.Column="0" BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}" Margin="0,0,12,0" Padding="16">
             <StackPanel>
-                <TextBlock Text="Phiếu kiểm kê" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,16"/>
+                <DockPanel Margin="0,0,0,16">
+                    <TextBlock Text="Phiếu kiểm kê" 
+                               FontSize="18" FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <ui:Button Content="Làm mới" 
+                               Command="{Binding RefreshDataCommand}"
+                               MouseOverBackground="LightBlue"
+                               HorizontalAlignment="Right"/>
+                </DockPanel>
 
                 <TextBlock Text="Sản phẩm" FontWeight="Medium" Margin="0,0,0,6"/>
                 <ui:AutoSuggestBox PlaceholderText="Tìm tên hoặc mã sản phẩm..."
@@ -62,7 +70,9 @@
                     </StackPanel>
                 </Grid>
 
-                <ui:Button Content="Ghi nhận" Appearance="Secondary" Icon="Checkmark24"
+                <ui:Button Content="Ghi nhận" Appearance="Secondary" 
+                           Icon="{ui:SymbolIcon Symbol=Checkmark24}"
+                           MouseOverBackground="LightBlue"
                            Command="{Binding AddToListCommand}"
                            HorizontalAlignment="Stretch" Height="36" Margin="0,10,0,0"/>
 

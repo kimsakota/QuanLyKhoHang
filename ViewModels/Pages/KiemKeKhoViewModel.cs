@@ -15,7 +15,8 @@ namespace UiDesktopApp1.ViewModels.Pages
     public partial class KiemKeKhoViewModel : ObservableObject, INavigationAware
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
-        private readonly CurrentUserService _currentUserService; 
+        private readonly CurrentUserService _currentUserService;
+        private bool _isInitialized = false;
 
         [ObservableProperty] private ObservableCollection<ProductModel> _products = new();
         [ObservableProperty] private ObservableCollection<ProductModel> _suggestedProducts = new();
@@ -38,8 +39,12 @@ namespace UiDesktopApp1.ViewModels.Pages
 
         public async Task OnNavigatedToAsync()
         {
-            RefreshForm();
-            await LoadDataAsync();
+            if (!_isInitialized)
+            {
+                RefreshForm();
+                await LoadDataAsync(); 
+                _isInitialized = true;
+            }
         }
 
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
@@ -245,6 +250,16 @@ namespace UiDesktopApp1.ViewModels.Pages
             ErrorMessage = string.Empty;
             SystemQty = 0;
             ActualQty = 0;
+        }
+
+        [RelayCommand]
+        private async Task RefreshDataAsync()
+        {
+            var ask = MessageBox.Show("Làm mới dữ liệu sẽ xóa toàn bộ thông tin đang nhập. Tiếp tục?",
+                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (ask != MessageBoxResult.Yes) return;
+            RefreshForm();
+            await LoadDataAsync();
         }
     }
 }

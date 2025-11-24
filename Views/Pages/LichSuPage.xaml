@@ -15,6 +15,10 @@
       ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
       Title="Lịch sử giao dịch">
 
+    <Page.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding LoadDataCommand}"/>
+    </Page.InputBindings>
+
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -40,6 +44,7 @@
                         <ui:CalendarDatePicker Date="{Binding StartDate, Mode=TwoWay}" 
                                                Icon="{ui:SymbolIcon Symbol=CalendarEdit24}"
                                                Width="30" Height="30"
+                                               MouseOverBackground="LightBlue"
                                                Padding="0"
                                                HorizontalContentAlignment="Center"
                                                ToolTip="Chọn ngày bắt đầu">
@@ -56,6 +61,7 @@
                         <ui:CalendarDatePicker Date="{Binding EndDate, Mode=TwoWay}" 
                                                Icon="{ui:SymbolIcon Symbol=CalendarEdit24}"
                                                Width="30" Height="30"
+                                               MouseOverBackground="LightBlue"
                                                Padding="0"
                                                HorizontalContentAlignment="Center"
                                                ToolTip="Chọn ngày kết thúc">
@@ -81,8 +87,11 @@
                             Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Icon="{ui:SymbolIcon Search24}" Margin="0,0,10,0"/>
 
-                <ui:Button Grid.Column="4" Content="Lọc dữ liệu" Icon="{ui:SymbolIcon Filter24}" 
-                           Appearance="Primary" Command="{Binding LoadDataCommand}"/>
+                <ui:Button Grid.Column="4" Content="Lọc dữ liệu" 
+                           Icon="{ui:SymbolIcon Filter24}" 
+                           Appearance="Primary" 
+                           MouseOverBackground="LightBlue"
+                           Command="{Binding LoadDataCommand}"/>
             </Grid>
         </Border>
 
@@ -121,6 +130,7 @@
                                 <ui:Button Icon="{ui:SymbolIcon Eye24}"
                                            Appearance="Transparent"
                                            ToolTip="Xem chi tiết"
+                                           MouseOverBackground="LightBlue"
                                            Command="{Binding DataContext.ViewDetailsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                            CommandParameter="{Binding}"/>
                             </DataTemplate>

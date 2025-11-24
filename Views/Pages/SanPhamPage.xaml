@@ -40,6 +40,12 @@
                         </DataTemplate>
                     </ui:AutoSuggestBox.ItemTemplate>
                 </ui:AutoSuggestBox>
+                <ui:Button Content="Tìm kiếm"
+                           Margin="10,0,0,0"
+                           Height="35"
+                           MouseOverBackground="LightBlue"
+                           Icon="{ui:SymbolIcon Symbol=Search24}"
+                           Appearance="Primary"/>
                 <ComboBox ItemsSource="{Binding Categories}"
                               DisplayMemberPath="Name"
                               SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"

@@ -19,6 +19,7 @@ namespace UiDesktopApp1.ViewModels.Pages
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly CurrentUserService _currentUserService;
         private readonly KhachHangViewModel _khachHangViewModel;
+        private bool _isInitialized = false;
 
         [ObservableProperty] private ObservableCollection<CustomerModel> _customers = new();
         [ObservableProperty] private ObservableCollection<ProductModel> _products = new();
@@ -48,8 +49,12 @@ namespace UiDesktopApp1.ViewModels.Pages
 
         public async Task OnNavigatedToAsync()
         {
-            RefreshForm();
-            await LoadDataAsync();
+            if (!_isInitialized)
+            {
+                RefreshForm(); // Reset toàn bộ form khi vào trang
+                await LoadDataAsync();
+                _isInitialized = true;
+            }
         }
 
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
@@ -321,6 +326,16 @@ namespace UiDesktopApp1.ViewModels.Pages
                 SelectedCustomer = newCustomer;
                 CustomerSearchText = newCustomer.Name ?? string.Empty;
             }
+        }
+
+        [RelayCommand]
+        private async Task RefreshDataAsync()
+        {
+            var ask = MessageBox.Show("Làm mới dữ liệu sẽ xóa toàn bộ thông tin đang nhập. Tiếp tục?",
+                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (ask != MessageBoxResult.Yes) return;
+            RefreshForm();
+            await LoadDataAsync();
         }
     }
 }

@@ -33,7 +33,15 @@
                 Margin="0,0,12,0" Padding="16">
 
             <StackPanel>
-                <ui:TextBlock Text="Thông tin nhập kho" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,16"/>
+                <DockPanel Margin="0,0,0,16">
+                    <ui:TextBlock Text="Thông tin nhập kho" 
+                                  FontSize="18" FontWeight="SemiBold" 
+                                  VerticalAlignment="Center"/>
+                    <ui:Button Content="Làm mới" 
+                               Command="{Binding RefreshDataCommand}"
+                               MouseOverBackground="LightBlue"
+                               HorizontalAlignment="Right"/>
+                </DockPanel>
 
                 <ui:TextBlock Text="Nhà cung cấp" FontWeight="Medium" Margin="0,0,0,6"/>
 
@@ -110,7 +118,7 @@
                     </StackPanel>
                 </Grid>
 
-                <ui:Button Content="Thêm vào danh sách" 
+                <ui:Button Content="Thêm vào phiếu" 
                            FontWeight="SemiBold"
                            Appearance="Secondary" 
                            Icon="{ui:SymbolIcon Symbol=AddCircle24, FontSize=20}"
