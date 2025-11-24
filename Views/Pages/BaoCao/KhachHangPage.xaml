@@ -4,11 +4,172 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:UiDesktopApp1.Views.Pages.BaoCao"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+      xmlns:beh="clr-namespace:UiDesktopApp1.Behaviors"
+      xmlns:viewmodels="clr-namespace:UiDesktopApp1.ViewModels.Pages.BaoCao"
+      d:DataContext="{d:DesignInstance Type=viewmodels:KhachHangViewModel}"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="KhachHangPage">
+      d:DesignHeight="700" d:DesignWidth="1100"
+      ui:Design.Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+      ui:Design.Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+      ScrollViewer.CanContentScroll="False"
+      Title="Báo cáo khách hàng">
 
-    <Grid>
-        
+    <Page.Resources>
+        <beh:NumberVnConverter x:Key="NumberVnConverter"/>
+        <beh:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Page.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Padding="16" Margin="0,0,0,20"
+                BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" 
+                BorderThickness="1" CornerRadius="8" 
+                Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Phân tích khách hàng" FontSize="20" FontWeight="Bold"/>
+                    <TextBlock Text="Thống kê hành vi và mức độ chi tiêu" Foreground="Gray" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <ui:CalendarDatePicker Date="{Binding StartDate, Mode=TwoWay}" 
+                                           Width="140" Margin="0,0,10,0"/>
+                    <TextBlock Text="-" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ui:CalendarDatePicker Date="{Binding EndDate, Mode=TwoWay}" 
+                                           Width="140" Margin="0,0,10,0"/>
+                    <ui:Button Icon="{ui:SymbolIcon ArrowClockwise24}" 
+                               Appearance="Primary" Command="{Binding LoadDataCommand}" 
+                               ToolTip="Làm mới dữ liệu"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="15"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="15"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="15"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" CornerRadius="8" Padding="15"
+                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <StackPanel>
+                    <ui:SymbolIcon Symbol="People24" FontSize="28" Foreground="CornflowerBlue" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{Binding TotalCustomers}" FontSize="24" FontWeight="Bold" Margin="0,5,0,0"/>
+                    <TextBlock Text="Tổng khách hàng" Foreground="Gray"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" CornerRadius="8" Padding="15"
+                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <StackPanel>
+                    <ui:SymbolIcon Symbol="PersonAvailable24" FontSize="28" Foreground="ForestGreen" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{Binding ActiveCustomers}" FontSize="24" FontWeight="Bold" Margin="0,5,0,0"/>
+                    <TextBlock Text="Khách mua trong kỳ" Foreground="Gray"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="4" CornerRadius="8" Padding="15"
+                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <StackPanel>
+                    <ui:SymbolIcon Symbol="ReceiptBag24" FontSize="28" Foreground="Orange" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{Binding NewCustomers}" FontSize="24" FontWeight="Bold" Margin="0,5,0,0"/>
+                    <TextBlock Text="Đơn hàng đã bán" Foreground="Gray"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="6" CornerRadius="8" Padding="15"
+                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <StackPanel>
+                    <ui:SymbolIcon Symbol="MoneyHand24" FontSize="28" Foreground="Purple" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{Binding TotalRevenueInPeriod, StringFormat={}{0:N0} đ}" 
+                               FontSize="22" FontWeight="Bold" Margin="0,5,0,0" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="Doanh thu từ khách" Foreground="Gray"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" CornerRadius="8" Padding="15"
+                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Margin="0,0,0,10">
+                        <ui:SymbolIcon Symbol="Trophy24" Foreground="#FFD700" Margin="0,0,8,0"/>
+                        <TextBlock Text="Top 5 Khách hàng thân thiết" FontWeight="SemiBold"/>
+                    </DockPanel>
+
+                    <lvc:CartesianChart Grid.Row="1"
+                                        Series="{Binding TopSpendingSeries}"
+                                        XAxes="{Binding TopSpendingXAxes}"
+                                        YAxes="{Binding TopSpendingYAxes}"
+                                        TooltipPosition="Right">
+                    </lvc:CartesianChart>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" CornerRadius="8" 
+                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Padding="15">
+                        <TextBlock Text="Chi tiết Top 10 khách hàng chi tiêu cao nhất" FontWeight="SemiBold"/>
+                    </Border>
+
+                    <ui:DataGrid Grid.Row="1" ItemsSource="{Binding TopCustomers}"
+                                 AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                                 HeadersVisibility="Column" BorderThickness="0"
+                                 GridLinesVisibility="Horizontal">
+                        <ui:DataGrid.Columns>
+                            <DataGridTextColumn Header="Họ tên" Binding="{Binding Name}" Width="*" FontWeight="Medium"/>
+                            <DataGridTextColumn Header="Số điện thoại" Binding="{Binding Phone}" Width="120"/>
+                            <DataGridTextColumn Header="Số đơn hàng" Binding="{Binding OrderCount}" Width="100"/>
+                            <DataGridTextColumn Header="Tổng chi tiêu" Binding="{Binding TotalSpent, StringFormat={}{0:N0} đ}" 
+                                                Width="140" FontWeight="Bold" Foreground="ForestGreen"/>
+                        </ui:DataGrid.Columns>
+                    </ui:DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Grid Grid.RowSpan="3" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Background="#80000000">
+            <ui:ProgressRing IsIndeterminate="True" Width="60" Height="60" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
     </Grid>
 </Page>
