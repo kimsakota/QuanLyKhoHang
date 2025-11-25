@@ -24,6 +24,7 @@ namespace UiDesktopApp1.ViewModels.Pages
         private readonly INavigationService _navigationService;
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly CurrentUserService _currentUserService;
+        private readonly ApiService _apiService;
         private readonly ICollectionView _productsView;
         private bool _isInitialized = false;
 
@@ -47,11 +48,13 @@ namespace UiDesktopApp1.ViewModels.Pages
         public SanPhamViewModel(
             INavigationService navigationService,
             IDbContextFactory<AppDbContext> dbContextFactory,
-            CurrentUserService currentUserService)
+            CurrentUserService currentUserService,
+            ApiService apiService)
         {
             _navigationService = navigationService;
             _dbContextFactory = dbContextFactory;
             _currentUserService = currentUserService;
+            _apiService = apiService;
 
             _productsView = CollectionViewSource.GetDefaultView(Products);
             _productsView.Filter = FilterProducts;
@@ -88,25 +91,30 @@ namespace UiDesktopApp1.ViewModels.Pages
             IsBusy = true;
             try
             {
-                await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+                //await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+                
                 Products.Clear();
 
                 // Load Categories
                 if (Categories.Count == 0)
                 {
                     Categories.Add(new CategoryModel { Id = 0, Name = "Tất cả danh mục" });
-                    var list = await dbContext.Categories.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
+                    //var list = await dbContext.Categories.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
+                    var list = await _apiService.GetAllCategoriesAsync();
+                    if(list == null) return;
                     foreach (var cat in list) Categories.Add(cat);
                     SelectedCategory = Categories.First();
                 }
 
                 // Load Products
-                var items = await dbContext.Products
+                /*var items = await dbContext.Products
                     .AsNoTracking()
                     .Include(p => p.Category) // Include để hiển thị tên danh mục nếu cần
                     .OrderBy(p => p.ProductName)
-                    .ToListAsync();
+                    .ToListAsync();*/
+                var items = await _apiService.GetAllProductsAsync();
 
+                if (items == null) return;
                 foreach (var p in items)
                 {
                     p.Image = ImageHelper.LoadBitmap(p.ImagePath);

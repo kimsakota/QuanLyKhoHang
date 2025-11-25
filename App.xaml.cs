@@ -83,6 +83,8 @@ namespace UiDesktopApp1
                                   ?? "Server=localhost\\SQLEXPRESS;Database=QuanLyKhoHang;Trusted_Connection=True;TrustServerCertificate=True;";
                     services.AddDbContextFactory<AppDbContext>(opt => opt.UseSqlServer(connStr));
 
+                    services.AddSingleton<ApiService>();
+
                     // Sử dụng sqllite (SQLite)
                     /*var connStr = context.Configuration.GetConnectionString("DefaultConnection")
                                   ?? "Data Source=QuanLyKhoHang.db";

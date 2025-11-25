@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -162,7 +163,8 @@ namespace UiDesktopApp1.ViewModels.Pages
                 var passwordError = GetErrors(nameof(DialogPassword))
                                     .Select(e => e.ErrorMessage)
                                     .FirstOrDefault();
-                errors.AddRange(passwordError);
+                if (!string.IsNullOrEmpty(passwordError))
+                    errors.Add(passwordError);
             }
 
             if (errors.Any())

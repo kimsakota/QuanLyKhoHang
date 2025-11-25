@@ -37,7 +37,7 @@ namespace UiDesktopApp1.Services
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             // Bước 1: Đảm bảo CSDL sẵn sàng
-            await InitializeDatabaseAndSeedUserAsync(cancellationToken);
+            //await InitializeDatabaseAndSeedUserAsync(cancellationToken);
 
             // Bước 2: Xử lý hiển thị cửa sổ
             if (!cancellationToken.IsCancellationRequested) 
