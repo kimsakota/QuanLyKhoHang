@@ -40,7 +40,7 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,15,0">
 
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
                         <ui:CalendarDatePicker Date="{Binding StartDate, Mode=TwoWay}" 
                                                Icon="{ui:SymbolIcon Symbol=CalendarEdit24}"
                                                Width="30" Height="30"
@@ -56,6 +56,11 @@
                                       FontWeight="Medium"
                                       FontSize="14"/>   
                     </StackPanel>
+
+                    <TextBlock Text="-" 
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"
+                               FontWeight="Bold"/>
 
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <ui:CalendarDatePicker Date="{Binding EndDate, Mode=TwoWay}" 

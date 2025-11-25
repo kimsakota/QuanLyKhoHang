@@ -121,9 +121,6 @@ namespace UiDesktopApp1
                     services.AddSingleton<LichSuPage>();
                     services.AddSingleton<LichSuViewModel>();
 
-                    services.AddSingleton<ChiPhiPage>();
-                    services.AddSingleton<ChiPhiViewModel>();
-
                     //Liên hệ
                     services.AddSingleton<Views.Pages.LienHe.KhachHangPage>();
                     services.AddSingleton<ViewModels.Pages.LienHe.KhachHangViewModel>();

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using UiDesktopApp1.Models;
@@ -25,9 +26,20 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
         [ObservableProperty] private decimal _totalProfit;
 
         // --- Filter Properties ---
-        [ObservableProperty] private DateTime _startDate = DateTime.Now.AddDays(-30);
+        [ObservableProperty] private DateTime _startDate = DateTime.Now.AddDays(-7);
         [ObservableProperty] private DateTime _endDate = DateTime.Now;
         [ObservableProperty] private bool _isBusy;
+
+        public ObservableCollection<string> TimeRanges { get; } = new ObservableCollection<string>
+        {
+            "7 ngày qua",
+            "1 tháng qua",
+            "3 tháng qua",
+            "Năm nay",
+            "Tùy chỉnh"
+        };
+
+        [ObservableProperty] private int _selectedTimeRangeIndex = 0;
 
         // --- Chart Properties ---
         [ObservableProperty] private ISeries[] _series = Array.Empty<ISeries>();
@@ -37,6 +49,8 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
         public TaiChinhViewModel(IDbContextFactory<AppDbContext> dbContextFactory)
         {
             _dbContextFactory = dbContextFactory;
+
+            UpdateDateRangeFromSelection();
 
             // Cấu hình trục Y
             YAxes = new Axis[]
@@ -165,6 +179,75 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
             finally
             {
                 IsBusy = false;
+            }
+        }
+
+        partial void OnSelectedTimeRangeIndexChanged(int value)
+        {
+            UpdateDateRangeFromSelection();
+            _ = LoadDataAsync();
+        }
+
+        partial void OnStartDateChanged(DateTime value)
+        {
+            if (SelectedTimeRangeIndex != 4 && !IsDateMatchingRange()) // 4 = Tùy chỉnh
+                SelectedTimeRangeIndex = 4;
+            else
+                _ = LoadDataAsync();
+        }
+
+        partial void OnEndDateChanged(DateTime value) 
+        {
+            if (SelectedTimeRangeIndex != 4 && !IsDateMatchingRange()) // 4 = Tùy chỉnh
+                SelectedTimeRangeIndex = 4;
+            else
+                _ = LoadDataAsync();
+        }
+
+        private bool IsDateMatchingRange()
+        {
+            var now = DateTime.Now.Date;
+            var start = StartDate.Date;
+            var end = EndDate.Date;
+
+            switch(SelectedTimeRangeIndex)
+            {
+                case 0: // 7 ngày qua
+                    return start == now.AddDays(-7) && end == now;
+                case 1: // 1 tháng qua
+                    return start == now.AddMonths(-1) && end == now;
+                case 2: // 3 tháng qua
+                    return start == now.AddMonths(-3) && end == now;
+                case 3: // Năm nay
+                    return start == new DateTime(now.Year, 1, 1) && end == now;
+                default:
+                    return false;
+            }
+        }
+
+        private void UpdateDateRangeFromSelection()
+        {
+            var now = DateTime.Now;
+            switch (SelectedTimeRangeIndex)
+            {
+                case 0: // 7 ngày qua
+                    StartDate = now.AddDays(-7);
+                    EndDate = now;
+                    break;
+                case 1: // 1 tháng qua
+                    StartDate = now.AddMonths(-1);
+                    EndDate = now;
+                    break;
+                case 2: // 3 tháng qua
+                    StartDate = now.AddMonths(-3);
+                    EndDate = now;
+                    break;
+                case 3: // Năm nay
+                    StartDate = new DateTime(now.Year, 1, 1);
+                    EndDate = now;
+                    break;
+                default:
+                    break;
             }
         }
     }

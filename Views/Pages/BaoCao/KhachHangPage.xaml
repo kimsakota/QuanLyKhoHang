@@ -44,11 +44,32 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <ui:CalendarDatePicker Date="{Binding StartDate, Mode=TwoWay}" 
-                                           Width="140" Margin="0,0,10,0"/>
-                    <TextBlock Text="-" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <ui:CalendarDatePicker Date="{Binding EndDate, Mode=TwoWay}" 
-                                           Width="140" Margin="0,0,10,0"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <ui:CalendarDatePicker Date="{Binding StartDate, Mode=TwoWay}" 
+                                               Icon="{ui:SymbolIcon Symbol=CalendarEdit24}"
+                                               MouseOverBackground="LightBlue"
+                                               ToolTip="Chọn ngày bắt đầu"/>
+                        <ui:TextBlock Text="{Binding StartDate, StringFormat='dd/MM/yyyy'}"
+                                      VerticalAlignment="Center"
+                                      Margin="10,0,0,0"
+                                      FontWeight="Medium"/>     
+                    </StackPanel>
+
+                    <TextBlock Text="-" 
+                               VerticalAlignment="Center" 
+                               Margin="0,0,10,0"
+                               FontWeight="Bold"/>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <ui:CalendarDatePicker Date="{Binding EndDate, Mode=TwoWay}" 
+                                               Icon="{ui:SymbolIcon Symbol=CalendarEdit24}"
+                                               MouseOverBackground="LightBlue"
+                                               ToolTip="Chọn ngày kết thúc"/>
+                        <ui:TextBlock Text="{Binding EndDate, StringFormat='dd/MM/yyyy'}"
+                                      VerticalAlignment="Center"
+                                      Margin="10,0,0,0"
+                                      FontWeight="Medium"/> 
+                    </StackPanel>
                     <ui:Button Icon="{ui:SymbolIcon ArrowClockwise24}" 
                                Appearance="Primary" Command="{Binding LoadDataCommand}" 
                                ToolTip="Làm mới dữ liệu"/>

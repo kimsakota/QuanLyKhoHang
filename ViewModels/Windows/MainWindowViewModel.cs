@@ -120,12 +120,6 @@ namespace UiDesktopApp1.ViewModels.Windows
                     });
                     menu.Add(new NavigationViewItem()
                     {
-                        Content = "Chi phí",
-                        Icon = new SymbolIcon { Symbol = SymbolRegular.Money24 },
-                        TargetPageType = typeof(Views.Pages.ChiPhiPage)
-                    });
-                    menu.Add(new NavigationViewItem()
-                    {
                         Content = "Liên hệ",
                         Icon = new SymbolIcon { Symbol = SymbolRegular.PersonCall24 },
                         MenuItems =
@@ -208,12 +202,6 @@ namespace UiDesktopApp1.ViewModels.Windows
                         Content = "Lịch sử",
                         Icon = new SymbolIcon { Symbol = SymbolRegular.History24 },
                         TargetPageType = typeof(Views.Pages.LichSuPage)
-                    });
-                    menu.Add(new NavigationViewItem()
-                    {
-                        Content = "Chi phí",
-                        Icon = new SymbolIcon { Symbol = SymbolRegular.Money24 },
-                        TargetPageType = typeof(Views.Pages.ChiPhiPage)
                     });
                     menu.Add(new NavigationViewItem()
                     {
