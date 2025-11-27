@@ -17,13 +17,15 @@ using UiDesktopApp1.Views.UserControls.LienHe;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Controls;
+using UiDesktopApp1.Services;
 
 namespace UiDesktopApp1.ViewModels.Pages.LienHe
 {
     public partial class KhachHangViewModel : ObservableObject, INavigationAware
     {
-        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
-        private readonly IContentDialogService _contentDialogService; 
+        //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly IContentDialogService _contentDialogService;
+        private readonly ApiService _apiService;
         private bool _isInitialized = false;
 
         public ObservableCollection<CustomerModel> Customers { get; private set; } = new();
@@ -41,11 +43,12 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         [ObservableProperty]
         private string _searchText = string.Empty;
 
-        public KhachHangViewModel(IDbContextFactory<AppDbContext> dbContextFactory,
-            IContentDialogService contentDialogService)
+        public KhachHangViewModel(IContentDialogService contentDialogService,
+            ApiService apiService)
         {
-            _dbContextFactory = dbContextFactory;
             _contentDialogService = contentDialogService; 
+            _apiService = apiService;
+
             CustomersView = CollectionViewSource.GetDefaultView(Customers);
             CustomersView.Filter = FilterCustomers;
         }
@@ -70,8 +73,9 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
             try
             {
-                await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-                var customerList = await dbContext.Customers.AsNoTracking().ToListAsync();
+                /*await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+                var customerList = await dbContext.Customers.AsNoTracking().ToListAsync();*/
+                var customerList = await _apiService.GetAllAsync<CustomerModel>("Customers");
 
                 foreach (var customer in customerList)
                     Customers.Add(customer);
@@ -140,12 +144,14 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                //await using var db = await _dbContextFactory.CreateDbContextAsync();
+
                 bool isEdit = Customer.Id != 0;
                 if (isEdit)
                 {
-                    db.Customers.Update(Customer);
-                    await db.SaveChangesAsync();
+                    //db.Customers.Update(Customer);
+                    //await db.SaveChangesAsync();
+                    await _apiService.UpdateAsync("Customers", Customer.Id, Customer);
 
                     var index = Customers.IndexOf(SelectedCustomer!);
                     if(index >= 0)
@@ -156,11 +162,21 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 }
                 else
                 {
-                    db.Customers.Add(Customer);
-                    await db.SaveChangesAsync();
-                    Customers.Add(Customer);
-                    SearchText = string.Empty;
-                    SelectedCustomer = Customers[Customers.Count - 1];
+                    //db.Customers.Add(Customer);
+                    //await db.SaveChangesAsync();
+                    var result= await _apiService.AddAsync("Customers", Customer);
+                    if(result != null)
+                    {
+                        Customers.Add(result);
+                        SearchText = string.Empty;
+                        SelectedCustomer = Customers[Customers.Count - 1];
+                    }
+                    else
+                    {
+                        ErrorSummary = "Không thêm được dữ liệu vào hệ thống, vui lòng thử lại sau!";
+                        return false;
+                    }
+                    
                 }
 
                 return true;
@@ -182,13 +198,15 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                                                         System.Windows.MessageBoxButton.YesNo,
                                                         System.Windows.MessageBoxImage.Warning);
             if (result != System.Windows.MessageBoxResult.Yes) return;
+
             IsBusy = true;
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                /*await using var db = await _dbContextFactory.CreateDbContextAsync();
                 
                 await db.Customers.Where(c => c.Id == SelectedCustomer.Id)
-                                  .ExecuteDeleteAsync();
+                                  .ExecuteDeleteAsync();*/
+                await _apiService.DeleteAsync("Customers", SelectedCustomer.Id);
                 Customers.Remove(SelectedCustomer);
                 SelectedCustomer = null;
             }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using UiDesktopApp1.Models;
+using UiDesktopApp1.Services;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 
@@ -15,7 +16,8 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 {
     public partial class NhanVienViewModel : ObservableObject, INavigationAware
     {
-        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly ApiService _apiService;
         private readonly IContentDialogService _contentDialogService;
         private bool _isInitialized = false;
 
@@ -34,11 +36,11 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         [ObservableProperty]
         private string _searchText = string.Empty;
 
-        public NhanVienViewModel(IDbContextFactory<AppDbContext> dbContextFactory,
-            IContentDialogService contentDialogService)
+        public NhanVienViewModel(IContentDialogService contentDialogService,
+            ApiService apiService)
         {
-            _dbContextFactory = dbContextFactory;
             _contentDialogService = contentDialogService;
+            _apiService = apiService;
             EmployeeView = CollectionViewSource.GetDefaultView(Employees);
             EmployeeView.Filter = FilterStaffs;
         }
@@ -64,11 +66,12 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             IsBusy = true;
             try
             {
-                using var dbContext = _dbContextFactory.CreateDbContext();
+                Employees.Clear();
+                /*using var dbContext = _dbContextFactory.CreateDbContext();
                 var employees = await dbContext.Users
                     .Where(u => u.Role == "Employee")
-                    .ToListAsync();
-                Employees.Clear();
+                    .ToListAsync();*/
+                var employees = await _apiService.GetAllAsync<UserModel>("Employees");
 
                 foreach (var employee in employees)
                     Employees.Add(employee);

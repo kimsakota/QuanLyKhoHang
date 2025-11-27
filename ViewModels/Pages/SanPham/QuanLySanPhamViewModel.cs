@@ -28,7 +28,8 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
     public partial class QuanLySanPhamViewModel : ObservableObject, INavigationAware, IRecipient<ProductCreatedMessage>
     {
         private readonly INavigationService _navigationService;
-        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly ApiService _apiService;
         private readonly CurrentUserService _currentUserService;
         private readonly IContentDialogService _contentDialogService; // Thêm service dialog
         private readonly ICollectionView _productsView;
@@ -59,14 +60,14 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
 
         public QuanLySanPhamViewModel(
             INavigationService navigationService,
-            IDbContextFactory<AppDbContext> dbContextFactory,
             CurrentUserService currentUserService,
-            IContentDialogService contentDialogService) // Inject Dialog Service
+            IContentDialogService contentDialogService,
+            ApiService apiService) 
         {
             _navigationService = navigationService;
-            _dbContextFactory = dbContextFactory;
             _currentUserService = currentUserService;
             _contentDialogService = contentDialogService;
+            _apiService = apiService;
 
             _productsView = CollectionViewSource.GetDefaultView(Products);
             _productsView.SortDescriptions.Add(new SortDescription(nameof(ProductModel.Id), ListSortDirection.Descending));
@@ -74,6 +75,7 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
 
             // Chỉ cần lắng nghe tin nhắn nếu bạn thêm danh mục từ nơi khác
             WeakReferenceMessenger.Default.Register<ProductCreatedMessage>(this);
+            _apiService = apiService;
         }
 
         public async Task OnNavigatedToAsync()
@@ -94,20 +96,27 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
             IsBusy = true;
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                //await using var db = await _dbContextFactory.CreateDbContextAsync();
 
                 // Load Categories
                 Categories.Clear();
                 // Thêm item mặc định cho bộ lọc
                 Categories.Add(new CategoryModel { Id = 0, Name = "Tất cả danh mục" });
-                var cats = await db.Categories.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
+
+                //var cats = await db.Categories.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
+
+                var cats = await _apiService.GetAllAsync<CategoryModel>("Categories");
+
+                //Có thể sử dụng OderBy ở đây nếu API chưa sắp xếp
+
                 foreach (var c in cats) Categories.Add(c);
                 SelectedCategory = Categories.FirstOrDefault();
 
                 // Load Products
                 foreach (var p in Products) p.PropertyChanged -= Product_PropertyChanged;
                 Products.Clear();
-                var items = await db.Products.AsNoTracking().Include(p => p.Category).OrderByDescending(p => p.Id).ToListAsync();
+                //var items = await db.Products.AsNoTracking().Include(p => p.Category).OrderByDescending(p => p.Id).ToListAsync();
+                var items = await _apiService.GetAllAsync<ProductModel>("Products");
 
                 foreach (var p in items)
                 {
@@ -253,19 +262,30 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
             IsBusy = true;
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                //await using var db = await _dbContextFactory.CreateDbContextAsync();
 
-                if (ProductForDialog.Id == 0) // Thêm mới
+                if (ProductForDialog.Id == 0 && ProductForDialog.ProductCode != null) // Thêm mới
                 {
                     // Kiểm tra trùng mã
-                    if (await db.Products.AnyAsync(p => p.ProductCode == ProductForDialog.ProductCode))
+                    /*if (await db.Products.AnyAsync(p => p.ProductCode == ProductForDialog.ProductCode))
+                    {
+                        ErrorSummary = "Mã sản phẩm đã tồn tại.";
+                        return false;
+                    }*/
+                    if(await _apiService.CheckExistsAsync("Products", "ProductCode", ProductForDialog.ProductCode))
                     {
                         ErrorSummary = "Mã sản phẩm đã tồn tại.";
                         return false;
                     }
 
-                    db.Products.Add(ProductForDialog);
-                    await db.SaveChangesAsync();
+                    /*db.Products.Add(ProductForDialog);
+                    await db.SaveChangesAsync();*/
+                    var addedProduct = await _apiService.AddAsync("Products", ProductForDialog);
+                    if (addedProduct == null)
+                    {
+                        ErrorSummary = "Lỗi khi thêm sản phẩm vào hệ thống, vui lòng thử lại sau!";
+                        return false;
+                    }
 
                     // Cập nhật UI
                     ProductForDialog.Image = ImageHelper.LoadBitmap(ProductForDialog.ImagePath);
@@ -277,8 +297,10 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
                 }
                 else // Cập nhật
                 {
-                    db.Products.Update(ProductForDialog);
-                    await db.SaveChangesAsync();
+                    /*db.Products.Update(ProductForDialog);
+                    await db.SaveChangesAsync();*/
+                    var updatedProduct = await _apiService.UpdateAsync("Products", ProductForDialog.Id, ProductForDialog);
+                    
 
                     // Cập nhật UI: Tìm item cũ và thay thế thông tin
                     var itemToUpdate = Products.FirstOrDefault(p => p.Id == ProductForDialog.Id);
@@ -336,7 +358,6 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
         [RelayCommand]
         private async Task DeleteSelected()
         {
-            // ... (Logic xóa cũ của bạn) ...
             var selectedItems = _productsView.Cast<ProductModel>().Where(p => p.IsSelected).ToList();
             if (selectedItems.Count == 0) return;
             var result = System.Windows.MessageBox.Show($"Bạn có chắc chắn muốn xóa {selectedItems.Count} sản phẩm?", "Xác nhận xóa", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -345,9 +366,17 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
             IsBusy = true;
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
-                var idsToDelete = selectedItems.Select(p => p.Id).ToList();
-                await db.Products.Where(p => idsToDelete.Contains(p.Id)).ExecuteDeleteAsync();
+                //await using var db = await _dbContextFactory.CreateDbContextAsync();
+                List<int> idsToDelete = selectedItems.Select(p => p.Id).ToList();
+                //await db.Products.Where(p => idsToDelete.Contains(p.Id)).ExecuteDeleteAsync();
+                if(idsToDelete == null)
+                {
+                    System.Windows.MessageBox.Show("Lỗi: Danh sách ID cần xóa trống.");
+                    return;
+                }
+                else
+                    foreach (var id in idsToDelete)
+                        await _apiService.DeleteAsync("Products", id);
 
                 foreach (var item in selectedItems)
                 {
@@ -402,16 +431,29 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
 
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                /*await using var db = await _dbContextFactory.CreateDbContextAsync();
                 if (await db.Categories.AnyAsync(c => c.Name == NewCategoryName))
+                {
+                    ErrorSummary1 = $"Danh mục '{NewCategoryName}' đã tồn tại";
+                    return false;
+                }*/
+                
+                if (await _apiService.CheckExistsAsync("Categories", "Name", NewCategoryName))
                 {
                     ErrorSummary1 = $"Danh mục '{NewCategoryName}' đã tồn tại";
                     return false;
                 }
 
                 var newCategory = new CategoryModel { Name = NewCategoryName.Trim() };
-                db.Categories.Add(newCategory);
-                await db.SaveChangesAsync();
+
+                var result = await _apiService.AddAsync("Categories", newCategory);
+                if(result == null)
+                {
+                    ErrorSummary1 = "Thêm thất bại! Vui lòng kiểm tra kết nối hoặc thử lại sau.";
+                    return false;
+                }
+
+                // Cập nhật UI
                 Categories.Add(newCategory);
                 ProductForDialog.CategoryId = newCategory.Id;
                 return true;

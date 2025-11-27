@@ -22,7 +22,7 @@ namespace UiDesktopApp1.ViewModels.Pages
     public partial class SanPhamViewModel : ObservableObject, INavigationAware, IRecipient<ProductCreatedMessage>, IRecipient<ProductsNeedRefreshMessage>
     {
         private readonly INavigationService _navigationService;
-        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly CurrentUserService _currentUserService;
         private readonly ApiService _apiService;
         private readonly ICollectionView _productsView;
@@ -47,12 +47,10 @@ namespace UiDesktopApp1.ViewModels.Pages
 
         public SanPhamViewModel(
             INavigationService navigationService,
-            IDbContextFactory<AppDbContext> dbContextFactory,
             CurrentUserService currentUserService,
             ApiService apiService)
         {
             _navigationService = navigationService;
-            _dbContextFactory = dbContextFactory;
             _currentUserService = currentUserService;
             _apiService = apiService;
 
@@ -100,9 +98,11 @@ namespace UiDesktopApp1.ViewModels.Pages
                 {
                     Categories.Add(new CategoryModel { Id = 0, Name = "Tất cả danh mục" });
                     //var list = await dbContext.Categories.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
-                    var list = await _apiService.GetAllCategoriesAsync();
-                    if(list == null) return;
-                    foreach (var cat in list) Categories.Add(cat);
+
+                    var cats = await _apiService.GetAllAsync<CategoryModel>("Categories");
+
+                    if (cats == null) return;
+                    foreach (var cat in cats) Categories.Add(cat);
                     SelectedCategory = Categories.First();
                 }
 
@@ -112,7 +112,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                     .Include(p => p.Category) // Include để hiển thị tên danh mục nếu cần
                     .OrderBy(p => p.ProductName)
                     .ToListAsync();*/
-                var items = await _apiService.GetAllProductsAsync();
+                var items = await _apiService.GetAllAsync<ProductModel>("Products");
 
                 if (items == null) return;
                 foreach (var p in items)

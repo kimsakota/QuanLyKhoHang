@@ -23,6 +23,7 @@ namespace UiDesktopApp1.ViewModels.Pages
     public partial class QuanLyNguoiDungViewModel : ObservableValidator, INavigationAware
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly ApiService _apiService;
         private readonly IContentDialogService _contentDialogService;
         private readonly CurrentUserService _currentUserService;
         private bool _isInitialized = false;

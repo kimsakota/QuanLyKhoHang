@@ -100,13 +100,10 @@ namespace UiDesktopApp1
                     services.AddSingleton<SanPhamPage>();
                     services.AddSingleton<SanPhamPageHeader>();
                     services.AddTransient<SanPhamViewModel>();
-                    services.AddSingleton<ThemDanhMucPage>();
-                    services.AddSingleton<ThemDanhMucViewModel>();
                     services.AddSingleton<QuanLySanPhamPage>();
                     services.AddSingleton<QuanLySanPhamViewModel>();
                     services.AddSingleton<QuanLySanPhamPageHeader>();
                     services.AddSingleton<ThemSuaSanPhamDialog>();
-                    services.AddSingleton<ThemDanhMucDialog>();
 
                     services.AddSingleton<NhapKhoPage>();
                     services.AddSingleton<NhapKhoPageHeader>();

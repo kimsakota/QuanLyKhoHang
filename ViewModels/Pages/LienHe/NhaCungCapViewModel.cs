@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using UiDesktopApp1.Models;
+using UiDesktopApp1.Services;
 using UiDesktopApp1.Views.UserControls.LienHe;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
@@ -19,7 +20,8 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 {
     public partial class NhaCungCapViewModel : ObservableObject, INavigationAware
     {
-        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly ApiService _apiService;
         private readonly IContentDialogService _contentDialogService;
         private bool _isInitialized = false;
 
@@ -38,11 +40,13 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
         [ObservableProperty]
         private string _searchText = string.Empty;
 
-        public NhaCungCapViewModel(IDbContextFactory<AppDbContext> dbContextFactory,
-            IContentDialogService contentDialogService)
+        public NhaCungCapViewModel(
+            IContentDialogService contentDialogService,
+            ApiService apiService)
         {
-            _dbContextFactory = dbContextFactory;
             _contentDialogService = contentDialogService;
+            _apiService = apiService;
+
             SuppliersView = CollectionViewSource.GetDefaultView(Suppliers);
             SuppliersView.Filter = FilterSuppliers;
         }
@@ -69,8 +73,9 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             {
                 Suppliers.Clear();
 
-                await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-                var supplierList = await dbContext.Suppliers.AsNoTracking().ToListAsync();
+                //await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+                //var supplierList = await dbContext.Suppliers.AsNoTracking().ToListAsync();
+                var supplierList = await _apiService.GetAllAsync<SupplierModel>("Suppliers");
 
                 foreach (var supplier in supplierList)
                     Suppliers.Add(supplier);
@@ -145,24 +150,31 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
 
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                //await using var db = await _dbContextFactory.CreateDbContextAsync();
+
                 bool isEdit = Supplier.Id != 0;
                 if (isEdit)
-                    db.Suppliers.Update(Supplier);
-                else
-                    db.Suppliers.Add(Supplier);
-                await db.SaveChangesAsync();
-                if (isEdit)
                 {
+                    await _apiService.UpdateAsync("Suppliers", Supplier.Id, Supplier);
                     var index = Suppliers.IndexOf(SelectedSupplier!);
                     Suppliers[index] = Supplier;
                     SelectedSupplier = Suppliers[index];
                 }
+                    
                 else
                 {
-                    Suppliers.Add(Supplier);
-                    SearchText = string.Empty;
-                    SelectedSupplier = Suppliers[Suppliers.Count - 1];
+                    var result = await _apiService.AddAsync("Suppliers", Supplier);
+                    if(result != null)
+                    {
+                        Suppliers.Add(result);
+                        SearchText = string.Empty;
+                        SelectedSupplier = Suppliers[Suppliers.Count - 1];
+                    } else
+                    {
+                        ErrorSummary = "Không thêm được nhà cung cấp vào hệ thống, vui lòng thử lại sau!";
+                        return false;
+                    }
+
                 }
                 return true;
             }
@@ -187,9 +199,10 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
             IsBusy = true;
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
-                
-                await db.Suppliers.Where(s => s.Id == SelectedSupplier.Id).ExecuteDeleteAsync();
+                //await using var db = await _dbContextFactory.CreateDbContextAsync();
+                //await db.Suppliers.Where(s => s.Id == SelectedSupplier.Id).ExecuteDeleteAsync();
+                await _apiService.DeleteAsync("Suppliers", SelectedSupplier.Id);
+
                 Suppliers.Remove(SelectedSupplier);
                 SelectedSupplier = null;
             }
