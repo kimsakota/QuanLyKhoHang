@@ -71,7 +71,8 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 var employees = await dbContext.Users
                     .Where(u => u.Role == "Employee")
                     .ToListAsync();*/
-                var employees = await _apiService.GetAllAsync<UserModel>("Employees");
+                var employees = await _apiService.GetAllAsync<UserModel>("Users/GetEmployees");
+                
 
                 foreach (var employee in employees)
                     Employees.Add(employee);

@@ -11,13 +11,15 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using UiDesktopApp1.Models;
+using UiDesktopApp1.Services;
 using Wpf.Ui.Abstractions.Controls;
 
 namespace UiDesktopApp1.ViewModels.Pages.BaoCao
 {
     public partial class KhachHangViewModel : ObservableObject, INavigationAware
     {
-        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly ApiService _apiService;
         private bool _isInitialized = false;
 
         // --- Filter ---
@@ -36,24 +38,16 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
         [ObservableProperty] private Axis[] _topSpendingXAxes = Array.Empty<Axis>();
         [ObservableProperty] private Axis[] _topSpendingYAxes = Array.Empty<Axis>();
 
-        // --- List (Top Customers Detail) ---
-        // Tạo class DTO nội bộ hoặc dùng anonymous type mapped sang ViewModel con nếu cần
-        // Ở đây ta dùng một Model wrapper hoặc Model mở rộng nếu muốn hiển thị doanh thu
-        public class CustomerReportDto
+        [ObservableProperty] private ObservableCollection<TopCustomerDto> _topCustomers = new();
+
+        public KhachHangViewModel(ApiService apiService)
         {
-            public string Name { get; set; } = string.Empty;
-            public string Phone { get; set; } = string.Empty;
-            public int OrderCount { get; set; }
-            public decimal TotalSpent { get; set; }
+            _apiService = apiService;
+            InitializeCharts();
         }
 
-        [ObservableProperty] private ObservableCollection<CustomerReportDto> _topCustomers = new();
-
-        public KhachHangViewModel(IDbContextFactory<AppDbContext> dbContextFactory)
+        private void InitializeCharts()
         {
-            _dbContextFactory = dbContextFactory;
-
-            // Cấu hình trục X cho biểu đồ nằm ngang (Giá trị tiền)
             TopSpendingXAxes = new Axis[]
             {
                 new Axis
@@ -65,7 +59,6 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
                 }
             };
 
-            // Cấu hình trục Y cho biểu đồ nằm ngang (Tên khách hàng)
             TopSpendingYAxes = new Axis[]
             {
                 new Axis
@@ -96,119 +89,58 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
 
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                //await using var db = await _dbContextFactory.CreateDbContextAsync();
 
                 // Chuẩn hóa thời gian
-                var start = StartDate.Date;
-                var end = EndDate.Date.AddDays(1).AddTicks(-1);
-
-                // 1. Tính KPIs
-                TotalCustomers = await db.Customers.CountAsync();
-
+                //var start = StartDate.Date;
+                //var end = EndDate.Date.AddDays(1).AddTicks(-1);
                 // Giả sử ta coi khách hàng có đơn hàng đầu tiên trong kỳ là khách mới
                 // Hoặc đơn giản là đếm số khách mua hàng trong kỳ (Active)
                 // Ở đây ta lấy số lượng khách hàng CÓ GIAO DỊCH XUẤT KHO trong kỳ
-                var activeCustomerIds = await db.Exports
+                /*var activeCustomerIds = await db.Exports
                     .Where(e => e.ExportDate >= start && e.ExportDate <= end && e.CustomerId != null)
                     .Select(e => e.CustomerId)
                     .Distinct()
-                    .ToListAsync();
+                    .ToListAsync();*/
 
-                ActiveCustomers = activeCustomerIds.Count;
+                // Gọi API lấy báo cáo khách hàng
+                var reportData = await _apiService.GetReportAsync<CustomerReportReponse>("Reports/Customers", StartDate, EndDate);
 
-                // Tính tổng doanh thu trong kỳ
-                var revenueQuery = db.ExportDetails
-                    .Include(d => d.Export)
-                    .Where(d => d.Export!.ExportDate >= start && d.Export.ExportDate <= end);
-
-                TotalRevenueInPeriod = await revenueQuery.SumAsync(d => d.Quantity * d.UnitPrice);
-
-                // 2. Top Khách hàng chi tiêu nhiều nhất (Top Spending)
-                var customerStats = await db.Exports
-                    .Where(e => e.ExportDate >= start && e.ExportDate <= end && e.CustomerId != null)
-                    .GroupBy(e => e.CustomerId)
-                    .Select(g => new
-                    {
-                        CustomerId = g.Key,
-                        OrderCount = g.Count(),
-                        // Tính tổng tiền: Join sang ExportDetail
-                        TotalSpent = g.SelectMany(e => e.ExportDetails).Sum(d => d.Quantity * d.UnitPrice)
-                    })
-                    .OrderByDescending(x => x.TotalSpent)
-                    .Take(10) // Lấy top 10
-                    .ToListAsync();
-
-                // Lấy thông tin chi tiết tên khách hàng
-                var topCustomerIds = customerStats.Select(x => x.CustomerId).ToList();
-                var customersInfo = await db.Customers
-                    .Where(c => topCustomerIds.Contains(c.Id))
-                    .ToDictionaryAsync(c => c.Id, c => c);
-
-                // Map dữ liệu vào danh sách hiển thị
-                TopCustomers.Clear();
-                var chartValues = new List<decimal>();
-                var chartLabels = new List<string>();
-
-                foreach (var stat in customerStats)
+                if(reportData != null)
                 {
-                    if (stat.CustomerId == null || !customersInfo.ContainsKey(stat.CustomerId.Value)) continue;
+                    //Gán dữ liệu
+                    TotalCustomers = reportData.TotalCustomers;
+                    ActiveCustomers = reportData.ActiveCustomers;
+                    NewCustomers = reportData.TotalOrders;
+                    TotalRevenueInPeriod = reportData.TotalRevenue;
 
-                    var cus = customersInfo[stat.CustomerId.Value];
-                    var name = cus.Name ?? "Khách lẻ";
+                    TopCustomers.Clear();
+                    foreach(var item in reportData.TopCustomers)
+                        TopCustomers.Add(item);
 
-                    // Add vào List
-                    TopCustomers.Add(new CustomerReportDto
+                    //Vẽ biểu đồ Top 5
+                    var top5 = reportData.TopCustomers.Take(5).ToList();
+                    top5.Reverse();
+
+                    TopSpendingSeries = new ISeries[]
                     {
-                        Name = name,
-                        Phone = cus.PhoneNumber ?? "--",
-                        OrderCount = stat.OrderCount,
-                        TotalSpent = stat.TotalSpent
-                    });
+                        new RowSeries<decimal>
+                        {
+                            Name = "Chi tiêu",
+                            Values = top5.Select(x => x.TotalSpent).ToArray(),
+                            Fill = new SolidColorPaint(SKColors.CornflowerBlue),
+                            Stroke = null,
+                            DataLabelsSize = 12,
+                            DataLabelsPaint = new SolidColorPaint(SKColors.White),
+                            DataLabelsPosition = LiveChartsCore.Measure.DataLabelsPosition.End,
+                            DataLabelsFormatter = point => $"{point.Model:N0}",
+                            // RowSeries dùng XToolTipLabelFormatter cho giá trị (vì trục giá trị nằm ngang)
+                            XToolTipLabelFormatter = point => $"{point.Model:N0} VNĐ"
+                        }
+                    };
 
-                    // Data cho Chart (Lấy Top 5 thôi cho đẹp)
-                    if (chartValues.Count < 5)
-                    {
-                        chartValues.Add(stat.TotalSpent);
-                        chartLabels.Add(name);
-                    }
+                    TopSpendingYAxes[0].Labels = top5.Select(x => x.Name).ToArray();
                 }
-
-                // New Customers (Logic tạm: Khách chưa từng mua trước ngày Start, và có mua trong kỳ)
-                // Logic này hơi phức tạp với schema hiện tại, ta có thể thay bằng "Số đơn hàng"
-                NewCustomers = await db.Exports.CountAsync(e => e.ExportDate >= start && e.ExportDate <= end);
-
-
-                // 3. Cấu hình Biểu đồ (RowSeries - Cột ngang)
-                // Lưu ý: RowSeries vẽ từ dưới lên, nên ta cần đảo ngược danh sách để Top 1 nằm trên cùng
-                chartValues.Reverse();
-                chartLabels.Reverse();
-
-                TopSpendingSeries = new ISeries[]
-                {
-                    new RowSeries<decimal>
-                    {
-                        Name = "Chi tiêu",
-                        Values = chartValues.ToArray(),
-                        Fill = new SolidColorPaint(SKColors.CornflowerBlue),
-                        Stroke = null,
-                        DataLabelsSize = 12,
-                        DataLabelsPaint = new SolidColorPaint(SKColors.White),
-                        DataLabelsPosition = LiveChartsCore.Measure.DataLabelsPosition.End,
-                        DataLabelsFormatter = point => $"{point.Model:N0}",
-                        // RowSeries dùng XToolTipLabelFormatter cho giá trị (vì trục giá trị nằm ngang)
-                        XToolTipLabelFormatter = point => $"{point.Model:N0} VNĐ"
-                    }
-                };
-
-                TopSpendingYAxes = new Axis[]
-                {
-                    new Axis
-                    {
-                        Labels = chartLabels.ToArray(),
-                        LabelsPaint = new SolidColorPaint(SKColors.Black),
-                        TextSize = 13
-                    }
-                };
             }
             catch (Exception ex)
             {

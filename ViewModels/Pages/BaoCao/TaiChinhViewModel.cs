@@ -11,13 +11,15 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using UiDesktopApp1.Models;
+using UiDesktopApp1.Services;
 using Wpf.Ui.Abstractions.Controls;
 
 namespace UiDesktopApp1.ViewModels.Pages.BaoCao
 {
     public partial class TaiChinhViewModel : ObservableObject, INavigationAware
     {
-        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly ApiService _apiService;
         private bool _isInitialized = false;
 
         // --- KPI Properties ---
@@ -46,20 +48,23 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
         [ObservableProperty] private Axis[] _xAxes = Array.Empty<Axis>();
         [ObservableProperty] private Axis[] _yAxes = Array.Empty<Axis>();
 
-        public TaiChinhViewModel(IDbContextFactory<AppDbContext> dbContextFactory)
+        public TaiChinhViewModel(ApiService apiService)
         {
-            _dbContextFactory = dbContextFactory;
-
+            _apiService = apiService;
             UpdateDateRangeFromSelection();
+            InitializeChartConfig();
+        }
 
-            // Cấu hình trục Y
+        private void InitializeChartConfig()
+        {
             YAxes = new Axis[]
             {
                 new Axis
                 {
-                    Labeler = value => value.ToString("N0"),
+                    Labeler = value => value.ToString("N0"), // Format 1,000,000
                     LabelsPaint = new SolidColorPaint(SKColors.Gray),
-                    TextSize = 12
+                    TextSize = 12,
+                    ShowSeparatorLines = true
                 }
             };
         }
@@ -83,7 +88,7 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
 
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                /*await using var db = await _dbContextFactory.CreateDbContextAsync();
 
                 var start = StartDate.Date;
                 var end = EndDate.Date.AddDays(1).AddTicks(-1);
@@ -125,52 +130,63 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
                     costData.Add(cst);
                     profitData.Add(rev - cst);
                     labels.Add(date.ToString("dd/MM"));
+                }*/
+
+                var reportData = await _apiService.GetReportAsync<FinancialReportResponse>("Reports/Financial", StartDate, EndDate);
+
+                if (reportData != null)
+                {
+                    // 1. Cập nhật KPI
+                    TotalRevenue = reportData.TotalRevenue;
+                    TotalCost = reportData.TotalCost;
+                    TotalProfit = reportData.TotalProfit;
+
+                    // 2. Cập nhật Biểu đồ
+                    var dates = reportData.DailyStats.Select(x => x.Date.ToString("dd/MM")).ToArray();
+                    var revenueValues = reportData.DailyStats.Select(x => x.Revenue).ToArray();
+                    var costValues = reportData.DailyStats.Select(x => x.Cost).ToArray();
+                    var profitValues = reportData.DailyStats.Select(x => x.Profit).ToArray();
+
+                    Series = new ISeries[]
+                    {
+                        new ColumnSeries<decimal>
+                        {
+                            Name = "Doanh thu",
+                            Values = revenueValues,
+                            Fill = new SolidColorPaint(SKColors.CornflowerBlue),
+                            // Fix lỗi Tooltip cho bản RC mới
+                            YToolTipLabelFormatter = point => $"{point.Model:N0} VNĐ"
+                        },
+                        new ColumnSeries<decimal>
+                        {
+                            Name = "Chi phí",
+                            Values = costValues,
+                            Fill = new SolidColorPaint(SKColors.IndianRed),
+                            YToolTipLabelFormatter = point => $"{point.Model:N0} VNĐ"
+                        },
+                        new LineSeries<decimal>
+                        {
+                            Name = "Lợi nhuận",
+                            Values = profitValues,
+                            Fill = null,
+                            GeometrySize = 8,
+                            Stroke = new SolidColorPaint(SKColors.ForestGreen) { StrokeThickness = 3 },
+                            GeometryStroke = new SolidColorPaint(SKColors.ForestGreen) { StrokeThickness = 3 },
+                            YToolTipLabelFormatter = point => $"{point.Model:N0} VNĐ"
+                        }
+                    };
+
+                    XAxes = new Axis[]
+                    {
+                        new Axis
+                        {
+                            Labels = dates,
+                            LabelsRotation = 0,
+                            LabelsPaint = new SolidColorPaint(SKColors.Gray),
+                            TextSize = 12
+                        }
+                    };
                 }
-
-                // 4. Cấu hình Series (Đã sửa TooltipLabelFormatter -> YToolTipLabelFormatter)
-                Series = new ISeries[]
-                {
-                    new ColumnSeries<double>
-                    {
-                        Name = "Doanh thu",
-                        Values = revenueData,
-                        Fill = new SolidColorPaint(SKColors.CornflowerBlue),
-                        Stroke = null,
-                        // SỬA Ở ĐÂY: Dùng YToolTipLabelFormatter
-                        YToolTipLabelFormatter = point => $"{point.Model:N0} VNĐ"
-                    },
-                    new ColumnSeries<double>
-                    {
-                        Name = "Chi phí",
-                        Values = costData,
-                        Fill = new SolidColorPaint(SKColors.IndianRed),
-                        Stroke = null,
-                        // SỬA Ở ĐÂY: Dùng YToolTipLabelFormatter
-                        YToolTipLabelFormatter = point => $"{point.Model:N0} VNĐ"
-                    },
-                    new LineSeries<double>
-                    {
-                        Name = "Lợi nhuận",
-                        Values = profitData,
-                        Fill = null,
-                        GeometrySize = 5,
-                        Stroke = new SolidColorPaint(SKColors.ForestGreen) { StrokeThickness = 3 },
-                        GeometryStroke = new SolidColorPaint(SKColors.ForestGreen) { StrokeThickness = 3 },
-                        // SỬA Ở ĐÂY: Dùng YToolTipLabelFormatter
-                        YToolTipLabelFormatter = point => $"{point.Model:N0} VNĐ"
-                    }
-                };
-
-                XAxes = new Axis[]
-                {
-                    new Axis
-                    {
-                        Labels = labels,
-                        LabelsRotation = 0,
-                        LabelsPaint = new SolidColorPaint(SKColors.Gray),
-                        TextSize = 12
-                    }
-                };
             }
             catch (Exception ex)
             {

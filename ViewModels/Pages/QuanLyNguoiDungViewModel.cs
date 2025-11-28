@@ -22,7 +22,7 @@ namespace UiDesktopApp1.ViewModels.Pages
 {
     public partial class QuanLyNguoiDungViewModel : ObservableValidator, INavigationAware
     {
-        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly ApiService _apiService;
         private readonly IContentDialogService _contentDialogService;
         private readonly CurrentUserService _currentUserService;
@@ -54,13 +54,13 @@ namespace UiDesktopApp1.ViewModels.Pages
             Roles.Employee.ToString()
         };
 
-        public QuanLyNguoiDungViewModel(IDbContextFactory<AppDbContext> dbContextFactory,
-                                        IContentDialogService contentDialogService,
-                                        CurrentUserService currentUserService)
+        public QuanLyNguoiDungViewModel(IContentDialogService contentDialogService,
+                                        CurrentUserService currentUserService,
+                                        ApiService apiService)
         {
-            _dbContextFactory = dbContextFactory;
             _contentDialogService = contentDialogService;
             _currentUserService = currentUserService;
+            _apiService = apiService;
         }
 
         public async Task OnNavigatedToAsync()
@@ -81,8 +81,10 @@ namespace UiDesktopApp1.ViewModels.Pages
             try
             {
                 Users.Clear();
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
-                var userList = await db.Users.AsNoTracking().ToListAsync();
+                /*await using var db = await _dbContextFactory.CreateDbContextAsync();
+                var userList = await db.Users.AsNoTracking().ToListAsync();*/
+                var userList = await _apiService.GetAllAsync<UserModel>("Users");
+
                 foreach (var user in userList)
                     Users.Add(user);
             }
@@ -176,30 +178,42 @@ namespace UiDesktopApp1.ViewModels.Pages
             IsBusy = true;
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                //await using var db = await _dbContextFactory.CreateDbContextAsync();
                 bool isNew = UserForDialog.Id == 0;
                 if(isNew)
                 {
-                    if(await db.Users.AnyAsync(u => u.Username == UserForDialog.Username))
+                    /*if(await db.Users.AnyAsync(u => u.Username == UserForDialog.Username))
+                    {
+                        ErrorSummary = "Tên đăng nhập này đã tồn tại.";
+                        return false;
+                    }*/
+                    if(await _apiService.CheckExistsAsync("Users", "Username" ,UserForDialog.Username!))
                     {
                         ErrorSummary = "Tên đăng nhập này đã tồn tại.";
                         return false;
                     }
 
                     UserForDialog.PasswordHash = BCrypt.Net.BCrypt.HashPassword(DialogPassword);
-                    db.Users.Add(UserForDialog);
-                    await db.SaveChangesAsync();
-
-                    Users.Add(UserForDialog);
-                    SelectedUser = Users[Users.Count - 1];
+                    //db.Users.Add(UserForDialog);
+                    //await db.SaveChangesAsync();
+                    if(UserForDialog != null)
+                    {
+                        var result = await _apiService.AddAsync("Users", UserForDialog);
+                        if(result != null)
+                        {
+                            Users.Add(result);
+                            SelectedUser = Users[Users.Count - 1];
+                        }
+                    }
                 }
                 else
                 {
                     if(!string.IsNullOrWhiteSpace(DialogPassword))
                         UserForDialog.PasswordHash = BCrypt.Net.BCrypt.HashPassword(DialogPassword);
 
-                    db.Users.Update(UserForDialog);
-                    await db.SaveChangesAsync();
+                    //db.Users.Update(UserForDialog);
+                    //await db.SaveChangesAsync();
+                    await _apiService.UpdateAsync("Users", UserForDialog.Id, UserForDialog);
 
                     var index = Users.IndexOf(SelectedUser!);
                     if(index >= 0) Users[index] = UserForDialog;
@@ -239,10 +253,11 @@ namespace UiDesktopApp1.ViewModels.Pages
             IsBusy = true;
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                /*await using var db = await _dbContextFactory.CreateDbContextAsync();
                 
                 await db.Users.Where(u => u.Id == SelectedUser.Id)
-                              .ExecuteDeleteAsync();
+                              .ExecuteDeleteAsync();*/
+                await _apiService.DeleteAsync("Users", SelectedUser.Id);
                 Users.Remove(SelectedUser);
                 SelectedUser = null;
             }

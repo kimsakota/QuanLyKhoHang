@@ -20,8 +20,8 @@ namespace UiDesktopApp1.Services
             _httpClient = new HttpClient();
 
             // 1. Lấy URL API từ cấu hình
-            string apiUrl = configuration["AppSettings:ApiBaseUrl"] ?? "https://LAPTOP-5S9SACTI:5263/api/";
-            //string apiUrl = "http://LAPTOP-5S9SACTI:5263/api/"; // Tạm thời hardcode để tránh lỗi cấu hình
+            //string apiUrl = configuration["AppSettings:ApiBaseUrl"] ?? "https://LAPTOP-5S9SACTI:5263/api/";
+            string apiUrl = "http://LAPTOP-5S9SACTI:5263/api/"; // Tạm thời hardcode để tránh lỗi cấu hình
             //string apiUrl = "http://localhost:5263/api/";
 
             // Đảm bảo URL luôn có dấu / ở cuối
@@ -103,6 +103,61 @@ namespace UiDesktopApp1.Services
             }
         }
 
+        ///<summary>
+        /// Lấy danh sách bản ghi có giao dịch trong khoảng thời gian.
+        /// Ví dụ: await GetWithTransactionAsync<CustomerModel>("Customers", fromDate, toDate);
+        ///</summary>
+        public async Task<List<T>> GetWithTransactionAsync<T>(string endpoint, DateTime from, DateTime to)
+        {
+            try
+            {
+                var result = await _httpClient.GetFromJsonAsync<List<T>>(
+                    $"{endpoint}/WithTransaction?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}", _jsonOptions);
+                return result ?? new List<T>();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GET WITH TRANSACTION Error [{endpoint}]: {ex.Message}");
+                return new List<T>();
+            }
+        }
+
+        /// <summary>
+        /// Lấy báo cáo tổng hợp.
+        /// Ví dụ await GetReportAsync<CustomerReportResponse>("Reports/Customers", fromDate, toDate);
+        /// </summary>
+        public async Task<T?> GetReportAsync<T>(string endpoint, DateTime from, DateTime to)
+        {
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<T>(
+                    $"{endpoint}?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}", _jsonOptions);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GET REPORT Error [{endpoint}]: {ex.Message}");
+                return default;
+            }
+        }
+
+        /// <summary>
+        /// Lấy số lượng bản ghi trong bảng.
+        /// Ví dụ: await GetCountAsync("Products");
+        /// </summary>
+        public async Task<int> GetCountAsync(string endpoint)
+        {
+            try
+            {
+                var result = await _httpClient.GetFromJsonAsync<int>($"{endpoint}/Count", _jsonOptions);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GET COUNT Exception [{endpoint}]: {ex.Message}");
+                return 0;
+            }
+        }
+
         /// <summary>
         /// Thêm mới một bản ghi.
         /// Ví dụ: await AddAsync("Products", newProduct);
@@ -129,6 +184,10 @@ namespace UiDesktopApp1.Services
                 return default;
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
 
         /// <summary>
         /// Cập nhật bản ghi.
@@ -189,5 +248,7 @@ namespace UiDesktopApp1.Services
                 return false;
             }
         }
+
+        
     }
 }
