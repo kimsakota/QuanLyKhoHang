@@ -116,15 +116,24 @@ namespace UiDesktopApp1.ViewModels.Pages
             }
         }
 
-        partial async Task OnSelectedProductChanged(ProductModel? value)
+        partial void OnSelectedProductChanged(ProductModel? value)
         {
             if (value == null) return;
 
             if (!string.Equals(ProductSearchText, value.ProductName, StringComparison.OrdinalIgnoreCase))
                 ProductSearchText = value.ProductName ?? string.Empty;
 
-            // Lấy giá nhập gần nhất
-            await _apiService.GetLastImportPriceAsync<decimal>(value.Id);
+            // Gọi async method mà không await (fire-and-forget)
+            _ = LoadLastImportPriceAsync(value.Id);
+        }
+
+        private async Task LoadLastImportPriceAsync(int productId)
+        {
+            var lastPrice = await _apiService.GetLastImportPriceAsync(productId);
+            if (lastPrice > 0)
+            {
+                InputPrice = lastPrice;
+            }
         }
 
         // Đồng bộ lại tên hiển thị khi chọn NCC
