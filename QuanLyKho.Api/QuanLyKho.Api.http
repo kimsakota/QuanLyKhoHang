@@ -1,0 +1,6 @@
+@QuanLyKho.Api_HostAddress = http://localhost:5090
+
+GET {{QuanLyKho.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
