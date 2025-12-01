@@ -137,7 +137,7 @@
                                            ToolTip="Xem chi tiết"
                                            MouseOverBackground="LightBlue"
                                            Command="{Binding DataContext.ViewDetailsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                           CommandParameter="{Binding}"/>
+                                           CommandParameter="{Binding }"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

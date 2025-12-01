@@ -52,10 +52,10 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
         {
             _apiService = apiService;
             UpdateDateRangeFromSelection();
-            InitializeChartConfig();
+            InitializeCharts();
         }
 
-        private void InitializeChartConfig()
+        private void InitializeCharts()
         {
             YAxes = new Axis[]
             {
@@ -201,44 +201,23 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
         partial void OnSelectedTimeRangeIndexChanged(int value)
         {
             UpdateDateRangeFromSelection();
-            _ = LoadDataAsync();
+            if (SelectedTimeRangeIndex != 4)
+                _ = LoadDataAsync();
         }
 
         partial void OnStartDateChanged(DateTime value)
         {
-            if (SelectedTimeRangeIndex != 4 && !IsDateMatchingRange()) // 4 = Tùy chỉnh
+            if (SelectedTimeRangeIndex != 4) // 4 = Tùy chỉnh
                 SelectedTimeRangeIndex = 4;
-            else
-                _ = LoadDataAsync();
+            else _ = LoadDataAsync();
+                
         }
 
         partial void OnEndDateChanged(DateTime value) 
         {
-            if (SelectedTimeRangeIndex != 4 && !IsDateMatchingRange()) // 4 = Tùy chỉnh
+            if (SelectedTimeRangeIndex != 4) // 4 = Tùy chỉnh
                 SelectedTimeRangeIndex = 4;
-            else
-                _ = LoadDataAsync();
-        }
-
-        private bool IsDateMatchingRange()
-        {
-            var now = DateTime.Now.Date;
-            var start = StartDate.Date;
-            var end = EndDate.Date;
-
-            switch(SelectedTimeRangeIndex)
-            {
-                case 0: // 7 ngày qua
-                    return start == now.AddDays(-7) && end == now;
-                case 1: // 1 tháng qua
-                    return start == now.AddMonths(-1) && end == now;
-                case 2: // 3 tháng qua
-                    return start == now.AddMonths(-3) && end == now;
-                case 3: // Năm nay
-                    return start == new DateTime(now.Year, 1, 1) && end == now;
-                default:
-                    return false;
-            }
+            else _ = LoadDataAsync();
         }
 
         private void UpdateDateRangeFromSelection()

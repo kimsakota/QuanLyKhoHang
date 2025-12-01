@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -137,6 +138,42 @@ namespace UiDesktopApp1.Services
             {
                 System.Diagnostics.Debug.WriteLine($"GET REPORT Error [{endpoint}]: {ex.Message}");
                 return default;
+            }
+        }
+
+        ///<summary>
+        /// Lấy giao dịch gần nhất của người giao dịch
+        /// Ví dụ await GetLastTransaction<ImportDetail>("Imports", id)
+        ///</summary>
+        public async Task<T?> GetLastTransactionAsync<T>(string endpoint, int id)
+        {
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<T>(
+                    $"{endpoint}/LastTransaction?id={id}", _jsonOptions);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GET LASTTRANSACTION Error [{endpoint}]: {ex.Message}");
+                return default;
+            }
+        }
+
+        ///<summary>
+        /// Lấy giá giao dịch gần nhất của sản phẩm
+        /// Ví dụ await GetLastTransaction<ImportDetail>("Imports", id)
+        ///</summary>
+        public async Task<decimal> GetLastImportPriceAsync(int productId)
+        {
+            try
+            {
+                // Gọi API: api/Products/{id}/LastImportPrice
+                var result = await _httpClient.GetFromJsonAsync<decimal>($"Products/{productId}/LastImportPrice");
+                return result;
+            }
+            catch
+            {
+                return 0; // Lỗi hoặc không có dữ liệu thì trả về 0
             }
         }
 

@@ -17,7 +17,8 @@ namespace UiDesktopApp1.ViewModels.Pages
 {
     public partial class NhapKhoViewModel : ObservableObject, INavigationAware
     {
-        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly ApiService _apiService;
         private readonly CurrentUserService _currentUserService;
         private readonly NhaCungCapViewModel _nhaCungCapViewModel;
         private bool _isInitialized = false;
@@ -38,13 +39,13 @@ namespace UiDesktopApp1.ViewModels.Pages
         [ObservableProperty] private ObservableCollection<ImportDetailModel> _importDetails = new();
         [ObservableProperty] private decimal _totalAmount;
 
-        public NhapKhoViewModel(IDbContextFactory<AppDbContext> dbContextFactory, 
-            CurrentUserService currentUserService,
-            NhaCungCapViewModel nhaCungCapViewModel)
+        public NhapKhoViewModel(CurrentUserService currentUserService,
+            NhaCungCapViewModel nhaCungCapViewModel,
+            ApiService apiService)
         {
-            _dbContextFactory = dbContextFactory;
             _currentUserService = currentUserService;
-            _nhaCungCapViewModel = nhaCungCapViewModel; 
+            _nhaCungCapViewModel = nhaCungCapViewModel;
+            _apiService = apiService;
         }
 
         public async Task OnNavigatedToAsync()
@@ -63,14 +64,16 @@ namespace UiDesktopApp1.ViewModels.Pages
         {
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                //await using var db = await _dbContextFactory.CreateDbContextAsync();
 
                 Suppliers.Clear();
-                var suppliers = await db.Suppliers.AsNoTracking().OrderBy(s => s.Name).ToListAsync();
+                //var suppliers = await db.Suppliers.AsNoTracking().OrderBy(s => s.Name).ToListAsync();
+                var suppliers = await _apiService.GetAllAsync<SupplierModel>("Suppliers");
                 foreach (var s in suppliers) Suppliers.Add(s);
 
                 Products.Clear();
-                var products = await db.Products.AsNoTracking().OrderBy(p => p.ProductName).ToListAsync();
+                //var products = await db.Products.AsNoTracking().OrderBy(p => p.ProductName).ToListAsync();
+                var products = await _apiService.GetAllAsync<ProductModel>("Products");
                 foreach (var p in products) Products.Add(p);
             }
             catch (Exception ex) { ErrorMessage = $"Lỗi tải dữ liệu: {ex.Message}"; }
@@ -113,7 +116,7 @@ namespace UiDesktopApp1.ViewModels.Pages
             }
         }
 
-        partial void OnSelectedProductChanged(ProductModel? value)
+        partial async Task OnSelectedProductChanged(ProductModel? value)
         {
             if (value == null) return;
 
@@ -121,24 +124,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                 ProductSearchText = value.ProductName ?? string.Empty;
 
             // Lấy giá nhập gần nhất
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await using var db = await _dbContextFactory.CreateDbContextAsync();
-                    var lastImport = await db.ImportDetails
-                        .Include(d => d.Import)
-                        .Where(d => d.ProductId == value.Id)
-                        .OrderByDescending(d => d.Import!.ImportDate)
-                        .FirstOrDefaultAsync();
-
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        InputPrice = lastImport != null ? lastImport.UnitPrice : (value.SalePrice * 0.7m);
-                    });
-                }
-                catch { }
-            });
+            await _apiService.GetLastImportPriceAsync<decimal>(value.Id);
         }
 
         // Đồng bộ lại tên hiển thị khi chọn NCC
@@ -234,48 +220,45 @@ namespace UiDesktopApp1.ViewModels.Pages
             // Processing
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
-                using var transaction = await db.Database.BeginTransactionAsync();
+                //await using var db = await _dbContextFactory.CreateDbContextAsync();
+                //using var transaction = await db.Database.BeginTransactionAsync();
 
-                try
+                var newImport = new ImportModel
                 {
-                    var newImport = new ImportModel
+                    SupplierId = SelectedSupplier.Id,
+                    ImportDate = DateTime.Now,
+                    ImportedBy = _currentUserService.CurrentUser?.Username ?? "Unknown", // Lưu Username
+                    ImportDetails = ImportDetails.Select(d => new ImportDetailModel
                     {
-                        SupplierId = SelectedSupplier.Id,
-                        ImportDate = DateTime.Now,
-                        ImportedBy = _currentUserService.CurrentUser?.Username ?? "Unknown", // Lưu Username
-                        ImportDetails = new List<ImportDetailModel>()
-                    };
+                        ProductId = d.ProductId,
+                        Quantity = d.Quantity,
+                        UnitPrice = d.UnitPrice,
+                    }).ToList()
+                };
 
-                    foreach (var item in ImportDetails)
+                /*foreach (var item in ImportDetails)
+                {
+                    newImport.ImportDetails.Add(new ImportDetailModel
                     {
-                        newImport.ImportDetails.Add(new ImportDetailModel
-                        {
-                            ProductId = item.ProductId,
-                            Quantity = item.Quantity,
-                            UnitPrice = item.UnitPrice
-                        });
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice
+                    });
 
-                        // Cập nhật tồn kho: Cộng thêm
-                        var productInDb = await db.Products.FindAsync(item.ProductId);
-                        if (productInDb != null)
-                        {
-                            productInDb.InitialQty += item.Quantity;
-                        }
+                    // Cập nhật tồn kho: Cộng thêm
+                    var productInDb = await db.Products.FindAsync(item.ProductId);
+                    if (productInDb != null)
+                    {
+                        productInDb.InitialQty += item.Quantity;
                     }
+                }*/
 
-                    db.Imports.Add(newImport);
-                    await db.SaveChangesAsync();
-                    await transaction.CommitAsync();
+                var transaction = await _apiService.AddAsync<ImportModel>("Imports", newImport);
 
-                    MessageBox.Show("Lưu phiếu nhập thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                    RefreshForm(); // Làm mới trang sau khi lưu thành công
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    MessageBox.Show($"Lỗi khi lưu: {ex.Message}", "Lỗi Database", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                
+
+                MessageBox.Show("Lưu phiếu nhập thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                RefreshForm(); // Làm mới trang sau khi lưu thành công
             }
             catch (Exception ex)
             {

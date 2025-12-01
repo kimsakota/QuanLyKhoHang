@@ -179,7 +179,7 @@
                         <ui:DataGrid.Columns>
                             <DataGridTextColumn Header="Họ tên" Binding="{Binding Name}" Width="*" FontWeight="Medium"/>
                             <DataGridTextColumn Header="Số điện thoại" Binding="{Binding Phone}" Width="120"/>
-                            <DataGridTextColumn Header="Số đơn hàng" Binding="{Binding OrderCount}" Width="100"/>
+                            <DataGridTextColumn Header="Số đơn hàng" Binding="{Binding OrderCount}" Width="110"/>
                             <DataGridTextColumn Header="Tổng chi tiêu" Binding="{Binding TotalSpent, StringFormat={}{0:N0} đ}" 
                                                 Width="140" FontWeight="Bold" Foreground="ForestGreen"/>
                         </ui:DataGrid.Columns>
