@@ -6,6 +6,8 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<ApplicationIcon>wpfui-icon.ico</ApplicationIcon>
 		<UseWPF>true</UseWPF>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>c67f5a5b-8763-4545-852d-7b2eebeb9f0c</UserSecretsId>
@@ -19,7 +21,6 @@
 		<PackageReference Include="Azure.Identity" Version="1.17.1" />
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc5.4" />
-		<PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
@@ -63,5 +64,14 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>
+	<ItemGroup>
+		<Compile Remove="QuanLyKho.API\**" />
+		<Compile Remove="WebApplication1\**" />
+		<EmbeddedResource Remove="QuanLyKho.API\**" />
+		<EmbeddedResource Remove="WebApplication1\**" />
+		<None Remove="QuanLyKho.API\**" />
+		<None Remove="WebApplication1\**" />
+	</ItemGroup>
+
 
 </Project>
