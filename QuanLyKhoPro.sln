@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UiDesktopApp1", "UiDesktopApp1.csproj", "{672D1645-06FC-4FB8-BCE7-1B7A52639B2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyKho.Server", "QuanLyKho.Server\QuanLyKho.Server.csproj", "{5CC16DCE-BE14-8BC9-A3BA-62432432B554}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyKho.API", "..\QuanLyKho.API\QuanLyKho.API.csproj", "{D4181461-16EC-83AC-EC1E-3A9DD5C457DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{672D1645-06FC-4FB8-BCE7-1B7A52639B2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{672D1645-06FC-4FB8-BCE7-1B7A52639B2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{672D1645-06FC-4FB8-BCE7-1B7A52639B2E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5CC16DCE-BE14-8BC9-A3BA-62432432B554}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5CC16DCE-BE14-8BC9-A3BA-62432432B554}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5CC16DCE-BE14-8BC9-A3BA-62432432B554}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5CC16DCE-BE14-8BC9-A3BA-62432432B554}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4181461-16EC-83AC-EC1E-3A9DD5C457DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4181461-16EC-83AC-EC1E-3A9DD5C457DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4181461-16EC-83AC-EC1E-3A9DD5C457DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4181461-16EC-83AC-EC1E-3A9DD5C457DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
