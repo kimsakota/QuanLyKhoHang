@@ -1,0 +1,38 @@
+﻿@model IEnumerable<Product>
+
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+}
+
+<div class="container mt-4">
+    <h2>Danh sách sản phẩm</h2>
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Thêm mới</a>
+    </p>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Mã SP</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá bán</th>
+                <th>Tồn kho</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ProductCode</td>
+                    <td>@item.ProductName</td>
+                    <td>@item.SalePrice.ToString("N0") đ</td>
+                    <td>@item.InitialQty</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Sửa</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
