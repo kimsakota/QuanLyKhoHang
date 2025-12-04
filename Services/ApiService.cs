@@ -21,8 +21,8 @@ namespace UiDesktopApp1.Services
             _httpClient = new HttpClient();
 
             // 1. Lấy URL API từ cấu hình
-            //string apiUrl = configuration["AppSettings:ApiBaseUrl"] ?? "https://LAPTOP-5S9SACTI:5263/api/";
-            string apiUrl = "http://LAPTOP-5S9SACTI:5263/api/"; // Tạm thời hardcode để tránh lỗi cấu hình
+            string apiUrl = configuration["AppSettings:ApiBaseUrl"] ?? "https://LAPTOP-5S9SACTI:5263/api/";
+            //string apiUrl = "http://LAPTOP-5S9SACTI:5263/api/"; // Tạm thời hardcode để tránh lỗi cấu hình
             //string apiUrl = "http://localhost:5263/api/";
 
             // Đảm bảo URL luôn có dấu / ở cuối
@@ -212,10 +212,26 @@ namespace UiDesktopApp1.Services
         }
 
         /// <summary>
+        /// Gọi GET generic theo URL tùy chỉnh, trả về 1 object T
+        /// </summary>
+        public async Task<T?> GetAsync<T>(string endpoint)
+        {
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<T>(endpoint, _jsonOptions);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GET Error [{endpoint}]: {ex.Message}");
+                return default;
+            }
+        }
+
+        /// <summary>
         /// Thêm mới một bản ghi.
         /// Ví dụ: await AddAsync("Products", newProduct);
         /// </summary>
-        public async Task<T?> AddAsync<T>(string endpoint, T item)
+        public async Task<TResponse?> AddAsync<TRequest, TResponse>(string endpoint, TRequest item)
         {
             try
             {
@@ -223,8 +239,8 @@ namespace UiDesktopApp1.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Trả về đối tượng vừa tạo (bao gồm ID mới sinh ra)
-                    return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
+                    // Trả về đối tượng kiểu TResponse (ví dụ: ExportModel)
+                    return await response.Content.ReadFromJsonAsync<TResponse>(_jsonOptions);
                 }
 
                 var error = await response.Content.ReadAsStringAsync();

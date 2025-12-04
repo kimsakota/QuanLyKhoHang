@@ -131,9 +131,7 @@ namespace UiDesktopApp1.ViewModels.Pages
         {
             var lastPrice = await _apiService.GetLastImportPriceAsync(productId);
             if (lastPrice > 0)
-            {
                 InputPrice = lastPrice;
-            }
         }
 
         // Đồng bộ lại tên hiển thị khi chọn NCC

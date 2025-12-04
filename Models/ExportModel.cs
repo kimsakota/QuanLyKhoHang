@@ -13,7 +13,6 @@ namespace UiDesktopApp1.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
         [ObservableProperty]
         private DateTime exportDate;
 

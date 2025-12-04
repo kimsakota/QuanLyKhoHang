@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using UiDesktopApp1.DTOs;
 using UiDesktopApp1.Models;
 using UiDesktopApp1.Services;
 using UiDesktopApp1.ViewModels.Pages.LienHe;
@@ -130,8 +131,8 @@ namespace UiDesktopApp1.ViewModels.Pages
                 try
                 {
                     //await using var db = await _dbContextFactory.CreateDbContextAsync();
-                    var realTimeProduct = await db.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == value.Id);
-
+                    //var realTimeProduct = await db.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == value.Id);
+                    var realTimeProduct = await _apiService.GetByIdAsync<ProductModel>("Products", value.Id);
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         if (realTimeProduct != null)
@@ -238,58 +239,37 @@ namespace UiDesktopApp1.ViewModels.Pages
                                           "Xác nhận xuất kho", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (confirm != MessageBoxResult.Yes) return;
 
-            // Processing
+            //Chuẩn bị dữ liệu gửi lên API (Mpping sang DTO) 
+            var request = new CreateExportRequest
+            {
+                CustomerId = SelectedCustomer?.Id ?? 0,
+
+                NewCustomerName = (SelectedCustomer?.Id ?? 0) == 0 ? CustomerSearchText : null,
+                NewCustomerPhone = (SelectedCustomer?.Id ?? 0) == 0 ? SelectedCustomer?.PhoneNumber : null,
+                NewCustomerAddress = (SelectedCustomer?.Id ?? 0) == 0 ? SelectedCustomer?.Address : null,
+
+                Details = ExportDetails.Select(d => new ExportItemDto
+                {
+                    ProductId = d.ProductId,
+                    Quantity = d.Quantity,
+                    UnitPrice = d.UnitPrice
+                }).ToList()
+            };
+
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
-                using var trans = await db.Database.BeginTransactionAsync();
+                var result = await _apiService.AddAsync<CreateExportRequest, ExportModel>("Exports", request);
 
-                try
+                if (result != null)
                 {
-                    if (SelectedCustomer.Id == 0) // Lưu khách mới
-                    {
-                        db.Customers.Add(SelectedCustomer);
-                        await db.SaveChangesAsync();
-                    }
-
-                    var newExport = new ExportModel
-                    {
-                        CustomerId = SelectedCustomer.Id,
-                        ExportDate = DateTime.Now,
-                        ExportedBy = _currentUserService.CurrentUser?.Username ?? "Unknown", // Lưu Username
-                        ExportDetails = new List<ExportDetailModel>()
-                    };
-
-                    foreach (var item in ExportDetails)
-                    {
-                        var productInDb = await db.Products.FindAsync(item.ProductId);
-                        if (productInDb == null) throw new Exception($"Sản phẩm {item.Product?.ProductCode} không tồn tại.");
-
-                        if (productInDb.InitialQty < item.Quantity)
-                            throw new Exception($"Sản phẩm '{productInDb.ProductName}' không đủ hàng. Tồn: {productInDb.InitialQty}");
-
-                        // Cập nhật tồn kho: Trừ đi
-                        productInDb.InitialQty -= item.Quantity;
-
-                        newExport.ExportDetails.Add(new ExportDetailModel
-                        {
-                            ProductId = item.ProductId,
-                            Quantity = item.Quantity,
-                            UnitPrice = item.UnitPrice
-                        });
-                    }
-
-                    db.Exports.Add(newExport);
-                    await db.SaveChangesAsync();
-                    await trans.CommitAsync();
-
                     MessageBox.Show("Xuất kho thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                     RefreshForm();
+                    await LoadDataAsync(); // Tải lại danh sách sản phẩm để cập nhật tồn kho mới nhất
                 }
-                catch (Exception ex)
+                else
                 {
-                    await trans.RollbackAsync();
-                    MessageBox.Show($"Lỗi khi lưu: {ex.Message}", "Lỗi Database", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // ApiService cần được cấu hình để log lỗi chi tiết ra Output hoặc trả về message lỗi
+                    MessageBox.Show("Lỗi khi lưu phiếu xuất. Vui lòng kiểm tra lại tồn kho hoặc kết nối mạng.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
