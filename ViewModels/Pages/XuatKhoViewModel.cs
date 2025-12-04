@@ -16,7 +16,8 @@ namespace UiDesktopApp1.ViewModels.Pages
 {
     public partial class XuatKhoViewModel : ObservableObject, INavigationAware
     {
-        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly ApiService _apiService;
         private readonly CurrentUserService _currentUserService;
         private readonly KhachHangViewModel _khachHangViewModel;
         private bool _isInitialized = false;
@@ -38,11 +39,11 @@ namespace UiDesktopApp1.ViewModels.Pages
         [ObservableProperty] private ObservableCollection<ExportDetailModel> _exportDetails = new();
         [ObservableProperty] private decimal _totalAmount;
 
-        public XuatKhoViewModel(IDbContextFactory<AppDbContext> dbContextFactory,
+        public XuatKhoViewModel(ApiService apiService,
             CurrentUserService currentUserService,
             KhachHangViewModel khachHangViewModel)
         {
-            _dbContextFactory = dbContextFactory;
+            _apiService = apiService;
             _currentUserService = currentUserService;
             _khachHangViewModel = khachHangViewModel;
         }
@@ -63,15 +64,17 @@ namespace UiDesktopApp1.ViewModels.Pages
         {
             try
             {
-                await using var db = await _dbContextFactory.CreateDbContextAsync();
+                //await using var db = await _dbContextFactory.CreateDbContextAsync();
 
                 Customers.Clear();
-                var listCus = await db.Customers.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
-                foreach (var c in listCus) Customers.Add(c);
+                //var listCus = await db.Customers.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
+                var customers = await _apiService.GetAllAsync<CustomerModel>("Exports");
+                foreach (var c in customers) Customers.Add(c);
 
                 Products.Clear();
-                var listPro = await db.Products.AsNoTracking().OrderBy(p => p.ProductName).ToListAsync();
-                foreach (var p in listPro) Products.Add(p);
+                //var listPro = await db.Products.AsNoTracking().OrderBy(p => p.ProductName).ToListAsync();
+                var products = await _apiService.GetAllAsync<ProductModel>("Products");
+                foreach (var p in products) Products.Add(p);
             }
             catch (Exception ex) { ErrorMessage = $"Lỗi tải dữ liệu: {ex.Message}"; }
         }
@@ -126,7 +129,7 @@ namespace UiDesktopApp1.ViewModels.Pages
             {
                 try
                 {
-                    await using var db = await _dbContextFactory.CreateDbContextAsync();
+                    //await using var db = await _dbContextFactory.CreateDbContextAsync();
                     var realTimeProduct = await db.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == value.Id);
 
                     Application.Current.Dispatcher.Invoke(() =>
@@ -141,6 +144,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                 catch { }
             });
         }
+
 
         partial void OnSelectedCustomerChanged(CustomerModel? value)
         {
