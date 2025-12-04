@@ -71,7 +71,6 @@ namespace UiDesktopApp1
                     services.AddSingleton<IThemeService, ThemeService>();
                     services.AddSingleton<ITaskBarService, TaskBarService>();
                     services.AddSingleton<INavigationService, NavigationService>();
-                    services.AddScoped<IAuthenticationService, AuthenticationService>();
                     services.AddSingleton<INavigationWindow, MainWindow>();
                     services.AddSingleton<CurrentUserService>();
                     services.AddTransient<MainWindowViewModel>();

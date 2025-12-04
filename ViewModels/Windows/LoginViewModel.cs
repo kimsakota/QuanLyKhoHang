@@ -18,6 +18,9 @@ namespace UiDesktopApp1.ViewModels.Windows
 {
     public partial class LoginViewModel : ObservableObject
     {
+        private readonly CurrentUserService _currentUserService;
+        private readonly ApiService _apiService;
+
         public Action? CloseAction { get; set; }
         public bool IsLoginSuccessful { get; private set; } = false;
 
@@ -32,13 +35,12 @@ namespace UiDesktopApp1.ViewModels.Windows
 
         public string Password { get; set; } = "123";
 
-        private readonly IAuthenticationService _authService;
-        private readonly CurrentUserService _currentUserService;
 
-        public LoginViewModel(IAuthenticationService authService, CurrentUserService currentUserService)
+        public LoginViewModel(CurrentUserService currentUserService,
+            ApiService apiService)
         {
-            _authService = authService;
             _currentUserService = currentUserService;
+            _apiService = apiService;
         }
 
         private bool CanLogin() => !IsLoggingIn;
@@ -65,8 +67,8 @@ namespace UiDesktopApp1.ViewModels.Windows
 
             try
             {
-                UserModel? user = await _authService.AuthenticateAsync(Username, Password); // Truyền thẳng string
-
+                //UserModel? user = await _authService.AuthenticateAsync(Username, Password); // Truyền thẳng string
+                UserModel? user = await _apiService.LoginAsync(Username, Password);
                 if (user != null)
                 {
                     _currentUserService.SetCurrentUser(user);

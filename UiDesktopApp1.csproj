@@ -35,11 +35,11 @@
 
 		<PackageReference Include="System.Net.Http.Json" Version="8.0.1" />
 		<PackageReference Include="WPF-UI" Version="4.1.0" />
-		<PackageReference Include="WPF-UI.DependencyInjection" Version="3.0.5" />
+		<PackageReference Include="WPF-UI.DependencyInjection" Version="4.1.0" />
 
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
-		<PackageReference Include="WPF-UI.Markdown" Version="3.0.0" />
+		<PackageReference Include="WPF-UI.Markdown" Version="4.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>

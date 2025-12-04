@@ -47,15 +47,30 @@ namespace UiDesktopApp1.Services
         {
             try
             {
-                var loginRequest = new { Username = username, Password = password };
+                var loginRequest = new { username = username, password = password };
                 // Gọi đến endpoint Users/Login
-                var response = await _httpClient.PostAsJsonAsync("Users/Login", loginRequest);
+                //var response = await _httpClient.PostAsJsonAsync("Users/Login", loginRequest);
+                var response = await _httpClient.PostAsJsonAsync("Auth/login", loginRequest, _jsonOptions);
 
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<UserModel>(_jsonOptions);
+                    System.Diagnostics.Debug.WriteLine($"Login Error: {response.StatusCode}");
+                    return null;
                 }
-                return null;
+
+                //Read AuthRespone from API
+                var user = await response.Content.ReadFromJsonAsync<UserModel>(_jsonOptions);
+                if(user == null || string.IsNullOrWhiteSpace(user.Token))
+                {
+                    System.Diagnostics.Debug.WriteLine("Login Error: AuthResponse null hoặc không có Token");
+                    return null;
+                }
+
+                // Gắn Bearer Token vào header để các request sau tự kèm Authorization
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", user.Token);
+
+                return user;
             }
             catch (Exception ex)
             {
@@ -76,6 +91,7 @@ namespace UiDesktopApp1.Services
         {
             try
             {
+
                 var result = await _httpClient.GetFromJsonAsync<List<T>>(endpoint, _jsonOptions);
                 return result ?? new List<T>();
             }

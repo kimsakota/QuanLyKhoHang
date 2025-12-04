@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,6 +39,9 @@ namespace UiDesktopApp1.Models
         [MaxLength(50)]
         [ObservableProperty] 
         private string role = "Employee";
+
+        [NotMapped]        
+        public string? Token { get; set; }
 
         public void ValidateAll() => base.ValidateAllProperties();
     }
