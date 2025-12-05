@@ -21,8 +21,8 @@ namespace UiDesktopApp1.Services
             _httpClient = new HttpClient();
 
             // 1. Lấy URL API từ cấu hình
-            string apiUrl = configuration["AppSettings:ApiBaseUrl"] ?? "https://LAPTOP-5S9SACTI:5263/api/";
-            //string apiUrl = "http://LAPTOP-5S9SACTI:5263/api/"; // Tạm thời hardcode để tránh lỗi cấu hình
+            //string apiUrl = configuration["AppSettings:ApiBaseUrl"] ?? "https://LAPTOP-5S9SACTI:5263/api/";
+            string apiUrl = "http://LAPTOP-5S9SACTI:5263/api/"; // Tạm thời hardcode để tránh lỗi cấu hình
             //string apiUrl = "http://localhost:5263/api/";
 
             // Đảm bảo URL luôn có dấu / ở cuối

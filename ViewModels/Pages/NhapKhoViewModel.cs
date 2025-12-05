@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -52,8 +53,8 @@ namespace UiDesktopApp1.ViewModels.Pages
         {
             if (!_isInitialized)
             {
-                RefreshForm(); 
-                await LoadDataAsync(); 
+                RefreshForm();
+                await LoadDataAsync();
                 _isInitialized = true;
             }
         }
@@ -131,7 +132,9 @@ namespace UiDesktopApp1.ViewModels.Pages
         {
             var lastPrice = await _apiService.GetLastImportPriceAsync(productId);
             if (lastPrice > 0)
+            {
                 InputPrice = lastPrice;
+            }
         }
 
         // Đồng bộ lại tên hiển thị khi chọn NCC
@@ -206,7 +209,7 @@ namespace UiDesktopApp1.ViewModels.Pages
         {
             if (SelectedSupplier == null)
             {
-                if(!string.IsNullOrWhiteSpace(SupplierSearchText))
+                if (!string.IsNullOrWhiteSpace(SupplierSearchText))
                     MessageBox.Show($"Nhà cung cấp '{SupplierSearchText}' chưa có.", "Xác nhận", MessageBoxButton.OK, MessageBoxImage.Warning);
                 else
                     MessageBox.Show("Vui lòng chọn Nhà cung cấp.", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -260,9 +263,9 @@ namespace UiDesktopApp1.ViewModels.Pages
                     }
                 }*/
 
-                var transaction = await _apiService.AddAsync<ImportModel>("Imports", newImport);
+                var transaction = await _apiService.AddAsync<ImportModel,ImportModel>("Imports", newImport);
 
-                
+
 
                 MessageBox.Show("Lưu phiếu nhập thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 RefreshForm(); // Làm mới trang sau khi lưu thành công
@@ -302,9 +305,9 @@ namespace UiDesktopApp1.ViewModels.Pages
         {
             var newSupplier = await _nhaCungCapViewModel.AddFromExternalAsync();
 
-            if(newSupplier != null)
+            if (newSupplier != null)
             {
-                if(!Suppliers.Any(s => s.Id == newSupplier.Id))
+                if (!Suppliers.Any(s => s.Id == newSupplier.Id))
                     Suppliers.Add(newSupplier);
 
                 SelectedSupplier = newSupplier;
@@ -313,12 +316,12 @@ namespace UiDesktopApp1.ViewModels.Pages
         }
 
         [RelayCommand]
-        private async Task RefreshDataAsync() 
+        private async Task RefreshDataAsync()
         {
-            var ask = MessageBox.Show("Làm mới dữ liệu sẽ xóa toàn bộ thông tin đang nhập. Tiếp tục?", 
+            var ask = MessageBox.Show("Làm mới dữ liệu sẽ xóa toàn bộ thông tin đang nhập. Tiếp tục?",
                 "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (ask != MessageBoxResult.Yes) return;
-            RefreshForm(); 
+            RefreshForm();
             await LoadDataAsync();
         }
     }

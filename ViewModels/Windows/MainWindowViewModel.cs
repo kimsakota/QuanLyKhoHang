@@ -232,7 +232,8 @@ namespace UiDesktopApp1.ViewModels.Windows
                         Icon = new SymbolIcon { Symbol = SymbolRegular.PeopleSettings20 },
                         TargetPageType = typeof(Views.Pages.QuanLyNguoiDungPage)
                     });
-                    break;
+                 
+                    
             }
             return menu;
         }

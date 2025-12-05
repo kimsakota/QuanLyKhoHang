@@ -198,7 +198,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                     //await db.SaveChangesAsync();
                     if(UserForDialog != null)
                     {
-                        var result = await _apiService.AddAsync("Users", UserForDialog);
+                        var result = await _apiService.AddAsync<UserModel, UserModel>("Users", UserForDialog);
                         if(result != null)
                         {
                             Users.Add(result);
