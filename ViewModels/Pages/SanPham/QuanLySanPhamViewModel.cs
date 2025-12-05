@@ -280,7 +280,7 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
 
                     /*db.Products.Add(ProductForDialog);
                     await db.SaveChangesAsync();*/
-                    var addedProduct = await _apiService.AddAsync("Products", ProductForDialog);
+                    var addedProduct = await _apiService.AddAsync<ProductModel, ProductModel>("Products", ProductForDialog);
                     if (addedProduct == null)
                     {
                         ErrorSummary = "Lỗi khi thêm sản phẩm vào hệ thống, vui lòng thử lại sau!";
@@ -446,7 +446,7 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
 
                 var newCategory = new CategoryModel { Name = NewCategoryName.Trim() };
 
-                var result = await _apiService.AddAsync("Categories", newCategory);
+                var result = await _apiService.AddAsync<CategoryModel, CategoryModel>("Categories", newCategory);
                 if(result == null)
                 {
                     ErrorSummary1 = "Thêm thất bại! Vui lòng kiểm tra kết nối hoặc thử lại sau.";

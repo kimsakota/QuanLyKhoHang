@@ -163,7 +163,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                     
                 else
                 {
-                    var result = await _apiService.AddAsync("Suppliers", Supplier);
+                    var result = await _apiService.AddAsync<SupplierModel, SupplierModel>("Suppliers", Supplier);
                     if(result != null)
                     {
                         Suppliers.Add(result);

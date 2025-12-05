@@ -164,7 +164,7 @@ namespace UiDesktopApp1.ViewModels.Pages.LienHe
                 {
                     //db.Customers.Add(Customer);
                     //await db.SaveChangesAsync();
-                    var result= await _apiService.AddAsync("Customers", Customer);
+                    var result= await _apiService.AddAsync<CustomerModel, CustomerModel>("Customers", Customer);
                     if(result != null)
                     {
                         Customers.Add(result);

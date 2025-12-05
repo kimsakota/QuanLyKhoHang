@@ -208,9 +208,6 @@ namespace UiDesktopApp1.ViewModels.Pages
                 }
                 else
                 {
-                    if(!string.IsNullOrWhiteSpace(DialogPassword))
-                        UserForDialog.PasswordHash = BCrypt.Net.BCrypt.HashPassword(DialogPassword);
-
                     //db.Users.Update(UserForDialog);
                     //await db.SaveChangesAsync();
                     await _apiService.UpdateAsync("Users", UserForDialog.Id, UserForDialog);
