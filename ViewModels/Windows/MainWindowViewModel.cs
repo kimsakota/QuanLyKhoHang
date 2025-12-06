@@ -226,7 +226,12 @@ namespace UiDesktopApp1.ViewModels.Windows
                             }
                         }
                     });
-                    
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Quản lý người dùng",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.PeopleSettings20 },
+                        TargetPageType = typeof(Views.Pages.QuanLyNguoiDungPage)
+                    });
                     break;
                     
             }

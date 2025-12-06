@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using UiDesktopApp1.DTOs;
 using UiDesktopApp1.Models;
 using UiDesktopApp1.Services;
 using UiDesktopApp1.ViewModels.Pages.LienHe;
@@ -233,16 +234,18 @@ namespace UiDesktopApp1.ViewModels.Pages
                 //await using var db = await _dbContextFactory.CreateDbContextAsync();
                 //using var transaction = await db.Database.BeginTransactionAsync();
 
-                var newImport = new ImportModel
+                var request = new CreateImportRequest
                 {
                     SupplierId = SelectedSupplier.Id,
                     ImportDate = DateTime.Now,
-                    ImportedBy = _currentUserService.CurrentUser?.Username ?? "Unknown", // Lưu Username
-                    ImportDetails = ImportDetails.Select(d => new ImportDetailModel
+                    ImportedBy = _currentUserService.CurrentUser?.Username ?? "Unknown",
+
+                    // Map từ ImportDetailModel (ObservableCollection) sang ImportItemDto (List)
+                    Details = ImportDetails.Select(d => new ImportItemDto
                     {
                         ProductId = d.ProductId,
                         Quantity = d.Quantity,
-                        UnitPrice = d.UnitPrice,
+                        UnitPrice = d.UnitPrice
                     }).ToList()
                 };
 
@@ -263,12 +266,23 @@ namespace UiDesktopApp1.ViewModels.Pages
                     }
                 }*/
 
-                var transaction = await _apiService.AddAsync<ImportModel,ImportModel>("Imports", newImport);
+                // Gọi API với DTO: AddAsync<TRequest, TResponse>
+                // TRequest là CreateImportRequest, TResponse là ImportModel (kết quả trả về từ server)
+                var result = await _apiService.AddAsync<CreateImportRequest, ImportModel>("Imports", request);
 
 
 
-                MessageBox.Show("Lưu phiếu nhập thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                RefreshForm(); // Làm mới trang sau khi lưu thành công
+                if (result != null)
+                {
+                    MessageBox.Show($"Lưu phiếu nhập thành công! (Mã: {result.Id})", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    RefreshForm(); // Làm mới trang sau khi lưu
+
+                    // Không cần gọi LoadDataAsync toàn bộ, chỉ cần reset form nhập liệu
+                    // Tuy nhiên nếu bạn muốn cập nhật lại tồn kho trong danh sách gợi ý sản phẩm ngay lập tức:
+                    await LoadDataAsync();
+                }
+                else
+                    MessageBox.Show("Lỗi khi lưu phiếu nhập. Vui lòng kiểm tra lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {

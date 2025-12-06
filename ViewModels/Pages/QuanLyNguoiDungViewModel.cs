@@ -192,8 +192,8 @@ namespace UiDesktopApp1.ViewModels.Pages
                         ErrorSummary = "Tên đăng nhập này đã tồn tại.";
                         return false;
                     }
-
-                    UserForDialog.PasswordHash = BCrypt.Net.BCrypt.HashPassword(DialogPassword);
+                    UserForDialog.PasswordHash = DialogPassword;
+                    //UserForDialog.PasswordHash = BCrypt.Net.BCrypt.HashPassword(DialogPassword);
                     //db.Users.Add(UserForDialog);
                     //await db.SaveChangesAsync();
                     if(UserForDialog != null)
@@ -210,6 +210,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                 {
                     //db.Users.Update(UserForDialog);
                     //await db.SaveChangesAsync();
+                    UserForDialog.PasswordHash = DialogPassword;
                     await _apiService.UpdateAsync("Users", UserForDialog.Id, UserForDialog);
 
                     var index = Users.IndexOf(SelectedUser!);

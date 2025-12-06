@@ -22,8 +22,9 @@ namespace UiDesktopApp1.Services
 
             // 1. Lấy URL API từ cấu hình
             //string apiUrl = configuration["AppSettings:ApiBaseUrl"] ?? "https://LAPTOP-5S9SACTI:5263/api/";
-            string apiUrl = "http://LAPTOP-5S9SACTI:5263/api/"; // Tạm thời hardcode để tránh lỗi cấu hình
-            //string apiUrl = "http://localhost:5263/api/";
+            //string apiUrl = "http://LAPTOP-5S9SACTI:5127/api/"; // Tạm thời hardcode để tránh lỗi cấu hình
+            //string apiUrl = "http://localhost:5127/api/";
+            string apiUrl = "https://kimsakota.xyz/api/";
 
             // Đảm bảo URL luôn có dấu / ở cuối
             if (!apiUrl.EndsWith("/")) apiUrl += "/";
