@@ -21,7 +21,8 @@ using UiDesktopApp1.Views.UserControls.SanPham; // Import Dialog View
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Controls;
-using UiDesktopApp1.Views.Pages; // Import ContentDialog
+using UiDesktopApp1.Views.Pages;
+using MessageBoxButton = System.Windows.MessageBoxButton; // Import ContentDialog
 
 namespace UiDesktopApp1.ViewModels.Pages.SanPham
 {
@@ -366,24 +367,22 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
             IsBusy = true;
             try
             {
-                //await using var db = await _dbContextFactory.CreateDbContextAsync();
-                List<int> idsToDelete = selectedItems.Select(p => p.Id).ToList();
-                //await db.Products.Where(p => idsToDelete.Contains(p.Id)).ExecuteDeleteAsync();
-                if(idsToDelete == null)
-                {
-                    System.Windows.MessageBox.Show("Lỗi: Danh sách ID cần xóa trống.");
-                    return;
-                }
-                else
-                    foreach (var id in idsToDelete)
-                        await _apiService.DeleteAsync("Products", id);
-
+                int deletedCount = 0;
                 foreach (var item in selectedItems)
                 {
-                    item.PropertyChanged -= Product_PropertyChanged;
-                    Products.Remove(item);
+                    bool isDeleted = await _apiService.DeleteAsync("Products", item.Id);
+
+                    if(isDeleted)
+                    {
+                        item.PropertyChanged -= Product_PropertyChanged;
+                        Products.Remove(item);
+                        deletedCount++;
+                    }
                 }
                 UpdateSelections();
+
+                if (deletedCount < selectedItems.Count)
+                    System.Windows.MessageBox.Show($"Đã xóa {deletedCount} sản phẩm. Một số sản phẩm không thể xóa do lỗi hoặc ràng buộc dữ liệu.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex) { System.Windows.MessageBox.Show($"Lỗi: {ex.Message}"); await LoadDataAsync(); }
             finally { IsBusy = false; }
