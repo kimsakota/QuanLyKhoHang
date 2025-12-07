@@ -69,7 +69,7 @@ namespace UiDesktopApp1.ViewModels.Pages
 
                 Customers.Clear();
                 //var listCus = await db.Customers.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
-                var customers = await _apiService.GetAllAsync<CustomerModel>("Exports");
+                var customers = await _apiService.GetAllAsync<CustomerModel>("Customers");
                 foreach (var c in customers) Customers.Add(c);
 
                 Products.Clear();
