@@ -100,7 +100,7 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <DataGridTextColumn Header="Mã số" Binding="{Binding ProductCode}" Width="110" FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="Mã số" Binding="{Binding ProductCode}" Width="0.5*" FontWeight="SemiBold"/>
                         <DataGridTextColumn Header="Tên sản phẩm" Binding="{Binding ProductName}" Width="*" />
                         <DataGridTextColumn Header="Danh mục" Binding="{Binding Category.Name}" Width="150" />
                         <DataGridTextColumn Header="Tồn kho" Binding="{Binding InitialQty}" Width="100" />

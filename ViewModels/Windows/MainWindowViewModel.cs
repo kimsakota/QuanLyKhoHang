@@ -260,7 +260,14 @@ namespace UiDesktopApp1.ViewModels.Windows
                     {
                         Content = "Khách hàng",
                         TargetPageType = typeof(Views.Pages.BaoCao.KhachHangPage)
+                    },
+                    // --- THÊM MỚI ---
+                    new NavigationViewItem()
+                    {
+                        Content = "Nhà cung cấp",
+                        TargetPageType = typeof(Views.Pages.BaoCao.NhaCungCapPage)
                     }
+                    // ----------------
                 }
             };
         }
@@ -286,13 +293,14 @@ namespace UiDesktopApp1.ViewModels.Windows
             var dialogControl = App.Services.GetRequiredService<SettingsDialog>();
 
             // Tạo ContentDialog
-            var dialog = new ContentDialog
+            ContentDialog contentDialog = new()
             {
                 Title = "Cài đặt",
                 Content = dialogControl,
                 CloseButtonText = "Đóng",
                 DefaultButton = ContentDialogButton.Close
             };
+            var dialog = contentDialog;
 
             // Hiển thị dialog
             await _contentDialogService.ShowAsync(dialog, CancellationToken.None);

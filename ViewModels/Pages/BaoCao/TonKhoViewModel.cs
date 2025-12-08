@@ -129,7 +129,7 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
                             Labels = reportData.TopValueProductChart.Select(x => x.Label).ToArray(),
                             LabelsRotation = 0,
                             // Ẩn chữ dưới trục X nếu tên sản phẩm quá dài, chỉ hiện khi hover
-                            // LabelsPaint = null 
+                            LabelsPaint = null 
                         }
                     };
                 }

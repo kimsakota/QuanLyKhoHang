@@ -95,6 +95,8 @@ namespace UiDesktopApp1
                     services.AddSingleton<TonKhoViewModel>();
                     services.AddSingleton<Views.Pages.BaoCao.KhachHangPage>();
                     services.AddSingleton<ViewModels.Pages.BaoCao.KhachHangViewModel>();
+                    services.AddSingleton<Views.Pages.BaoCao.NhaCungCapPage>();
+                    services.AddSingleton<ViewModels.Pages.BaoCao.NhaCungCapViewModel>();
 
                     services.AddSingleton<SanPhamPage>();
                     services.AddSingleton<SanPhamPageHeader>();
@@ -125,8 +127,8 @@ namespace UiDesktopApp1
                     services.AddSingleton<KhachHangPageHeader>();
                     services.AddTransient<ThemSuaKhachHangDialog>();
 
-                    services.AddSingleton<NhaCungCapPage>();
-                    services.AddSingleton<NhaCungCapViewModel>();
+                    services.AddSingleton<Views.Pages.LienHe.NhaCungCapPage>();
+                    services.AddSingleton<ViewModels.Pages.LienHe.NhaCungCapViewModel>();
                     services.AddSingleton<NhaCungCapPageHeader>();
                     services.AddTransient<ThemSuaNhaCungCapDialog>();
 

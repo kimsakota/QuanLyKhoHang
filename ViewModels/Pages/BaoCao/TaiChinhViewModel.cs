@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
-using Microsoft.EntityFrameworkCore;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -18,9 +17,14 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
 {
     public partial class TaiChinhViewModel : ObservableObject, INavigationAware
     {
-        //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly ApiService _apiService;
         private bool _isInitialized = false;
+
+        /// <summary>
+        /// Cờ để phân biệt: đang set Start/EndDate từ preset (code)
+        /// hay là do user tự chỉnh trên UI.
+        /// </summary>
+        private bool _isUpdatingDateRangeFromPreset;
 
         // --- KPI Properties ---
         [ObservableProperty] private decimal _totalRevenue;
@@ -51,6 +55,8 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
         public TaiChinhViewModel(ApiService apiService)
         {
             _apiService = apiService;
+
+            // Khởi tạo khoảng ngày ban đầu theo preset "7 ngày qua"
             UpdateDateRangeFromSelection();
             InitializeCharts();
         }
@@ -88,51 +94,8 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
 
             try
             {
-                /*await using var db = await _dbContextFactory.CreateDbContextAsync();
-
-                var start = StartDate.Date;
-                var end = EndDate.Date.AddDays(1).AddTicks(-1);
-
-                // 1. Lấy dữ liệu (Select trước để tối ưu SQL)
-                var exports = await db.ExportDetails
-                    .Include(d => d.Export)
-                    .Where(d => d.Export!.ExportDate >= start && d.Export.ExportDate <= end)
-                    .Select(d => new { Date = d.Export!.ExportDate, Total = d.Quantity * d.UnitPrice })
-                    .ToListAsync();
-
-                var imports = await db.ImportDetails
-                    .Include(d => d.Import)
-                    .Where(d => d.Import!.ImportDate >= start && d.Import.ImportDate <= end)
-                    .Select(d => new { Date = d.Import!.ImportDate, Total = d.Quantity * d.UnitPrice })
-                    .ToListAsync();
-
-                // 2. Tính KPI
-                TotalRevenue = exports.Sum(x => x.Total);
-                TotalCost = imports.Sum(x => x.Total);
-                TotalProfit = TotalRevenue - TotalCost;
-
-                // 3. Xử lý dữ liệu biểu đồ
-                var dateRange = Enumerable.Range(0, 1 + end.Subtract(start).Days)
-                                          .Select(offset => start.AddDays(offset))
-                                          .ToList();
-
-                var revenueData = new List<double>();
-                var costData = new List<double>();
-                var profitData = new List<double>();
-                var labels = new List<string>();
-
-                foreach (var date in dateRange)
-                {
-                    var rev = (double)exports.Where(x => x.Date.Date == date).Sum(x => x.Total);
-                    var cst = (double)imports.Where(x => x.Date.Date == date).Sum(x => x.Total);
-
-                    revenueData.Add(rev);
-                    costData.Add(cst);
-                    profitData.Add(rev - cst);
-                    labels.Add(date.ToString("dd/MM"));
-                }*/
-
-                var reportData = await _apiService.GetReportAsync<FinancialReportResponse>("Reports/Financial", StartDate, EndDate);
+                var reportData = await _apiService.GetReportAsync<FinancialReportResponse>(
+                    "Reports/Financial", StartDate, EndDate);
 
                 if (reportData != null)
                 {
@@ -141,11 +104,22 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
                     TotalCost = reportData.TotalCost;
                     TotalProfit = reportData.TotalProfit;
 
-                    // 2. Cập nhật Biểu đồ
-                    var dates = reportData.DailyStats.Select(x => x.Date.ToString("dd/MM")).ToArray();
-                    var revenueValues = reportData.DailyStats.Select(x => x.Revenue).ToArray();
-                    var costValues = reportData.DailyStats.Select(x => x.Cost).ToArray();
-                    var profitValues = reportData.DailyStats.Select(x => x.Profit).ToArray();
+                    // 2. Cập nhật dữ liệu cho biểu đồ
+                    var dates = reportData.DailyStats
+                        .Select(x => x.Date.ToString("dd/MM"))
+                        .ToArray();
+
+                    var revenueValues = reportData.DailyStats
+                        .Select(x => x.Revenue)
+                        .ToArray();
+
+                    var costValues = reportData.DailyStats
+                        .Select(x => x.Cost)
+                        .ToArray();
+
+                    var profitValues = reportData.DailyStats
+                        .Select(x => x.Profit)
+                        .ToArray();
 
                     Series = new ISeries[]
                     {
@@ -154,7 +128,6 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
                             Name = "Doanh thu",
                             Values = revenueValues,
                             Fill = new SolidColorPaint(SKColors.CornflowerBlue),
-                            // Fix lỗi Tooltip cho bản RC mới
                             YToolTipLabelFormatter = point => $"{point.Model:N0} VNĐ"
                         },
                         new ColumnSeries<decimal>
@@ -198,51 +171,97 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
             }
         }
 
+        /// <summary>
+        /// Khi đổi preset (7 ngày qua, 1 tháng, 3 tháng, Năm nay, Tùy chỉnh)
+        /// </summary>
         partial void OnSelectedTimeRangeIndexChanged(int value)
         {
+            // Cập nhật StartDate/EndDate theo preset
             UpdateDateRangeFromSelection();
+
+            // Nếu không phải "Tùy chỉnh" thì auto load
             if (SelectedTimeRangeIndex != 4)
+            {
                 _ = LoadDataAsync();
+            }
+            // Nếu là "Tùy chỉnh" thì chỉ đổi index, không tự load.
+            // User sẽ chỉnh Start/End rồi mình load trong OnStartDateChanged/OnEndDateChanged.
         }
 
+        /// <summary>
+        /// Khi StartDate thay đổi
+        /// </summary>
         partial void OnStartDateChanged(DateTime value)
         {
-            if (SelectedTimeRangeIndex != 4) // 4 = Tùy chỉnh
-                SelectedTimeRangeIndex = 4;
-            else _ = LoadDataAsync();
-                
+            // Nếu đang update bằng code (preset) thì bỏ qua
+            if (_isUpdatingDateRangeFromPreset)
+                return;
+
+            // Nếu đang ở preset khác "Tùy chỉnh" → chuyển sang "Tùy chỉnh" rồi LOAD luôn
+            if (SelectedTimeRangeIndex != 4)
+                SelectedTimeRangeIndex = 4;   // sẽ gọi OnSelectedTimeRangeIndexChanged,
+                                              // nhưng nó KHÔNG load vì index == 4
+
+            // Dù là lần đầu hay lần sau, cứ đổi StartDate (do user) là load
+            _ = LoadDataAsync();
         }
 
-        partial void OnEndDateChanged(DateTime value) 
+        /// <summary>
+        /// Khi EndDate thay đổi
+        /// </summary>
+        partial void OnEndDateChanged(DateTime value)
         {
-            if (SelectedTimeRangeIndex != 4) // 4 = Tùy chỉnh
+            if (_isUpdatingDateRangeFromPreset)
+                return;
+
+            if (SelectedTimeRangeIndex != 4)
                 SelectedTimeRangeIndex = 4;
-            else _ = LoadDataAsync();
+
+            _ = LoadDataAsync();
         }
 
+        /// <summary>
+        /// Set StartDate/EndDate dựa trên SelectedTimeRangeIndex.
+        /// Dùng cờ _isUpdatingDateRangeFromPreset để không kích hoạt logic "Tùy chỉnh".
+        /// </summary>
         private void UpdateDateRangeFromSelection()
         {
             var now = DateTime.Now;
-            switch (SelectedTimeRangeIndex)
+
+            _isUpdatingDateRangeFromPreset = true;
+
+            try
             {
-                case 0: // 7 ngày qua
-                    StartDate = now.AddDays(-7);
-                    EndDate = now;
-                    break;
-                case 1: // 1 tháng qua
-                    StartDate = now.AddMonths(-1);
-                    EndDate = now;
-                    break;
-                case 2: // 3 tháng qua
-                    StartDate = now.AddMonths(-3);
-                    EndDate = now;
-                    break;
-                case 3: // Năm nay
-                    StartDate = new DateTime(now.Year, 1, 1);
-                    EndDate = now;
-                    break;
-                default:
-                    break;
+                switch (SelectedTimeRangeIndex)
+                {
+                    case 0: // 7 ngày qua
+                        StartDate = now.AddDays(-7);
+                        EndDate = now;
+                        break;
+
+                    case 1: // 1 tháng qua
+                        StartDate = now.AddMonths(-1);
+                        EndDate = now;
+                        break;
+
+                    case 2: // 3 tháng qua
+                        StartDate = now.AddMonths(-3);
+                        EndDate = now;
+                        break;
+
+                    case 3: // Năm nay
+                        StartDate = new DateTime(now.Year, 1, 1);
+                        EndDate = now;
+                        break;
+
+                    case 4: // Tùy chỉnh → không động vào Start/End
+                    default:
+                        break;
+                }
+            }
+            finally
+            {
+                _isUpdatingDateRangeFromPreset = false;
             }
         }
     }
