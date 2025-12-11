@@ -226,6 +226,7 @@ namespace UiDesktopApp1.ViewModels.Pages
             }
             finally
             {
+                await LoadDataAsync();
                 IsBusy = false;
             }
         }
