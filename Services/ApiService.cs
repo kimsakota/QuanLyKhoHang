@@ -283,16 +283,38 @@ namespace UiDesktopApp1.Services
         /// </summary>
         public async Task<bool> DeleteAsync(string endpoint, int id)
         {
+            // 1. Bỏ try-catch ở đây để lỗi tự bắn ra ngoài cho ViewModel bắt
+            // Hoặc nếu muốn giữ try-catch thì phải throw lại lỗi.
+
+            var response = await _httpClient.DeleteAsync($"{endpoint}/{id}");
+
+            // 2. Nếu thành công (200 OK, 204 No Content) -> Trả về true
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+
+            // 3. Nếu thất bại (VD: 400 Bad Request do ràng buộc dữ liệu)
+            // ĐỌC NỘI DUNG LỖI TỪ SERVER GỬI VỀ
+            var errorContent = await response.Content.ReadAsStringAsync();
+
+            // Cố gắng lấy message đẹp nếu server trả json (Tùy chọn)
+            string finalMessage = errorContent;
             try
             {
-                var response = await _httpClient.DeleteAsync($"{endpoint}/{id}");
-                return response.IsSuccessStatusCode;
+                using (var doc = System.Text.Json.JsonDocument.Parse(errorContent))
+                {
+                    if (doc.RootElement.TryGetProperty("message", out var msg))
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                        finalMessage = msg.GetString();
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+                }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"DELETE Exception [{endpoint}]: {ex.Message}");
-                return false;
-            }
+            catch { }
+
+            // 4. NÉM LỖI RA NGOÀI (Thay vì return false)
+            // Việc này giúp hàm DeleteSelected bắt được dòng chữ "Sản phẩm đã tồn tại..."
+            throw new Exception(finalMessage);
         }
 
         /// <summary>

@@ -355,12 +355,12 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
             ProductForDialog.ProductCode = $"SP-{DateTime.Now:yyMMddHHmmss}";
         }
 
-        // Giữ lại logic xóa...
         [RelayCommand]
         private async Task DeleteSelected()
         {
             var selectedItems = _productsView.Cast<ProductModel>().Where(p => p.IsSelected).ToList();
             if (selectedItems.Count == 0) return;
+
             var result = System.Windows.MessageBox.Show($"Bạn có chắc chắn muốn xóa {selectedItems.Count} sản phẩm?", "Xác nhận xóa", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (result != System.Windows.MessageBoxResult.Yes) return;
 
@@ -368,23 +368,49 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
             try
             {
                 int deletedCount = 0;
+                var errorMessages = new List<string>(); // Danh sách chứa lỗi của từng item
+
                 foreach (var item in selectedItems)
                 {
-                    bool isDeleted = await _apiService.DeleteAsync("Products", item.Id);
-
-                    if(isDeleted)
+                    try
                     {
+                        // Gọi hàm DeleteAsync. Nếu lỗi, nó sẽ nhảy xuống catch ngay lập tức
+                        await _apiService.DeleteAsync("Products", item.Id);
+
+                        // Nếu chạy đến đây nghĩa là thành công (không bị Exception)
                         item.PropertyChanged -= Product_PropertyChanged;
                         Products.Remove(item);
                         deletedCount++;
                     }
+                    catch (Exception ex)
+                    {
+                        // Bắt lỗi chi tiết từ ApiService (VD: "Sản phẩm đã tồn tại trong lịch sử nhập")
+                        errorMessages.Add($"- {item.ProductName}: {ex.Message}");
+                    }
                 }
+
                 UpdateSelections();
 
+                // Hiển thị kết quả sau khi chạy xong hết
                 if (deletedCount < selectedItems.Count)
-                    System.Windows.MessageBox.Show($"Đã xóa {deletedCount} sản phẩm. Một số sản phẩm không thể xóa do lỗi hoặc ràng buộc dữ liệu.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                {
+                    string msg = $"Đã xóa {deletedCount}/{selectedItems.Count} sản phẩm.\n\nCác sản phẩm không thể xóa do ràng buộc:";
+
+                    if (errorMessages.Any())
+                    {
+                        // Chỉ hiện tối đa 5 lỗi để tránh bảng thông báo quá dài
+                        msg += "\n" + string.Join("\n", errorMessages.Take(5));
+                        if (errorMessages.Count > 5) msg += "\n...";
+                    }
+
+                    System.Windows.MessageBox.Show(msg, "Kết quả xóa", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
-            catch (Exception ex) { System.Windows.MessageBox.Show($"Lỗi: {ex.Message}"); await LoadDataAsync(); }
+            catch (Exception ex) // Catch lỗi hệ thống lớn (mất mạng, crash app...)
+            {
+                System.Windows.MessageBox.Show($"Lỗi hệ thống: {ex.Message}");
+                await LoadDataAsync();
+            }
             finally { IsBusy = false; }
         }
 
