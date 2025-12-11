@@ -32,11 +32,7 @@
                            Visibility="{Binding IsUserNotEmployee, Converter={x:Static beh:BooleanToVisibilityConverter.Instance}}"
                            Margin="5,10,5,10">
                 </ui:Button>
-                <ui:Button Content="Nhập sản phẩm"
-                           MouseOverBackground="LightBlue"
-                           Icon="{ui:SymbolIcon Symbol=ArrowSquareDown24, FontSize=17}"
-                           Margin="5,10,5,10">
-                </ui:Button>
+              
                 <ui:Button Content="Tải xuống Excel"
                            MouseOverBackground="LightBlue"
                            Icon="{ui:SymbolIcon Symbol=DocumentHeaderArrowDown24, FontSize=17}"

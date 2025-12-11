@@ -6,8 +6,6 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<ApplicationIcon>wpfui-icon.ico</ApplicationIcon>
 		<UseWPF>true</UseWPF>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>c67f5a5b-8763-4545-852d-7b2eebeb9f0c</UserSecretsId>

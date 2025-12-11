@@ -1,6 +1,7 @@
 ﻿
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using UiDesktopApp1.DTOs;
 using UiDesktopApp1.Models;
+using UiDesktopApp1.Models.Messages;
 using UiDesktopApp1.Services;
 using UiDesktopApp1.ViewModels.Pages.LienHe;
 using Wpf.Ui;
@@ -280,6 +282,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                     // Không cần gọi LoadDataAsync toàn bộ, chỉ cần reset form nhập liệu
                     // Tuy nhiên nếu bạn muốn cập nhật lại tồn kho trong danh sách gợi ý sản phẩm ngay lập tức:
                     await LoadDataAsync();
+                    WeakReferenceMessenger.Default.Send(new UpdateTonKhoMessage());
                 }
                 else
                     MessageBox.Show("Lỗi khi lưu phiếu nhập. Vui lòng kiểm tra lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);

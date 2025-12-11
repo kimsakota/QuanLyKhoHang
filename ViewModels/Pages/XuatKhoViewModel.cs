@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.ObjectModel;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using UiDesktopApp1.DTOs;
 using UiDesktopApp1.Models;
+using UiDesktopApp1.Models.Messages;
 using UiDesktopApp1.Services;
 using UiDesktopApp1.ViewModels.Pages.LienHe;
 using Wpf.Ui;
@@ -49,6 +51,7 @@ namespace UiDesktopApp1.ViewModels.Pages
             _khachHangViewModel = khachHangViewModel;
         }
 
+        
         public async Task OnNavigatedToAsync()
         {
             if (!_isInitialized)
@@ -264,6 +267,7 @@ namespace UiDesktopApp1.ViewModels.Pages
                 {
                     MessageBox.Show("Xuất kho thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                     RefreshForm();
+                    WeakReferenceMessenger.Default.Send(new UpdateTonKhoMessage());
                     await LoadDataAsync(); // Tải lại danh sách sản phẩm để cập nhật tồn kho mới nhất
                 }
                 else

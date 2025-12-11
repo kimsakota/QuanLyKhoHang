@@ -169,6 +169,12 @@ namespace UiDesktopApp1.ViewModels.Windows
                         Icon = new SymbolIcon { Symbol = SymbolRegular.ClipboardCheckmark24 },
                         TargetPageType = typeof(Views.Pages.KiemKeKhoPage)
                     });
+                    menu.Add(new NavigationViewItem()
+                    {
+                        Content = "Lịch sử",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.History24 },
+                        TargetPageType = typeof(Views.Pages.LichSuPage)
+                    });
                     break;
                 default:
                     // Manager: Báo cáo, SP, Nhập, Xuất, Kiểm kê

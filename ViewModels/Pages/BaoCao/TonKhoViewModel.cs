@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -10,12 +11,13 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using UiDesktopApp1.DTOs;
+using UiDesktopApp1.Models.Messages;
 using UiDesktopApp1.Services;
 using Wpf.Ui.Abstractions.Controls;
 
 namespace UiDesktopApp1.ViewModels.Pages.BaoCao
 {
-    public partial class TonKhoViewModel : ObservableObject, INavigationAware
+    public partial class TonKhoViewModel :  ObservableRecipient, INavigationAware, IRecipient<UpdateTonKhoMessage>
     {
         private readonly ApiService _apiService;
         private bool _isInitialized = false;
@@ -40,7 +42,13 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
         public TonKhoViewModel(ApiService apiService)
         {
             _apiService = apiService;
+            IsActive = true;
             InitializeChartAxes();
+        }
+
+        public async void Receive(UpdateTonKhoMessage message)
+        {
+            await LoadDataAsync();
         }
 
         private void InitializeChartAxes()
@@ -143,5 +151,7 @@ namespace UiDesktopApp1.ViewModels.Pages.BaoCao
                 IsBusy = false;
             }
         }
+
+        
     }
 }
