@@ -255,38 +255,32 @@ namespace UiDesktopApp1.Services
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
 
         /// <summary>
         /// Cập nhật bản ghi.
-        /// Ví dụ: await UpdateAsync("Products", product.Id, product);
+        /// Route: api/{endpoint}/Update/{id}
         /// </summary>
         public async Task<bool> UpdateAsync<T>(string endpoint, int id, T item)
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync($"{endpoint}/{id}", item, _jsonOptions);
+                var response = await _httpClient.PostAsJsonAsync($"{endpoint}/Update/{id}", item, _jsonOptions);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"PUT Exception [{endpoint}]: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"POST Exception [{endpoint}]: {ex.Message}");
                 return false;
             }
         }
 
         /// <summary>
         /// Xóa bản ghi.
-        /// Ví dụ: await DeleteAsync("Products", 5);
+        /// Route: api/{endpoint}/Delete/{id}
         /// </summary>
         public async Task<bool> DeleteAsync(string endpoint, int id)
         {
-            // 1. Bỏ try-catch ở đây để lỗi tự bắn ra ngoài cho ViewModel bắt
-            // Hoặc nếu muốn giữ try-catch thì phải throw lại lỗi.
-
-            var response = await _httpClient.DeleteAsync($"{endpoint}/{id}");
+            var response = await _httpClient.PostAsync($"{endpoint}/Delete/{id}", null);
 
             // 2. Nếu thành công (200 OK, 204 No Content) -> Trả về true
             if (response.IsSuccessStatusCode)
