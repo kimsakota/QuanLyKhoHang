@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using UiDesktopApp1.Models;
+using UiDesktopApp1.Models.Messages;
 using UiDesktopApp1.Services;
 using UiDesktopApp1.Views.UserControls;
 using Wpf.Ui;
@@ -227,6 +229,7 @@ namespace UiDesktopApp1.ViewModels.Pages
             finally
             {
                 await LoadDataAsync();
+                WeakReferenceMessenger.Default.Send(new NotifyRefreshMessage(RefreshType.ProductList));
                 IsBusy = false;
             }
         }

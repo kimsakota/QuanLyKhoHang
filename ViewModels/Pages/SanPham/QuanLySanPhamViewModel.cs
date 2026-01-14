@@ -172,9 +172,7 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
 
             var viewItems = _productsView.Cast<ProductModel>().ToList();
             foreach (var item in viewItems)
-            {
                 item.IsSelected = value;
-            }
 
             // Cập nhật lại số lượng đã chọn
             SelectedCount = viewItems.Count(p => p.IsSelected);
@@ -292,7 +290,7 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
                     ProductForDialog.Image = ImageHelper.LoadBitmap(ProductForDialog.ImagePath);
                     // Map Category name để hiển thị
                     ProductForDialog.Category = Categories.FirstOrDefault(c => c.Id == ProductForDialog.CategoryId);
-
+                    
                     ProductForDialog.PropertyChanged += Product_PropertyChanged;
                     Products.Insert(0, ProductForDialog); // Thêm lên đầu
                 }
