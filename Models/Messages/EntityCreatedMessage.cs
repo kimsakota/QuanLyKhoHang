@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace UiDesktopApp1.Models.Messages
 {
-    public sealed class NotifyRefreshMessage : ValueChangedMessage<RefreshType>
+    public sealed class EntityCreatedMessage<T> : ValueChangedMessage<T> 
     {
-        public NotifyRefreshMessage(RefreshType value) : base(value)
+        public EntityCreatedMessage(T value) : base(value)
         {
         }
     }

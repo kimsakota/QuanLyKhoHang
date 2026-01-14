@@ -19,7 +19,7 @@ using Wpf.Ui.Abstractions.Controls;
 
 namespace UiDesktopApp1.ViewModels.Pages
 {
-    public partial class SanPhamViewModel : ObservableObject, INavigationAware, IRecipient<NotifyRefreshMessage>
+    public partial class SanPhamViewModel : ObservableObject, INavigationAware, IRecipient<EntityCreatedMessage<ProductModel>>
     {
         private readonly INavigationService _navigationService;
         //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
@@ -57,7 +57,7 @@ namespace UiDesktopApp1.ViewModels.Pages
             _productsView = CollectionViewSource.GetDefaultView(Products);
             _productsView.Filter = FilterProducts;
 
-            WeakReferenceMessenger.Default.Register<NotifyRefreshMessage>(this);
+            WeakReferenceMessenger.Default.Register<EntityCreatedMessage<ProductModel>>(this);
         }
 
         public async Task OnNavigatedToAsync()
@@ -71,10 +71,10 @@ namespace UiDesktopApp1.ViewModels.Pages
 
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
-        public void Receive(NotifyRefreshMessage message)
+        public void Receive(EntityCreatedMessage<ProductModel> message)
         {
-            if(message.Value == RefreshType.ProductList)
-                Application.Current.Dispatcher.Invoke(async () => await LoadDataAsync());
+            
+            //Application.Current.Dispatcher.Invoke(async () => await LoadDataAsync());
         }
 
         [RelayCommand]

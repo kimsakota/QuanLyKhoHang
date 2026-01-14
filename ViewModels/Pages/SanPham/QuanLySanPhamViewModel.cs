@@ -26,7 +26,7 @@ using MessageBoxButton = System.Windows.MessageBoxButton; // Import ContentDialo
 
 namespace UiDesktopApp1.ViewModels.Pages.SanPham
 {
-    public partial class QuanLySanPhamViewModel : ObservableObject, INavigationAware, IRecipient<ProductCreatedMessage>
+    public partial class QuanLySanPhamViewModel : ObservableObject, INavigationAware
     {
         private readonly INavigationService _navigationService;
         //private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
@@ -71,11 +71,11 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
             _apiService = apiService;
 
             _productsView = CollectionViewSource.GetDefaultView(Products);
-            _productsView.SortDescriptions.Add(new SortDescription(nameof(ProductModel.Id), ListSortDirection.Descending));
+            //_productsView.SortDescriptions.Add(new SortDescription(nameof(ProductModel.Id), ListSortDirection.Descending));
             _productsView.Filter = FilterProducts;
 
             // Chỉ cần lắng nghe tin nhắn nếu bạn thêm danh mục từ nơi khác
-            WeakReferenceMessenger.Default.Register<ProductCreatedMessage>(this);
+            //WeakReferenceMessenger.Default.Register<ProductCreatedMessage>(this);
             _apiService = apiService;
         }
 
@@ -88,7 +88,7 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
             }
         }
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
-        public void Receive(ProductCreatedMessage message) { /* Logic xử lý tin nhắn nếu cần */ }
+        
 
         [RelayCommand]
         public async Task LoadDataAsync()
@@ -287,12 +287,14 @@ namespace UiDesktopApp1.ViewModels.Pages.SanPham
                     }
 
                     // Cập nhật UI
-                    ProductForDialog.Image = ImageHelper.LoadBitmap(ProductForDialog.ImagePath);
+                    addedProduct.Image = ImageHelper.LoadBitmap(addedProduct.ImagePath);
                     // Map Category name để hiển thị
-                    ProductForDialog.Category = Categories.FirstOrDefault(c => c.Id == ProductForDialog.CategoryId);
+                    addedProduct.Category = Categories.FirstOrDefault(c => c.Id == addedProduct.CategoryId);
                     
-                    ProductForDialog.PropertyChanged += Product_PropertyChanged;
-                    Products.Insert(0, ProductForDialog); // Thêm lên đầu
+                    addedProduct.PropertyChanged += Product_PropertyChanged;
+                    Products.Insert(0, addedProduct); // Thêm lên đầu
+                    
+                    if(ProductsView is ICollectionView view) view.Refresh();
                 }
                 else // Cập nhật
                 {
